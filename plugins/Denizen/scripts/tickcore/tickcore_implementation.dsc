@@ -3,7 +3,7 @@ tickcore_run_slash:
     debug: false
     definitions: data|element_map|entity
     script:
-    - define locations <[data].proc[slash_get_locations_proc]>
+    - define locations <[data].proc[slash_get_locations_proc].parse[points_between[<[entity].location>].distance[0.15].get[1].to[3]].combine>
     - foreach <[element_map]> key:element as:value:
         - if <[value]> <= 0:
             - foreach next
@@ -28,7 +28,7 @@ tickcore_custom_attack:
             - define element_map.<[stat_id].after[damage_]> <player.proc[tickcore_proc.script.players.get_stat].context[<[stat_id]>]>
         - definemap data:
                 location: <player.eye_location>
-                radius: 2
+                radius: <player.proc[tickcore_proc.script.players.get_stat].context[reach_distance].if_null[3]>
                 rotation: <util.random.decimal[0].to[180]>
                 points: 50
                 arc: 180
@@ -76,7 +76,8 @@ tickcore_impl_do_damage_task:
         - define multiplier <[last_damage_amount].div[<[amount]>]>
 
         - foreach <[new_element_map]> key:element as:element_damage:
-            - define element_displays:->:<script[tickcore_effect_data].parsed_key[symbol.<[element]>].if_null[<[element]>]><&sp.repeat[2]><[element_damage].mul[<[multiplier]>].round>
+            - if <[element_damage]> != 0:
+                - define element_displays:->:<script[tickcore_effect_data].parsed_key[symbol.<[element]>].if_null[<[element]>]><&sp.repeat[2]><[element_damage].mul[<[multiplier]>].round>
         - define hologram <entity[armor_stand[visible=false;is_small=true;custom_name=<[element_displays].separated_by[  ]>;custom_name_visible=true]]>
         - fakespawn <[hologram]> <[location]> players:<[players]> duration:2s
 
@@ -119,22 +120,43 @@ tickcore_crit:
         - define damage_reduction <[defense].div[<[defense].add[100]>]>
         - determine <context.final_damage.mul[<element[1].sub[<[damage_reduction]>]>]>
 
-tickcore_trigger_abilities:
+tickcore_trigger_non_player_abilities:
     type: task
     debug: false
-    definitions: trigger|context
+    definitions: trigger|context|entity
     script:
-    - define abilities <player.proc[tickcore_proc.script.players.get_stat].context[abilities]>
+    - define abilities <[entity].proc[tickcore_proc.script.players.get_stat].context[abilities]>
     - if <[abilities]> == null:
         - stop
     - define abilities <[abilities].combine.combine>
     - foreach <[abilities]> as:ability:
         - if <[ability.trigger].if_null[null]> == <[trigger]>:
             - define cooldown <[ability.cooldown].if_null[0s].as[duration]>
-            - if <player.has_flag[tickcore.cooldown.<[ability.script]>]>:
-                - actionbar "<&[error]>This ability is on cooldown for <player.flag_expiration[tickcore.cooldown.<[ability.script]>].from_now.formatted>!"
+            - if <[entity].has_flag[tickcore.cooldown.<[ability.script]>]>:
+                - if <[entity].is_player>:
+                    - actionbar "<&[error]>This ability is on cooldown for <[entity].flag_expiration[tickcore.cooldown.<[ability.script]>].from_now.formatted>!" targets:<[entity]>
                 - foreach next
-            - flag <player> tickcore.cooldown.<[ability.script]> expire:<[cooldown]>
+            - flag <[entity]> tickcore.cooldown.<[ability.script]> expire:<[cooldown]>
+            - run <[ability.script]> def.data:<[ability.data].if_null[<map>]> def.context:<[context]> save:script
+            - foreach <entry[script].created_queue.determination.if_null[<list>]> as:determination:
+                - determine passively <[determination]>
+tickcore_trigger_abilities:
+    type: task
+    debug: false
+    definitions: trigger|context|entity
+    script:
+    - define abilities <[entity].proc[tickcore_proc.script.entities.get_stat].context[abilities]>
+    - if <[abilities]> == null:
+        - stop
+    - define abilities <[abilities].combine.combine>
+    - foreach <[abilities]> as:ability:
+        - if <[ability.trigger].if_null[null]> == <[trigger]>:
+            - define cooldown <[ability.cooldown].if_null[0s].as[duration]>
+            - if <[entity].has_flag[tickcore.cooldown.<[ability.script]>]>:
+                - if <[entity].is_player>:
+                    - actionbar "<&[error]>This ability is on cooldown for <[entity].flag_expiration[tickcore.cooldown.<[ability.script]>].from_now.formatted>!" targets:<[entity]>
+                - foreach next
+            - flag <[entity]> tickcore.cooldown.<[ability.script]> expire:<[cooldown]>
             - run <[ability.script]> def.data:<[ability.data].if_null[<map>]> def.context:<[context]> save:script
             - foreach <entry[script].created_queue.determination.if_null[<list>]> as:determination:
                 - determine passively <[determination]>
@@ -142,13 +164,13 @@ tickcore_ability_triggers:
     type: world
     debug: false
     run_script:
-    - if !<player.exists>:
+    - if !<[entity].exists>:
         - foreach <server.online_players> as:__player:
-            - run tickcore_trigger_abilities save:script def.trigger:<[trigger]> def.context:<[context].if_null[<map>]>
+            - run tickcore_trigger_abilities save:script def.trigger:<[trigger]> def.context:<[context].if_null[<map>]> def.entity:<player>
             - foreach <entry[script].created_queue.determination.if_null[<list>]> as:determination:
                 - determine passively <[determination]>
         - stop
-    - run tickcore_trigger_abilities save:script def.trigger:<[trigger]> def.context:<[context].if_null[<map>]>
+    - run tickcore_trigger_abilities save:script def.trigger:<[trigger]> def.context:<[context].if_null[<map>]> def.entity:<[entity]>
     - foreach <entry[script].created_queue.determination.if_null[<list>]> as:determination:
         - determine passively <[determination]>
 
@@ -170,13 +192,15 @@ tickcore_ability_triggers:
                 relative: <context.relative.if_null[null]>
                 click_type: <context.click_type.if_null[null]>
                 hand: <context.hand.if_null[null]>
+        - define entity <player>
         - inject <script> path:run_script
 
         on player starts sneaking:
         - define trigger sneak
+        - define entity <player>
         - inject <script> path:run_script
 
-        on player damages entity:
+        on entity damages *:
         - define trigger attack
         - definemap context:
                 entity: <context.entity.if_null[null]>
@@ -187,13 +211,14 @@ tickcore_ability_triggers:
                 projectile: <context.projectile.if_null[null]>
                 damage_type_map: <context.damage_type_map.if_null[null]>
                 was_critical: <context.was_critical.if_null[null]>
+        - define entity <context.damager>
         - inject <script> path:run_script
 
         on delta time secondly:
         - define trigger secondly
         - inject <script> path:run_script
 
-        on player death:
+        on entity death:
         - define trigger death
         - definemap context:
                 entity: <context.entity.if_null[null]>
@@ -203,6 +228,7 @@ tickcore_ability_triggers:
                 cause: <context.cause.if_null[null]>
                 drops: <context.drops.if_null[null]>
                 xp: <context.xp.if_null[null]>
+        - define entity <context.entity>
         - inject <script> path:run_script
 
         on player walks:
@@ -210,6 +236,7 @@ tickcore_ability_triggers:
         - definemap context:
                 old_location: <context.old_location.if_null[null]>
                 new_location: <context.new_location.if_null[null]>
+        - define entity <player>
         - inject <script> path:run_script
 
         on player breaks block:
@@ -219,16 +246,19 @@ tickcore_ability_triggers:
                 material: <context.material.if_null[null]>
                 xp: <context.xp.if_null[null]>
                 should_drop_items: <context.should_drop_items.if_null[null]>
+        - define entity <player>
         - inject <script> path:run_script
 
         on player joins:
         - define trigger join
         - definemap context:
                 message: <context.message.if_null[null]>
+        - define entity <player>
         - inject <script> path:run_script
 
         on player quits:
         - define trigger quit
         - definemap context:
                 message: <context.message.if_null[null]>
+        - define entity <player>
         - inject <script> path:run_script

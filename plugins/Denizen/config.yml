@@ -326,3 +326,13 @@ Colors:
     default: <gray>
     # Success!
     success: <green>
+    earth: <&color[#609A0F]>
+    ender: <&color[#A14773]>
+    fire: <&color[#FA6A0A]>
+    ice: <&color[#A3EEFF]>
+    light: <&color[#FFF089]>
+    physical: <gray>
+    shadow: <&color[#5825F1]>
+    thunder: <&color[#FFF530]>
+    water: <&color[#249FDE]>
+    wind: <&color[#FFFFFF]>

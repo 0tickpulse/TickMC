@@ -97,16 +97,18 @@ tickcore_proc:
             get_stat:
             - if <[1].is_player>:
                 - determine <[1].proc[tickcore_proc.script.players.get_stat].context[<[2]>]>
-            - if !<[1].proc[tickcore_proc.script.entities.is_tickentity]>:
-                - stop
             - define map <[1].proc[tickcore_proc.script.entities.get_stat_map].get[<[2]>].if_null[<map[DEFAULT=<script[tickcore_data].parsed_key[stats.<[2]>.default].if_null[null]>]>]>
             - determine <script[tickcore_data].parsed_key[stats.<[2]>.player stat calculation]>
             get_stat_map:
-            - if <[1].is_player>:
-                - determine <[1].proc[tickcore_proc.script.players.get_stat_map]>
-            - if !<[1].proc[tickcore_proc.script.entities.is_tickentity]>:
-                - stop
-            - determine <[1].flag[tickcore.stats]>
+            - define entity <[1]>
+            - define map <map>
+            - foreach <[entity].equipment_map.include[hand=<[entity].item_in_hand>;offhand=<[entity].item_in_offhand>]> key:slot as:item:
+                - if <[item].material.name> == AIR || !<[item].proc[tickcore_proc.script.items.is_tickitem]>:
+                    - foreach next
+                - foreach <proc[tickcore_proc.script.core.get_all_stat_ids]> as:stat:
+                    - if <[item].proc[tickcore_proc.script.items.get_stat].context[<[stat]>]> != null:
+                        - define map.<[stat]>.ITEM_<[slot]> <[item].proc[tickcore_proc.script.items.get_stat].context[<[stat]>]>
+            - determine <[entity].flag[tickcore.stats].if_null[<map>].include[<[map]>]>
             get_all_scripts:
             - determine <util.scripts.filter[container_type.equals[ENTITY]].filter[data_key[data.tickcore].exists]>
             get_all_ids:

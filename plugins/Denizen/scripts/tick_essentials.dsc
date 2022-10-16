@@ -17,16 +17,18 @@ command_manager:
     - define require_players <queue.script.data_key[data.require_player].if_null[null]>
     - foreach <[require_players]> as:require_player:
         - if <[require_player]> != null:
-            - if !<player.exists>:
-                - if !<context.args.get[<[require_player]>].exists>:
+            - if !<context.args.get[<[require_player]>].exists>:
+                - if !<player.exists>:
                     - narrate "<&[error]>A player is required! <queue.script.data_key[usage]>"
                     - stop
-                - define player_name <context.args.get[<[require_player]>]>
+                - define player <player>
+            - else:
+                - define player_name <context.args.get[<[require_player]>].if_null[null]>
                 - define player <server.match_player[<[player_name]>].if_null[null]>
                 - if <[player]> == null:
                     - narrate "<&[error]>A player name is required, but got <[player_name]>."
                     - stop
-                - adjust <queue> linked_player:<[player]>
+            - adjust <queue> linked_player:<[player]>
 
 gamemode_shortcut:
     type: command
@@ -66,3 +68,19 @@ gamemode_shortcut:
         - narrate "<&[error]>Invalid gamemode!"
         - stop
     - inject command_manager path:require_player
+
+heal_command:
+    type: command
+    name: heal
+    debug: false
+    description: A shortcut command to heal.
+    tab completions:
+        1: <server.online_players.parse[name]>
+    usage: /heal (player)
+    data:
+        require_player:
+        - 1
+    script:
+    - inject command_manager path:require_player
+    - heal <player>
+    - narrate <&[success]>Healed!
