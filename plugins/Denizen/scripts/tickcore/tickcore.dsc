@@ -5,6 +5,7 @@ tickcore_task:
         entities:
             spawnmob:
             - define id <[1]>
+            - define level <[2].if_null[0]>
             - customevent id:tickcore_entity_prespawns context:[id=<[id]>] save:prespawn_event
             - if <entry[prespawn_event].was_cancelled>:
                 - stop
@@ -12,8 +13,12 @@ tickcore_task:
             - define entity <entry[entity].spawned_entity>
             - customevent id:tickcore_entity_spawns context:[id=<[id]>;entity=<[entity]>] save:spawn_event
             - define entity <entry[spawn_event].determination_list.get[1].if_null[<[entity]>]>
+            - define stats <script[<[id]>].parsed_key[data.tickcore].parse_value_tag[<map[base=<[parse_value]>]>]>
+            # Add level modifiers
+            - foreach <script[<[id]>].parsed_key[data.tickcore_level_modifiers]> key:modifier_stat as:modifier_stat_value:
+                - define stats.<[modifier_stat]>.LEVEL <[modifier_stat_value].mul[<[level]>]>
             - flag <[entity]> tickcore.id:<[id]>
-            - flag <[entity]> tickcore.stats:<script[<[id]>].data_key[data].if_null[null].get[tickcore].parse_value_tag[<map[BASE=<[parse_value]>]>]>
+            - flag <[entity]> tickcore.stats:<[stats]>
 tickcore_proc:
     type: procedure
     debug: false
@@ -60,7 +65,7 @@ tickcore_proc:
             - define item <[id].as[item].with_map[<[default_item_properties]>]>
 
             # Stat manager
-            - define stat_map <[item_data.tickcore].parse_value_tag[<map[BASE=<[parse_value]>]>]>
+            - define stat_map <[item_data.tickcore].parse_value_tag[<map[base=<[parse_value]>]>]>
             - define item <[item].proc[tickcore_proc.script.items.override_stats].context[<[stat_map]>]>
 
             # Flag the item
@@ -78,7 +83,7 @@ tickcore_proc:
             - foreach <[stats_to_add]> as:stat_id:
                 - if <[stat_map].keys> !contains <[stat_id]>:
                     - foreach next
-                - define map <[stat_map.<[stat_id]>]>
+                - define map <[stat_map.<[stat_id]>].parse_value_tag[<[parse_value].parsed>]>
                 - define value <[stat_global_map.<[stat_id]>.item stat calculation].parsed>
                 - if <[stat_global_map.<[stat_id]>].keys> contains "new item on generate":
                     - define item "<[stat_global_map.<[stat_id]>.new item on generate].parsed>"
@@ -102,7 +107,7 @@ tickcore_proc:
             get_stat_map:
             - define entity <[1]>
             - define map <map>
-            - foreach <[entity].equipment_map.include[hand=<[entity].item_in_hand>;offhand=<[entity].item_in_offhand>]> key:slot as:item:
+            - foreach <[entity].equipment_map.include[hand=<[entity].item_in_hand>;offhand=<[entity].item_in_offhand>].if_null[<map>]> key:slot as:item:
                 - if <[item].material.name> == AIR || !<[item].proc[tickcore_proc.script.items.is_tickitem]>:
                     - foreach next
                 - foreach <proc[tickcore_proc.script.core.get_all_stat_ids]> as:stat:
@@ -293,7 +298,9 @@ tickcore_main_command:
                 - narrate "<&[error]>Invalid entity ID!"
                 - stop
 
-            - run tickcore_task path:script.entities.spawnmob def:<[id]>
+            - define level <context.args.get[3].if_null[1]>
+
+            - run tickcore_task path:script.entities.spawnmob def:<[id]>|<[level]>
 
         - default:
             - narrate <&[error]><script.data_key[usage]>

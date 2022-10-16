@@ -7,22 +7,15 @@ emerald_sword:
             damage_physical: 8
             attack_speed: 1.6
 
-admins_blade:
+lights_splendor:
     type: item
     material: netherite_sword
-    display name: <&[emphasis]>Admin's Blade
+    display name: <&[emphasis]>Light's Splendor
     data:
         tickcore:
-            damage_earth: 15
-            damage_ender: 15
-            damage_fire: 15
-            damage_ice: 15
-            damage_light: 15
-            damage_physical: 15
-            damage_shadow: 15
-            damage_thunder: 15
-            damage_water: 15
-            damage_wind: 15
+            reach_distance: 5
+            attack_speed: 3
+            damage_light: 85
 
 ability_test:
     type: item

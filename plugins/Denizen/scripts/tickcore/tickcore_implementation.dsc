@@ -30,7 +30,7 @@ tickcore_custom_attack:
                 location: <player.eye_location>
                 radius: <player.proc[tickcore_proc.script.players.get_stat].context[reach_distance].if_null[3]>
                 rotation: <util.random.decimal[0].to[180]>
-                points: 50
+                points: 30
                 arc: 180
         - run tickcore_run_slash def.data:<[data]> def.element_map:<[element_map]> def.entity:<player>
         on player damages entity ignorecancelled:true:

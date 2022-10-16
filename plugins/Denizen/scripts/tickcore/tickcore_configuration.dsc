@@ -35,26 +35,25 @@ tickcore_effect_data:
         - playsound sound:entity.arrow.shoot at:<[sound_locations]> custom
     particle:
         earth:
-        - playeffect effect:block_crack special_data:dirt at:<[particle_locations]> offset:0,0,0
+        - playeffect effect:block_crack special_data:dirt at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
         ender:
-        - playeffect effect:reverse_portal at:<[particle_locations]> offset:0,0,0
+        - playeffect effect:reverse_portal at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
         fire:
-        - playeffect effect:flame at:<[particle_locations]> offset:0,0,0
+        - playeffect effect:flame at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
         ice:
-        - playeffect effect:block_crack special_data:ice at:<[particle_locations]> offset:0,0,0
+        - playeffect effect:block_crack special_data:ice at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
         light:
-        - playeffect effect:end_rod at:<[particle_locations]> offset:0,0,0
+        - playeffect effect:end_rod at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
         physical:
-        - playeffect effect:crit at:<[particle_locations]> offset:0,0,0
+        - playeffect effect:crit at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
         shadow:
-        - playeffect effect:dust_color_transition special_data:1|<script.parsed_key[color.shadow]>|black at:<[particle_locations]> offset:0,0,0
+        - playeffect effect:dust_color_transition special_data:1|<script.parsed_key[color.shadow]>|black at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
         thunder:
-        - playeffect effect:redstone special_data:1|<script.parsed_key[color.thunder]> at:<[particle_locations]> offset:0,0,0
+        - playeffect effect:redstone special_data:1|<script.parsed_key[color.thunder]> at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
         water:
-        - playeffect effect:splash at:<[particle_locations]> offset:0,0,0
+        - playeffect effect:splash at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
         wind:
-        - playeffect effect:snowball at:<[particle_locations]> offset:0,0,0
-
+        - playeffect effect:snowball at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
 
     symbol:
         earth: <reset><white><&font[elements]>e<&font[default]><&[earth]><bold>
@@ -88,9 +87,9 @@ tickcore_effect_data:
         - define sound_locations <[entity].location>
         - inject <script> path:sound.<[element]>
         - inject <script> path:particle.<[element]>
-        - define fire_blocks <[particle_locations].filter[block.material.name.equals[fire]].deduplicate>
-        - define lava_blocks <[particle_locations].filter[block.material.name.equals[lava]].deduplicate>
-        - define water_blocks <[particle_locations].filter[block.material.name.equals[water]].deduplicate>
+        - define fire_blocks <[particle_locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
+        - define lava_blocks <[particle_locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
+        - define water_blocks <[particle_locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter_tag[<[filter_value].block.material.name.equals[water].or[<[filter_value].material.waterlogged.if_null[false]>]>].deduplicate>
         - modifyblock <[fire_blocks]> air
         - playsound sound:block_fire_extinguish <[fire_blocks]>
         - showfake obsidian <[lava_blocks]> d:3s players:<server.online_players>
@@ -120,8 +119,8 @@ tickcore_effect_data:
         - define sound_locations <[entity].location>
         - inject <script> path:sound.<[element]>
         - inject <script> path:particle.<[element]>
-        - define fire_blocks <[particle_locations].filter[block.material.name.equals[fire]].deduplicate>
-        - define lava_blocks <[particle_locations].filter[block.material.name.equals[lava]].deduplicate>
+        - define fire_blocks <[particle_locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
+        - define lava_blocks <[particle_locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
         - modifyblock <[fire_blocks]> air
         - playsound sound:block_fire_extinguish <[fire_blocks]>
         - showfake obsidian <[lava_blocks]> d:3s players:<server.online_players>

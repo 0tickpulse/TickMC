@@ -20,6 +20,7 @@ ticktab_config:
     # Configure the footer. (The text below the player list)
     footer:
     - <gray>Your ping: <red><[ping]>ms
+    - <gray>Tick duration: <red><[mspt]>ms
 
   # The player list manager. This manages the players in the tablist, allowing you to do cool stuff in it!
   player list manager:
@@ -126,3 +127,4 @@ ticktab_player_definitions_task:
   - define player_count <server.online_players.size>
   - define full_name <player.chat_prefix.parse_color.if_null[]><player.name><player.chat_suffix.parse_color.if_null[]>
   - define ram <util.ram_usage.div[<util.ram_max>].mul[100].round>
+  - define mspt <paper.tick_times.first.in_milliseconds.round_to_precision[0.1]>

@@ -336,3 +336,5 @@ Colors:
     thunder: <&color[#FFF530]>
     water: <&color[#249FDE]>
     wind: <&color[#FFFFFF]>
+    #
+    admin: <&color[#ff5555]>
