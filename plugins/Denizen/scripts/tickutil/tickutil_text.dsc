@@ -7,6 +7,17 @@ tickutil_text:
             - determine an
         - else:
             - determine a
+        lore_section:
+        - define list <list>
+        - foreach <[1].split[<n>]> as:line:
+            - if <[loop_index]> == 1:
+                - define "list:->:<script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]><[line]>"
+                - foreach next
+            - define "list:->:   <dark_gray>» <&[base]><[line]>"
+        - determine <[list].separated_by[<n>]>
+        lore_section_no_icon:
+        - determine <[1].split[<n>].parse_tag[   <dark_gray>» <&[base]><[parse_value]>].separated_by[<n>]>
+
 icons:
     type: data
     damage_indicators:

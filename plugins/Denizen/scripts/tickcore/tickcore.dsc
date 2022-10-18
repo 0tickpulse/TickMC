@@ -74,7 +74,10 @@ tickcore_proc:
             - define item <[id].as[item].with_map[<[default_item_properties]>]>
 
             # Stat manager
-            - define stat_map <[item_data.tickcore.stats].parse_value_tag[<map[base=<[parse_value]>]>]>
+            - define stat_map <[item_data.tickcore.stats].parse_value_tag[<map[base=<[parse_value]>]>].if_null[null]>
+            - if <[stat_map]> == null:
+                - debug error "Item '<[id]>' is missing a data.tickcore.stats key in the item script!"
+                - stop
             - define item <[item].proc[tickcore_proc.script.items.override_stats].context[<[stat_map]>]>
 
             # Flag the item
@@ -91,6 +94,8 @@ tickcore_proc:
             - define stats_to_add "<script[tickcore_data].data_key[lore order]>"
             - foreach <[stats_to_add]> as:stat_id:
                 - if <[stat_map].keys> !contains <[stat_id]>:
+                    - if <proc[tickcore_proc.script.core.get_all_stat_ids]> !contains <[stat_id]>:
+                        - define lore:->:<[stat_id].parsed>
                     - foreach next
                 - define map <[stat_map.<[stat_id]>].parse_value_tag[<[parse_value].parsed>]>
                 - define value <[stat_global_map.<[stat_id]>.item stat calculation].parsed>
@@ -115,7 +120,7 @@ tickcore_proc:
             get_stat:
             - if <[1].is_player>:
                 - determine <[1].proc[tickcore_proc.script.players.get_stat].context[<[2]>]>
-            - define map <[1].proc[tickcore_proc.script.entities.get_stat_map].get[<[2]>].if_null[<map[DEFAULT=<script[tickcore_data].parsed_key[stats.<[2]>.default].if_null[null]>]>]>
+            - define map <[1].proc[tickcore_proc.script.entities.get_stat_map].get[<[2]>].if_null[<map[DEFAULT=<script[tickcore_data].parsed_key[stats.<[2]>.entity default].if_null[null]>]>]>
             - determine <script[tickcore_data].parsed_key[stats.<[2]>.player stat calculation]>
             get_stat_map:
             - define entity <[1]>
@@ -156,10 +161,13 @@ tickcore_proc:
                 - foreach <proc[tickcore_proc.script.core.get_all_stat_ids]> as:stat:
                     - if <[item].proc[tickcore_proc.script.items.get_stat].context[<[stat]>]> != null:
                         - define map.<[stat]>.ITEM_<[slot]> <[item].proc[tickcore_proc.script.items.get_stat].context[<[stat]>]>
+            - foreach <proc[tickcore_proc.script.core.get_all_stat_ids]> as:stat:
+                - if <script[tickcore_data].data_key[stats.<[stat]>].keys> contains "entity default":
+                    - define map.<[stat]>.DEFAULT <script[tickcore_data].parsed_key[stats.<[stat]>.entity default]>
             - determine <[map]>
             # definitions: player|stat
             get_stat:
-            - define map <[1].proc[tickcore_proc.script.players.get_stat_map].get[<[2]>].if_null[<map[DEFAULT=<script[tickcore_data].parsed_key[stats.<[2]>.default].if_null[null]>]>]>
+            - define map <[1].proc[tickcore_proc.script.players.get_stat_map].get[<[2]>].if_null[<map[DEFAULT=<script[tickcore_data].parsed_key[stats.<[2]>.item default].if_null[null]>]>]>
             - if <[map]> == null:
                 - determine null
             - determine <script[tickcore_data].parsed_key[stats.<[2]>.player stat calculation]>

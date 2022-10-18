@@ -8,6 +8,52 @@ emerald_sword:
                 damage_physical: 8
                 attack_speed: 1.6
 
+all_the_stats:
+    type: item
+    material: stone
+    display name: <&[item]>All the stats!
+    data:
+        tickcore:
+            stats:
+                description: <&[lore]>Some description here.
+                reach_distance: 1
+                damage_earth: 1
+                damage_ender: 1
+                damage_fire: 1
+                damage_ice: 1
+                damage_light: 1
+                damage_physical: 1
+                damage_shadow: 1
+                damage_thunder: 1
+                damage_water: 1
+                damage_wind: 1
+                max_health: 1
+                attack_speed: 1
+                crit_chance: 1
+                crit_damage: 1
+                defense: 1
+                defense_earth: 1
+                defense_ender: 1
+                defense_fire: 1
+                defense_ice: 1
+                defense_light: 1
+                defense_physical: 1
+                defense_shadow: 1
+                defense_thunder: 1
+                defense_water: 1
+                defense_wind: 1
+                abilities:
+                    1:
+                        name: Light's burst
+                        description: Creates a burst of light!
+                        trigger: sneak_right_click
+                        script: tickcore_ability_lights_burst
+                        cooldown: 1s
+                        data:
+                            damage: 150
+
+
+
 lights_splendor:
     type: item
     material: netherite_sword
@@ -87,19 +133,20 @@ cool_helmet:
     display name: <&[item]>Cool helmet
     data:
         tickcore:
-            description: <&[lore]>This is a very cool helmet.
-            crit_damage: 50
-            defense: 40000
-            abilities:
-                1:
-                    name: Hello world
-                    description: Hello world! <[parse_value.data.damage]>
-                    trigger: sneak
-                    script: hello_world
-                    cooldown: 3s
-                    cooldown_message: true
-                    data:
-                        damage: 5
+            stats:
+                description: <&[lore]>This is a very cool helmet.
+                crit_damage: 50
+                defense: 40000
+                abilities:
+                    1:
+                        name: Hello world
+                        description: Hello world! <[parse_value.1.data.damage]>
+                        trigger: sneak
+                        script: hello_world
+                        cooldown: 3s
+                        cooldown_message: true
+                        data:
+                            damage: 5
 
 test_item_updates:
     type: item
