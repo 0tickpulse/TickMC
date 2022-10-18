@@ -1,21 +1,32 @@
 emerald_sword:
     type: item
     material: iron_sword
-    display name: <&[emphasis]>Emerald Sword
+    display name: <&[item]>Emerald Sword
     data:
         tickcore:
-            damage_physical: 8
-            attack_speed: 1.6
+            stats:
+                damage_physical: 8
+                attack_speed: 1.6
 
 lights_splendor:
     type: item
     material: netherite_sword
-    display name: <&[emphasis]>Light's Splendor
+    display name: <&[item]>Light's Splendor
     data:
         tickcore:
-            reach_distance: 5
-            attack_speed: 3
-            damage_light: 85
+            stats:
+                reach_distance: 5
+                attack_speed: 3
+                damage_light: 85
+                abilities:
+                    1:
+                        name: Light's burst
+                        description: Creates a burst of light!
+                        trigger: sneak_right_click
+                        script: tickcore_ability_lights_burst
+                        cooldown: 1s
+                        data:
+                            damage: 150
 
 ability_test:
     type: item
@@ -23,13 +34,14 @@ ability_test:
     display name: Ability test
     data:
         tickcore:
-            abilities:
-                1:
-                    name: Attack test
-                    description: a
-                    trigger: attack
-                    script: attack_ability_test
-                    cooldown: 2s
+            stats:
+                abilities:
+                    1:
+                        name: Attack test
+                        description: a
+                        trigger: attack
+                        script: attack_ability_test
+                        cooldown: 2s
 
 # cool_sword:
 #     type: item

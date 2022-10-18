@@ -1,24 +1,25 @@
 tick_chat_world:
     type: world
+    enabled: true
     debug: false
     data:
         chat format: <player.proc[tick_chat_format_player_name]> <gray>» <white><[message]>
         player info: <[parse_value].name.on_hover[Player: <&[emphasis]><bold><[parse_value].proc[tick_chat_format_player_name]>]>
         chat replacements:
             on receive message:
+                suggest command on click:
+                - define message <[message].replace[regex:\(/([^\]<&rb>+)\)].with[<element[/$1].bold.custom_color[suggest].on_hover[<&[suggest]>Click to paste into chat!].on_click[/$1].type[suggest_command]>]>
                 command on click:
-                    to_replace: regex:\<&lt>c\<&gt>(.+)\<&lt>/c\<&gt>
-                    with: <element[/$1].bold.custom_color[emphasis].on_hover[<&[emphasis]>Click to run command!].on_click[/$1]>
-                    #with: <element[[/<element[$1].custom_color[emphasis].bold.on_hover[<&[emphasis]>Click to run command:<n><&[base]>/$1].on_click[/$1].type[run_command]>]].custom_color[base]>
-                hover player info:
-                    to_replace: regex:(\w+)
-                    with: <server.online_players.parse[name].filter[equals[$1]].is_empty.if_true[$1].if_false[<list[<server.match_player[$1]>].parse_tag[<script.parsed_key[data.player info]>].unseparated>]>
+                - define message <[message].replace[regex:\(!/([^\]<&rb>+)\)].with[<element[/$1].bold.custom_color[success].on_hover[<&[success]>Click to run command!].on_click[/$1]>]>
+                #hover player info:
+                #- foreach <server.online_players> as:__player:
+                #    - define message <[message].replace[<player.name>].with[<[player].name.on_hover[Player: <player.name>]>]>
             on send message:
                 item hover:
-                    to_replace: <&lt>i<&gt>
+                    to_replace: (i)
                     with: <element[[<player.item_in_hand.display.if_null[<player.item_in_hand.material.translated_name.custom_color[emphasis].bold>].hover_item[<player.item_in_hand>]>]].custom_color[base]>
                 location hover:
-                    to_replace: <&lt>l<&gt>
+                    to_replace: (l)
                     with: <element[<player.location.simple.formatted>].custom_color[emphasis]>
         ping: true
         ping toast:
@@ -40,8 +41,8 @@ tick_chat_world:
         - announce <script.parsed_key[data.chat format]>
         on player receives message:
         - define message <context.message>
-        - foreach <script.data_key[data.chat replacements.on receive message].values> as:map:
-            - define message <[message].replace[<[map.to_replace].parsed>].with[<[map.with].parsed>]>
+        - foreach <script.data_key[data.chat replacements.on receive message].keys> as:path:
+            - inject tick_chat_world "path:data.chat replacements.on receive message.<[path]>"
         - determine message:<[message]>
 
 tick_chat_format_player_name:

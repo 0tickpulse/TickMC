@@ -1,3 +1,7 @@
+tick_economy_data:
+    type: data
+    money give message: <&[base]>[+<[amount].proc[tick_economy_format_money]>]
+    money tale message: <&[base]>[-<[amount].proc[tick_economy_format_money]>]
 tick_economy_main:
     type: economy
     priority: normal
@@ -9,7 +13,7 @@ tick_economy_main:
     digits: 2
     # Format the standard output for the money in human-readable format. Use "<[amount]>" for the actual amount to display.
     # Fully supports tags.
-    format: <[amount].format_number> <&font[icons]>$
+    format: <[amount].format_number.custom_color[emphasis].bold> <element[$].font[icons]>
     # A tag that returns the balance of a linked player. Use a 'proc[]' tag if you need more complex logic.
     # Must return a decimal number.
     balance: <player.flag[tick_economy.money]>
@@ -24,11 +28,13 @@ tick_economy_main:
     # Use def 'amount' for the amount to withdraw.
     withdraw:
     - flag <player> tick_economy.money:-:<[amount]>
+    - narrate <script[tick_economy_data].parsed_key[money take message]>
     # A script that adds the amount of money needed to a player.
     # The script may determine a failure message if the deposit was refused. Determine nothing for no error.
     # Use def 'amount' for the amount to deposit.
     deposit:
     - flag <player> tick_economy.money:+:<[amount]>
+    - narrate <script[tick_economy_data].parsed_key[money give message]>
 tick_economy_first_set:
     type: world
     debug: false
@@ -37,5 +43,9 @@ tick_economy_first_set:
         - if !<player.has_flag[tick_economy.money]>:
             - flag <player> tick_economy.money:0
 
-
-
+tick_economy_format_money:
+    type: procedure
+    debug: false
+    definitions: amount
+    script:
+    - determine <script[tick_economy_main].parsed_key[format]>

@@ -324,8 +324,10 @@ Colors:
     npc: <red>
     # Default: the backup for when a color label is unrecognized. Generally don't touch this.
     default: <gray>
+
+    suggest: <blue>
     # Success!
-    success: <green>
+    success: <&color[#77B255]>
     earth: <&color[#609A0F]>
     ender: <&color[#A14773]>
     fire: <&color[#FA6A0A]>

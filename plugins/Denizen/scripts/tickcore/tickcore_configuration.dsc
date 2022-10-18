@@ -35,37 +35,37 @@ tickcore_effect_data:
         - playsound sound:entity.arrow.shoot at:<[sound_locations]> custom
     particle:
         earth:
-        - playeffect effect:block_crack special_data:dirt at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
+        - playeffect effect:block_crack special_data:dirt at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
         ender:
-        - playeffect effect:reverse_portal at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
+        - playeffect effect:reverse_portal at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
         fire:
-        - playeffect effect:flame at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
+        - playeffect effect:flame at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
         ice:
-        - playeffect effect:block_crack special_data:ice at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
+        - playeffect effect:block_crack special_data:ice at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
         light:
-        - playeffect effect:end_rod at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
+        - playeffect effect:end_rod at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
         physical:
-        - playeffect effect:crit at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
+        - playeffect effect:crit at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
         shadow:
-        - playeffect effect:dust_color_transition special_data:1|<script.parsed_key[color.shadow]>|black at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
+        - playeffect effect:dust_color_transition special_data:1|<script.parsed_key[color.shadow]>|black at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
         thunder:
-        - playeffect effect:redstone special_data:1|<script.parsed_key[color.thunder]> at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
+        - playeffect effect:redstone special_data:1|<script.parsed_key[color.thunder]> at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
         water:
-        - playeffect effect:splash at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
+        - playeffect effect:splash at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
         wind:
-        - playeffect effect:snowball at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50
+        - playeffect effect:snowball at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
 
     symbol:
-        earth: <reset><white><&font[elements]>e<&font[default]><&[earth]><bold>
-        ender: <reset><white><&font[elements]>n<&font[default]><&[ender]><bold>
-        fire: <reset><white><&font[elements]>f<&font[default]><&[fire]><bold>
-        ice: <reset><white><&font[elements]>i<&font[default]><&[ice]><bold>
-        light: <reset><white><&font[elements]>l<&font[default]><&[light]><bold>
-        physical: <reset><white><&font[elements]>p<&font[default]><&[physical]><bold>
-        shadow: <reset><white><&font[elements]>s<&font[default]><&[shadow]><bold>
-        thunder: <reset><white><&font[elements]>t<&font[default]><&[thunder]><bold>
-        water: <reset><white><&font[elements]>w<&font[default]><&[water]><bold>
-        wind: <reset><white><&font[elements]>d<&font[default]><&[wind]><bold>
+        earth: <reset><script[icons].parsed_key[elements.earth]><&[earth]><bold>
+        ender: <reset><script[icons].parsed_key[elements.ender]><&[ender]><bold>
+        fire: <reset><script[icons].parsed_key[elements.fire]><&[fire]><bold>
+        ice: <reset><script[icons].parsed_key[elements.ice]><&[ice]><bold>
+        light: <reset><script[icons].parsed_key[elements.light]><&[light]><bold>
+        physical: <reset><script[icons].parsed_key[elements.physical]><&[physical]><bold>
+        shadow: <reset><script[icons].parsed_key[elements.shadow]><&[shadow]><bold>
+        thunder: <reset><script[icons].parsed_key[elements.thunder]><&[thunder]><bold>
+        water: <reset><script[icons].parsed_key[elements.water]><&[water]><bold>
+        wind: <reset><script[icons].parsed_key[elements.wind]><&[wind]><bold>
     slash_effects:
         earth:
         - define particle_locations <[locations]>
@@ -156,20 +156,21 @@ tickcore_data:
     - damage_thunder
     - damage_water
     - damage_wind
+    - max_health
     - attack_speed
     - crit_chance
     - crit_damage
     - defense
-    - resistance_earth
-    - resistance_ender
-    - resistance_fire
-    - resistance_ice
-    - resistance_light
-    - resistance_physical
-    - resistance_shadow
-    - resistance_thunder
-    - resistance_water
-    - resistance_wind
+    - defense_earth
+    - defense_ender
+    - defense_fire
+    - defense_ice
+    - defense_light
+    - defense_physical
+    - defense_shadow
+    - defense_thunder
+    - defense_water
+    - defense_wind
     - abilities
     - gemstones
     stats:
@@ -181,128 +182,135 @@ tickcore_data:
         reach_distance:
             default: 3
             lore format:
-            - <&[base]>Reach distance: <&[emphasis]><[value]>
+            - <&[base]>Reach distance: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
         damage_earth:
             default: 0
             lore format:
-            - <&[base]>Earth damage: <&[emphasis]><[value]>
+            - <&[base]>Earth damage: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
         damage_ender:
             default: 0
             lore format:
-            - <&[base]>Ender damage: <&[emphasis]><[value]>
+            - <&[base]>Ender damage: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
         damage_fire:
             default: 0
             lore format:
-            - <&[base]>Fire damage: <&[emphasis]><[value]>
+            - <&[base]>Fire damage: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
         damage_ice:
             default: 0
             lore format:
-            - <&[base]>Ice damage: <&[emphasis]><[value]>
+            - <&[base]>Ice damage: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
         damage_light:
             default: 0
             lore format:
-            - <&[base]>Light damage: <&[emphasis]><[value]>
+            - <&[base]>Light damage: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
         damage_physical:
             default: 0
             lore format:
-            - <&[base]>Physical damage: <&[emphasis]><[value]>
+            - <&[base]>Physical damage: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
         damage_shadow:
             default: 0
             lore format:
-            - <&[base]>Shadow damage: <&[emphasis]><[value]>
+            - <&[base]>Shadow damage: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
         damage_thunder:
             default: 0
             lore format:
-            - <&[base]>Thunder damage: <&[emphasis]><[value]>
+            - <&[base]>Thunder damage: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
         damage_water:
             default: 0
             lore format:
-            - <&[base]>Water damage: <&[emphasis]><[value]>
+            - <&[base]>Water damage: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
         damage_wind:
             default: 0
             lore format:
-            - <&[base]>Wind damage: <&[emphasis]><[value]>
+            - <&[base]>Wind damage: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
 
-        resistance_earth:
+        defense_earth:
             default: 0
             lore format:
-            - <&[base]>Earth resistance: <&[emphasis]><[value]>
+            - <&[base]>Earth defense: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
-        resistance_ender:
+        defense_ender:
             default: 0
             lore format:
-            - <&[base]>Ender resistance: <&[emphasis]><[value]>
+            - <&[base]>Ender defense: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
-        resistance_fire:
+        defense_fire:
             default: 0
             lore format:
-            - <&[base]>Fire resistance: <&[emphasis]><[value]>
+            - <&[base]>Fire defense: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
-        resistance_ice:
+        defense_ice:
             default: 0
             lore format:
-            - <&[base]>Ice resistance: <&[emphasis]><[value]>
+            - <&[base]>Ice defense: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
-        resistance_light:
+        defense_light:
             default: 0
             lore format:
-            - <&[base]>Light resistance: <&[emphasis]><[value]>
+            - <&[base]>Light defense: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
-        resistance_physical:
+        defense_physical:
             default: 0
             lore format:
-            - <&[base]>Physical resistance: <&[emphasis]><[value]>
+            - <&[base]>Physical defense: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
-        resistance_shadow:
+        defense_shadow:
             default: 0
             lore format:
-            - <&[base]>Shadow resistance: <&[emphasis]><[value]>
+            - <&[base]>Shadow defense: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
-        resistance_thunder:
+        defense_thunder:
             default: 0
             lore format:
-            - <&[base]>Thunder resistance: <&[emphasis]><[value]>
+            - <&[base]>Thunder defense: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
-        resistance_water:
+        defense_water:
             default: 0
             lore format:
-            - <&[base]>Water resistance: <&[emphasis]><[value]>
+            - <&[base]>Water defense: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
-        resistance_wind:
+        defense_wind:
             default: 0
             lore format:
-            - <&[base]>Wind resistance: <&[emphasis]><[value]>
+            - <&[base]>Wind defense: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
+
+        max_health:
+            default: 0
+            lore format:
+            - <&[base]>Max health: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
 
@@ -323,7 +331,7 @@ tickcore_data:
         attack_speed:
             default: 1
             lore format:
-            - <&[base]>Attack Speed: <&[emphasis]><[value]>
+            - <&[base]>Attack Speed: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
 
@@ -345,7 +353,7 @@ tickcore_data:
             default: 0
             lore format:
             - <empty>
-            - <&[base]>Defense: <&[emphasis]><[value]>
+            - <&[base]>Defense: <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             new item on generate: <[item].proc[tickcore_proc.script.items.add_attribute].context[<map[generic_armor=0;generic_armor_toughness=0]>]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
