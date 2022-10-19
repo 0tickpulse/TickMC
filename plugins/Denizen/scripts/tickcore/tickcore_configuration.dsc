@@ -14,6 +14,14 @@ particle_generator:
         - playeffect effect:<[particle]> at:<[locations]> velocity:<[velocity].if_null[0,0,0]> offset:<[offset].if_null[0.5,0.5,0.5]> special_data:<[special_data].if_null[]> data:<[data].if_null[0]> visibility:<[visibility].if_null[30]>
         - stop
     - playeffect effect:<[particle]> at:<[locations]> velocity:<[velocity].if_null[0,0,0]> offset:<[offset].if_null[0.5,0.5,0.5]> data:<[data].if_null[0]> visibility:<[visibility].if_null[30]>
+    #- if <[element].exists>:
+    #    - switch <[element]>:
+    #        - case water:
+    #            - define fire_blocks <[locations].filter[block.material.name.equals[fire]]>
+    #            - 
+    #        - default:
+    #            - stop
+
 tickcore_ability_data:
     type: data
     trigger_names:
@@ -129,9 +137,9 @@ tickcore_effect_data:
         - define sound_locations <[entity].location>
         - inject <script> path:sound.<[element]>
         - run particle_generator def.element:<[element]> def.locations:<[locations]>
-        - define fire_blocks <[particle_locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
-        - define lava_blocks <[particle_locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
-        - define water_blocks <[particle_locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter_tag[<[filter_value].block.material.name.equals[water].or[<[filter_value].material.waterlogged.if_null[false]>]>].deduplicate>
+        - define fire_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
+        - define lava_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
+        - define water_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter_tag[<[filter_value].block.material.name.equals[water].or[<[filter_value].material.waterlogged.if_null[false]>]>].deduplicate>
         - modifyblock <[fire_blocks]> air
         - playsound sound:block_fire_extinguish <[fire_blocks]>
         - showfake obsidian <[lava_blocks]> d:3s players:<server.online_players>
@@ -156,10 +164,10 @@ tickcore_effect_data:
         - define sound_locations <[entity].location>
         - inject <script> path:sound.<[element]>
         - run particle_generator def.element:<[element]> def.locations:<[locations]>
-        - define fire_blocks <[particle_locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
-        - define lava_blocks <[particle_locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
-        - modifyblock <[fire_blocks]> air
+        - define fire_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
+        - define lava_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
         - playsound sound:block_fire_extinguish <[fire_blocks]>
+        - modifyblock <[fire_blocks]> air
         - showfake obsidian <[lava_blocks]> d:3s players:<server.online_players>
         wind:
         - define sound_locations <[entity].location>
@@ -179,6 +187,12 @@ tickcore_data:
     - OFFHAND
     default item properties:
         hides: ALL
+        attribute_modifiers:
+            generic_attack_speed:
+                1:
+                    operation: ADD_NUMBER
+                    amount: 21
+                    slot: any
     lore order:
     - <&sp.repeat[50].color[dark_gray].strikethrough>
     - damage_earth

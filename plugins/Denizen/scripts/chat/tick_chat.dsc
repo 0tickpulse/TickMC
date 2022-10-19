@@ -39,6 +39,7 @@ tick_chat_world:
                 - define toast_map <script.parsed_key[data.ping toast]>
                 - toast <[toast_map.text].if_null[Please configure some text!]> frame:<[toast_map.frame].if_null[goal]> icon:<[toast_map.icon].if_null[stone]>
         - announce <script.parsed_key[data.chat format]>
+        - debug log "<player.proc[tick_logging_util_proc.script.format_player]>: <[message]>"
         on player receives message:
         - define message <context.message>
         - foreach <script.data_key[data.chat replacements.on receive message].keys> as:path:

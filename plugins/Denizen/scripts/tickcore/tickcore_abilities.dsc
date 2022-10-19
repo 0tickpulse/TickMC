@@ -50,6 +50,8 @@ tickcore_ability_lights_beam:
         - define ring_locations <proc[slash_util_ring_proc].context[0.5|32].parse_tag[<[beam_ring_location].up[<[parse_value.forward]>].right[<[parse_value.right]>]>]>
         - foreach <[ring_locations]> as:point:
             - run particle_generator def.locations:<[point]> def.element:light def.velocity:<[point].sub[<[beam_ring_location]>]> def.offset:0,0,0
+        - playeffect effect:flash at:<[beam_ring_location]> visibility:50
+        - playeffect effect:explosion_large at:<[beam_ring_location]> velocity:5,5,5 visibility:50
 
     - define points <[beam_target].points_between[<[loc]>].distance[0.25]>
     - run particle_generator def.locations:<[points]> def.element:light def.offset:1,1,1

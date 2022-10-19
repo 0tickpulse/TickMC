@@ -173,6 +173,63 @@ tickcore_trigger_abilities:
             - run <[ability.script]> def.entity:<[entity]> def.data:<[ability.data].if_null[<map>]> def.context:<[context]> save:script
             - foreach <entry[script].created_queue.determination.if_null[<list>]> as:determination:
                 - determine passively <[determination]>
+
+tickcore_is_looking_at_interactable:
+    type: procedure
+    debug: false
+    data:
+        interactables:
+        - anvil
+        - barrel
+        - bed
+        - bell
+        - blast_furnace
+        - brewing_stand
+        - *_button
+        - polished_blackstone_button
+        - cartography_table
+        - cauldron
+        - chest
+        - *_chest
+        - command_block
+        - composter
+        - crafting_table
+        - *_door
+        - enchanting_table
+        - end_portal_frame
+        - *_fence_gate
+        - furnace
+        - daylight_detector
+        - grindstone
+        - item_frame
+        - jukebox
+        - lectern
+        - lever
+        - lodestone
+        - loom
+        - note_block
+        - *_pressure_plate
+        - pumpkin
+        - respawn_anchor
+        - *_shulker_box
+        - smithing_table
+        - smoker
+        - spawner
+        - stonecutter
+        - tnt
+        - *_trapdoor
+        - repeater
+        - comparator
+        - dispenser
+        - dropper
+    definitions: player
+    script:
+    - define material <[player].cursor_on[4].material.name.if_null[air]>
+    - foreach <script.data_key[data.interactables]> as:interactable:
+        - if <[material]> matches <[interactable]>:
+            - determine true
+    - determine false
+
 tickcore_ability_triggers:
     type: world
     debug: false
@@ -193,11 +250,15 @@ tickcore_ability_triggers:
             - if <context.click_type.advanced_matches[LEFT_CLICK_*]>:
                 - define trigger sneak_left_click
             - if <context.click_type.advanced_matches[RIGHT_CLICK_*]>:
+                - if <player.proc[tickcore_is_looking_at_interactable]>:
+                    - stop
                 - define trigger sneak_right_click
         - else:
             - if <context.click_type.advanced_matches[LEFT_CLICK_*]>:
                 - define trigger left_click
             - if <context.click_type.advanced_matches[RIGHT_CLICK_*]>:
+                - if <player.proc[tickcore_is_looking_at_interactable]>:
+                    - stop
                 - define trigger right_click
         - definemap context:
                 item: <context.item.if_null[null]>
