@@ -231,7 +231,7 @@ Commands:
         # Note that you have been warned of the potential consequences of abusing these tools,
         # and that none of Denizen, the Denizen team, Spigot, Mojang, etc. in any way support or endorse abusing these tools.
         # Enable at your own risk.
-        Allow restricted actions: false
+        Allow restricted actions: true
 
 Tags:
     # How long a tag can parse before force-closing the tag parser engine. Set to 0 to disable tag parse timing entirely.
