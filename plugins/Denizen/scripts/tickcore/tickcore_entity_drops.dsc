@@ -36,6 +36,6 @@ tickcore_entity_drop_proc:
         get_drops_data:
         - if !<[1].script.exists>:
             - stop
-        - if !<[1].script.list_deep_keys.contains[data.tickcore_drops]>:
+        - if !<[1].script.list_deep_keys.contains[data.tickcore.drops]>:
             - stop
-        - determine <[1].script.data_key[data.tickcore_drops]>
+        - determine <[1].script.data_key[data.tickcore.drops]>

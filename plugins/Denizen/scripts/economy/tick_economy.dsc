@@ -4,6 +4,7 @@ tick_economy_data:
     money tale message: <&[base]>[-<[amount].proc[tick_economy_format_money]>]
 tick_economy_main:
     type: economy
+    debug: false
     priority: normal
     # The name of the currency in the singular (such as "dollar" or "euro").
     name single: tickcoin
@@ -13,7 +14,7 @@ tick_economy_main:
     digits: 2
     # Format the standard output for the money in human-readable format. Use "<[amount]>" for the actual amount to display.
     # Fully supports tags.
-    format: <[amount].format_number.custom_color[emphasis].bold> <element[$].font[icons]>
+    format: <[amount].format_number.custom_color[emphasis].bold> <element[$].font[icons].color[white]>
     # A tag that returns the balance of a linked player. Use a 'proc[]' tag if you need more complex logic.
     # Must return a decimal number.
     balance: <player.flag[tick_economy.money]>

@@ -1,3 +1,24 @@
+slash_util_ring_proc:
+    type: procedure
+    debug: false
+    definitions: radius|points
+    script:
+    - define list <list>
+    - define angles <list>
+    - define i 0
+    - define angle_interval <element[360].div[<[points]>]>
+    - while <[i]> < 360:
+        - define i:+:<[angle_interval]>
+        - define angles:->:<[i]>
+
+    - foreach <[angles]> as:angle:
+        - definemap offsets:
+                forward: <[radius].mul[<[angle].to_radians.cos>]>
+                right: <[radius].mul[<[angle].to_radians.sin>]>
+        - define list:->:<[offsets]>
+
+    - determine <[list]>
+
 slash_get_locations_proc:
     type: procedure
     debug: false

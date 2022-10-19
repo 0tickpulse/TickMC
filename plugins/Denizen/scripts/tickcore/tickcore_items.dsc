@@ -66,6 +66,14 @@ lights_splendor:
                 damage_light: 85
                 abilities:
                     1:
+                        name: Light's beam
+                        description: Creates a beam!
+                        trigger: right_click
+                        script: tickcore_ability_lights_beam
+                        cooldown: 1s
+                        data:
+                            damage: 150
+                    2:
                         name: Light's burst
                         description: Creates a burst of light!
                         trigger: sneak_right_click

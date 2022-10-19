@@ -6,7 +6,8 @@ time_shortcut:
     debug: false
     description: A shortcut command to change the time.
     tab completions:
-        1: s
+        1: 1t|5s|50s|5m|10m
+        2: <server.worlds.parse[name]>
     usage: /time [time] (world)
     data:
         required_args: 1
@@ -15,7 +16,12 @@ time_shortcut:
         - 2
     script:
     - inject command_manager path:require_world
-    - adjust <[world]> time:<context.args.get[1].sub[<[world].time>]>
+    - define time <context.args.get[1].as[duration].if_null[null]>
+    - if <[time]> == null:
+        - narrate "<&[error]>Invalid time specified!"
+        - stop
+    - time <[time]> <[world]>
+    - narrate "<&[success]>Changed the time to <[time].formatted> in <[world].name>!"
 
 # @ Gamemode commands
 gamemode_shortcut:

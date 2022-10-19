@@ -1,4 +1,19 @@
 
+particle_generator:
+    type: task
+    debug: false
+    definitions: element|locations|particle|velocity|offset|element|special_data|visibility|data
+    script:
+    - if !<[particle].exists>:
+        - define particle <script[tickcore_effect_data].parsed_key[particle_data.<[element]>.effect]>
+        - foreach special_data|offset|velocity|visibility|data as:def:
+            - if !<[<[def]>].exists> && <script[tickcore_effect_data].list_deep_keys> contains particle_data.<[element]>.<[def]>:
+                - define <[def]> <script[tickcore_effect_data].parsed_key[particle_data.<[element]>.<[def]>]>
+
+    - if <[special_data].exists>:
+        - playeffect effect:<[particle]> at:<[locations]> velocity:<[velocity].if_null[0,0,0]> offset:<[offset].if_null[0.5,0.5,0.5]> special_data:<[special_data].if_null[]> data:<[data].if_null[0]> visibility:<[visibility].if_null[30]>
+        - stop
+    - playeffect effect:<[particle]> at:<[locations]> velocity:<[velocity].if_null[0,0,0]> offset:<[offset].if_null[0.5,0.5,0.5]> data:<[data].if_null[0]> visibility:<[visibility].if_null[30]>
 tickcore_ability_data:
     type: data
     trigger_names:
@@ -49,27 +64,42 @@ tickcore_effect_data:
         - playsound sound:entity.generic.splash at:<[sound_locations]> custom
         wind:
         - playsound sound:entity.arrow.shoot at:<[sound_locations]> custom
-    particle:
+    particle_data:
         earth:
-        - playeffect effect:block_crack special_data:dirt at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
+            effect: block_crack
+            special_data: dirt
+            visibility: 50
         ender:
-        - playeffect effect:reverse_portal at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
+            effect: reverse_portal
+            visibility: 50
         fire:
-        - playeffect effect:flame at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
+            effect: flame
+            visibility: 50
         ice:
-        - playeffect effect:block_crack special_data:ice at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
+            effect: block_crack
+            special_data: ice
+            visibility: 50
         light:
-        - playeffect effect:end_rod at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
+            effect: end_rod
+            visibility: 50
         physical:
-        - playeffect effect:crit at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
+            effect: crit
+            visibility: 50
         shadow:
-        - playeffect effect:dust_color_transition special_data:1|<script.parsed_key[color.shadow]>|black at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
+            effect: dust_color_transition
+            special_data: 1|<script[tickcore_effect_data].parsed_key[color.shadow]>|black
+            visibility: 50
         thunder:
-        - playeffect effect:redstone special_data:1|<script.parsed_key[color.thunder]> at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
+            effect: redstone
+            special_data: 1|<script[tickcore_effect_data].parsed_key[color.thunder]>
+            visibility: 50
         water:
-        - playeffect effect:splash at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
+            effect: redstone
+            special_data: 1|<script[tickcore_effect_data].parsed_key[color.water]>
+            visibility: 50
         wind:
-        - playeffect effect:snowball at:<[particle_locations]> offset:0.05,0.05,0.05 visibility:50  velocity:<[velocity].if_null[<location[0,0,0]>]>
+            effect: snowball
+            visibility: 50
 
     symbol:
         earth: <reset><script[icons].parsed_key[elements.earth]><&[earth]><bold>
@@ -84,25 +114,21 @@ tickcore_effect_data:
         wind: <reset><script[icons].parsed_key[elements.wind]><&[wind]><bold>
     slash_effects:
         earth:
-        - define particle_locations <[locations]>
         - define sound_locations <[entity].location>
         - inject <script> path:sound.<[element]>
-        - inject <script> path:particle.<[element]>
+        - run particle_generator def.element:<[element]> def.locations:<[locations]>
         ender:
-        - define particle_locations <[locations]>
         - define sound_locations <[entity].location>
         - inject <script> path:sound.<[element]>
-        - inject <script> path:particle.<[element]>
+        - run particle_generator def.element:<[element]> def.locations:<[locations]>
         fire:
-        - define particle_locations <[locations]>
         - define sound_locations <[entity].location>
         - inject <script> path:sound.<[element]>
-        - inject <script> path:particle.<[element]>
+        - run particle_generator def.element:<[element]> def.locations:<[locations]>
         ice:
-        - define particle_locations <[locations]>
         - define sound_locations <[entity].location>
         - inject <script> path:sound.<[element]>
-        - inject <script> path:particle.<[element]>
+        - run particle_generator def.element:<[element]> def.locations:<[locations]>
         - define fire_blocks <[particle_locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
         - define lava_blocks <[particle_locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
         - define water_blocks <[particle_locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter_tag[<[filter_value].block.material.name.equals[water].or[<[filter_value].material.waterlogged.if_null[false]>]>].deduplicate>
@@ -111,40 +137,34 @@ tickcore_effect_data:
         - showfake obsidian <[lava_blocks]> d:3s players:<server.online_players>
         - showfake frosted_ice <[water_blocks]> d:3s players:<server.online_players>
         light:
-        - define particle_locations <[locations]>
         - define sound_locations <[entity].location>
         - inject <script> path:sound.<[element]>
-        - inject <script> path:particle.<[element]>
+        - run particle_generator def.element:<[element]> def.locations:<[locations]>
         physical:
-        - define particle_locations <[locations]>
         - define sound_locations <[entity].location>
         - inject <script> path:sound.<[element]>
-        - inject <script> path:particle.<[element]>
+        - run particle_generator def.element:<[element]> def.locations:<[locations]>
         shadow:
-        - define particle_locations <[locations]>
         - define sound_locations <[entity].location>
         - inject <script> path:sound.<[element]>
-        - inject <script> path:particle.<[element]>
+        - run particle_generator def.element:<[element]> def.locations:<[locations]>
         thunder:
-        - define particle_locations <[locations]>
         - define sound_locations <[entity].location>
         - inject <script> path:sound.<[element]>
-        - inject <script> path:particle.<[element]>
+        - run particle_generator def.element:<[element]> def.locations:<[locations]>
         water:
-        - define particle_locations <[locations]>
         - define sound_locations <[entity].location>
         - inject <script> path:sound.<[element]>
-        - inject <script> path:particle.<[element]>
+        - run particle_generator def.element:<[element]> def.locations:<[locations]>
         - define fire_blocks <[particle_locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
         - define lava_blocks <[particle_locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
         - modifyblock <[fire_blocks]> air
         - playsound sound:block_fire_extinguish <[fire_blocks]>
         - showfake obsidian <[lava_blocks]> d:3s players:<server.online_players>
         wind:
-        - define particle_locations <[locations]>
         - define sound_locations <[entity].location>
         - inject <script> path:sound.<[element]>
-        - inject <script> path:particle.<[element]>
+        - run particle_generator def.element:<[element]> def.locations:<[locations]>
 tickcore_data:
     type: data
     item updating:
@@ -364,7 +384,7 @@ tickcore_data:
         abilities:
             lore format:
             - <empty>
-            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <[value].parse_tag[<&[emphasis]><script[tickcore_ability_data].parsed_key[trigger_names.<[parse_value.trigger]>].if_null[<[parse_value.trigger].replace[_].with[ ].to_titlecase>]> <dark_gray>» <&[emphasis]><[parse_value.name]><[parse_value].keys.contains[cooldown].if_true[ <dark_gray>(<[parse_value.cooldown]>)].if_false[]><n><&[base]><[parse_value.description].parsed.proc[tickutil_text.script.lore_section_no_icon]>].separated_by[<n.repeat[2]>]>
+            - <[value].parse_tag[<script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[emphasis]><script[tickcore_ability_data].parsed_key[trigger_names.<[parse_value.trigger]>].if_null[<[parse_value.trigger].replace[_].with[ ].to_titlecase>]> <dark_gray>» <&[emphasis]><[parse_value.name]><[parse_value].keys.contains[cooldown].if_true[ <dark_gray>(<[parse_value.cooldown]>)].if_false[]><n><&[base]><[parse_value.description].parsed.proc[tickutil_text.script.lore_section_no_icon]>].separated_by[<n.repeat[2]>]>
             item stat calculation: <[map].values.combine.parse[values].combine>
             player stat calculation: <[map].values.combine>
 
