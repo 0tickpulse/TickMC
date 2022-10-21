@@ -317,7 +317,7 @@ Colors:
     # Warning messages. 'narrate' commands displaying a warning message should use this.
     warning: <yellow>
     # Your preferred color for item names. Item script "display name" keys should usually use this.
-    item: <&color[#ff5555]>
+    item: <&color[#ff5555]><bold>
     # Your preferred item lore base color. Item script "lore" lines should start with this.
     lore: <gray>
     # Your preferred color for NPC names. Scripts that use the "create" command should usually use this.

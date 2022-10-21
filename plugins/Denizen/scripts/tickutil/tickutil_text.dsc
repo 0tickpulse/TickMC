@@ -17,6 +17,9 @@ tickutil_text:
         - determine <[list].separated_by[<n>]>
         lore_section_no_icon:
         - determine <[1].split[<n>].parse_tag[   <dark_gray>» <&[base]><[parse_value]>].separated_by[<n>]>
+        split_description:
+        - define lines <[1].split_lines_by_width[<&sp.repeat[50].text_width.sub[<element[   »].text_width>]>]>
+        - determine <[lines].lines_to_colored_list.separated_by[<n>].proc[tickutil_text.script.lore_section]>
 
 icons:
     type: data

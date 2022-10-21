@@ -55,6 +55,7 @@ tickcore_ability_lights_beam:
 
     - define points <[beam_target].points_between[<[loc]>].distance[0.25]>
     - run particle_generator def.locations:<[points]> def.element:light def.offset:1,1,1
+    - run particle_generator def.locations:<[points]> def.element:thunder def.offset:1,1,1 def.quantity:5
 
     - define entities <[points].parse[find.living_entities.within[5]].combine.deduplicate.exclude[<player>]>
     - definemap damage_context:

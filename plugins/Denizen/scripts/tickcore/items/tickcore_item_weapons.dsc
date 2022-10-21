@@ -1,13 +1,47 @@
-emerald_sword:
+netherite_swaxovel:
     type: item
-    material: iron_sword
-    display name: <&[item]>Emerald Sword
+    material: netherite_sword
+    display name: <&[item]>Netherite Swaxovel
+    mechanisms:
+        custom_model_data: 1
     data:
         tickcore:
             stats:
-                damage_physical: 8
+                damage_shadow: 8
                 attack_speed: 1.6
-
+                abilities:
+                    1:
+                        name: Giga-mine
+                        description: Break any non-bedrock block in a 3x3 cuboid ahead of you.
+                        trigger: left_click
+                        script: tickcore_ability_netherite_swaxovel_gigamine
+                        cooldown: 0.5s
+                        cooldown_message: true
+    recipes:
+        1:
+            type: shaped
+            input:
+            - air|material:*netherite_sword|material:*netherite_sword
+            - netherite_shovel|netherite_pickaxe|material:*netherite_sword
+            - stick|netherite_shovel|air
+emerald_sword:
+    type: item
+    material: diamond_sword
+    display name: <&[item]>Emerald Sword
+    mechanisms:
+        custom_model_data: 1
+    data:
+        tickcore:
+            stats:
+                damage_earth: 8
+                attack_speed: 1.6
+    recipes:
+        1:
+            type: shaped
+            input:
+            - emerald
+            - emerald
+            - stick
 all_the_stats:
     type: item
     material: stone

@@ -45,6 +45,8 @@ tickcore_custom_attack:
             - stop
         - if !<player.location.facing[<context.entity.location>]>:
             - stop
+        - if <player.item_in_hand.material.name.if_null[null]> == air && <player.target.entity_type.if_null[null]> in item_frame|armor_stand:
+            - stop
         - determine passively cancelled
         - inject tickcore_custom_attack "path:events.after player left clicks block"
 
@@ -70,6 +72,9 @@ tickcore_impl_do_damage_task:
                 - define amount:+:<[to_add].mul[<[source].proc[tickcore_proc.script.entities.get_stat].context[crit_damage].add[1]>]>
             - else:
                 - define amount:+:<[to_add]>
+
+        - define defense <[target].proc[tickcore_proc.script.entities.get_stat].context[defense].if_null[0]>
+        - define amount <[amount].mul[<element[1].sub[<[defense].div[<[defense].add[100]>]>]>]>
 
         - flag <[source]> tickcore_impl.last_damage_element_map:<[new_element_map]> expire:2t
         - if <[amount]> == 0:
@@ -313,15 +318,15 @@ tickcore_ability_triggers:
         - define entity <player>
         - inject <script> path:run_script
 
-        on player breaks block:
-        - define trigger break_block
-        - definemap context:
-                location: <context.location.if_null[null]>
-                material: <context.material.if_null[null]>
-                xp: <context.xp.if_null[null]>
-                should_drop_items: <context.should_drop_items.if_null[null]>
-        - define entity <player>
-        - inject <script> path:run_script
+        # on player breaks block:
+        # - define trigger break_block
+        # - definemap context:
+        #         location: <context.location.if_null[null]>
+        #         material: <context.material.if_null[null]>
+        #         xp: <context.xp.if_null[null]>
+        #         should_drop_items: <context.should_drop_items.if_null[null]>
+        # - define entity <player>
+        # - inject <script> path:run_script
 
         on player joins:
         - define trigger join

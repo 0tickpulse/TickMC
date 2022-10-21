@@ -2,25 +2,15 @@
 particle_generator:
     type: task
     debug: false
-    definitions: element|locations|particle|velocity|offset|element|special_data|visibility|data
+    definitions: element|locations|velocity|offset|quantity
     script:
-    - if !<[particle].exists>:
-        - define particle <script[tickcore_effect_data].parsed_key[particle_data.<[element]>.effect]>
-        - foreach special_data|offset|velocity|visibility|data as:def:
-            - if !<[<[def]>].exists> && <script[tickcore_effect_data].list_deep_keys> contains particle_data.<[element]>.<[def]>:
-                - define <[def]> <script[tickcore_effect_data].parsed_key[particle_data.<[element]>.<[def]>]>
+        - define particle_datas <script[tickcore_effect_data].parsed_key[particle_data.<[element]>].values>
+        - foreach <[particle_datas]> as:particle_data:
+            - if <[particle_data.special_data].exists>:
+                - playeffect effect:<[particle_data.effect]> at:<[locations]> quantity:<[quantity].if_null[1]> velocity:<[velocity].if_null[0,0,0]> offset:<[offset].if_null[<[particle_data.offset].if_null[0.5,0.5,0.5]>]> special_data:<[particle_data.special_data].if_null[]> data:<[particle_data.data].if_null[0]> visibility:<[particle_data.visibility].if_null[30]>
+            - else:
+                - playeffect effect:<[particle_data.effect]> at:<[locations]> quantity:<[quantity].if_null[1]> velocity:<[velocity].if_null[0,0,0]> offset:<[offset].if_null[<[particle_data.offset].if_null[0.5,0.5,0.5]>]> data:<[particle_data.data].if_null[0]> visibility:<[particle_data.visibility].if_null[30]>
 
-    - if <[special_data].exists>:
-        - playeffect effect:<[particle]> at:<[locations]> velocity:<[velocity].if_null[0,0,0]> offset:<[offset].if_null[0.5,0.5,0.5]> special_data:<[special_data].if_null[]> data:<[data].if_null[0]> visibility:<[visibility].if_null[30]>
-        - stop
-    - playeffect effect:<[particle]> at:<[locations]> velocity:<[velocity].if_null[0,0,0]> offset:<[offset].if_null[0.5,0.5,0.5]> data:<[data].if_null[0]> visibility:<[visibility].if_null[30]>
-    #- if <[element].exists>:
-    #    - switch <[element]>:
-    #        - case water:
-    #            - define fire_blocks <[locations].filter[block.material.name.equals[fire]]>
-    #            - 
-    #        - default:
-    #            - stop
 
 tickcore_ability_data:
     type: data
@@ -74,40 +64,66 @@ tickcore_effect_data:
         - playsound sound:entity.arrow.shoot at:<[sound_locations]> custom
     particle_data:
         earth:
-            effect: block_crack
-            special_data: dirt
-            visibility: 50
+            1:
+                effect: block_crack
+                special_data: dirt
+                visibility: 50
+            2:
+                effect: redstone
+                special_data: 1|<script[tickcore_effect_data].parsed_key[color.earth]>
+                visibility: 50
         ender:
-            effect: reverse_portal
-            visibility: 50
+            1:
+                effect: reverse_portal
+                visibility: 50
         fire:
-            effect: flame
-            visibility: 50
+            1:
+                effect: flame
+                visibility: 50
+            2:
+                effect: redstone
+                special_data: 1|<script[tickcore_effect_data].parsed_key[color.fire]>
+                visibility: 50
         ice:
-            effect: block_crack
-            special_data: ice
-            visibility: 50
+            1:
+                effect: block_crack
+                special_data: ice
+                visibility: 50
+            2:
+                effect: redstone
+                special_data: 1|<script[tickcore_effect_data].parsed_key[color.ice]>
+                visibility: 50
         light:
-            effect: end_rod
-            visibility: 50
+            1:
+                effect: end_rod
+                visibility: 50
         physical:
-            effect: crit
-            visibility: 50
+            1:
+                effect: crit
+                visibility: 50
         shadow:
-            effect: dust_color_transition
-            special_data: 1|<script[tickcore_effect_data].parsed_key[color.shadow]>|black
-            visibility: 50
+            1:
+                effect: dust_color_transition
+                special_data: 1|<script[tickcore_effect_data].parsed_key[color.shadow]>|black
+                visibility: 50
         thunder:
-            effect: redstone
-            special_data: 1|<script[tickcore_effect_data].parsed_key[color.thunder]>
-            visibility: 50
+            1:
+                effect: redstone
+                special_data: 1|<script[tickcore_effect_data].parsed_key[color.thunder]>
+                visibility: 50
         water:
-            effect: redstone
-            special_data: 1|<script[tickcore_effect_data].parsed_key[color.water]>
-            visibility: 50
+            1:
+                effect: redstone
+                special_data: 1|<script[tickcore_effect_data].parsed_key[color.water]>
+                visibility: 50
+            2:
+                effect: block_crack
+                special_data: water
+                visibility: 50
         wind:
-            effect: snowball
-            visibility: 50
+            1:
+                effect: snowball
+                visibility: 50
 
     symbol:
         earth: <reset><script[icons].parsed_key[elements.earth]><&[earth]><bold>
@@ -391,7 +407,7 @@ tickcore_data:
         description:
             lore format:
             - <empty>
-            - <[value].parse[proc[tickutil_text.script.lore_section]].separated_by[<n>]>
+            - <[value].parse[proc[tickutil_text.script.split_description]].separated_by[<n>]>
             item stat calculation: <[map].values>
             player stat calculation: null
 

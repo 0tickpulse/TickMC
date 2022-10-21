@@ -15,14 +15,15 @@ command_manager:
     - define max_args <queue.script.data_key[data.max_args].if_null[null]>
     - if <[required_args]> != null:
         - if <context.args.size> < <[required_args]>:
-            - narrate "<&[error]>Not enough args! <queue.script.data_key[usage]>"
+            - narrate "<&[error]>Not enough args! <queue.script.parsed_key[usage]>"
             - stop
     - if <[max_args]> != null:
         - if <context.args.size> > <[max_args]>:
-            - narrate "<&[error]>Too many args! <queue.script.data_key[usage]>"
+            - narrate "<&[error]>Too many args! <queue.script.parsed_key[usage]>"
             - stop
     require_player:
-    - define require_players <queue.script.data_key[data.require_player].if_null[null]>
+    - if !<queue.definitions> !contains require_players:
+        - define require_players <queue.script.data_key[data.require_player].if_null[null]>
     - foreach <[require_players]> as:require_player:
         - if <[require_player]> != null:
             - if !<context.args.get[<[require_player]>].exists>:
@@ -38,7 +39,8 @@ command_manager:
                     - stop
             - adjust <queue> linked_player:<[player]>
     require_world:
-    - define require_worlds <queue.script.data_key[data.require_world].if_null[null]>
+    - if !<queue.definitions> !contains require_worlds:
+        - define require_worlds <queue.script.data_key[data.require_world].if_null[null]>
     - foreach <[require_worlds]> as:require_world:
         - if <[require_world]> != null:
             - if !<context.args.get[<[require_world]>].exists>:

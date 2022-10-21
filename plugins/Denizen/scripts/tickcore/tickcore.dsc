@@ -110,6 +110,14 @@ tickcore_proc:
             # Add the generated lore to the item
             - define item <[item].with[lore=<[lore]>]>
             - determine <[item]>
+            add_stats:
+            - define item <[1]>
+            - define stat_map <[2]>
+            - define old_stat_map <[1].proc[tickcore_proc.script.items.get_stat_map]>
+            - foreach <[stat_map]> key:stat as:modifier_map:
+                - foreach <[modifier_map]> key:modifier as:value:
+                    - define old_stat_map.<[stat]>.<[modifier]> <[value]>
+            - determine <[item].proc[tickcore_proc.script.items.override_stats].context[<[old_stat_map]>]>
         entities:
             get_level:
             - determine <[1].flag[tickcore.level].if_null[0]>
@@ -180,7 +188,9 @@ tickcore_update_item:
     script:
     - if !<[item].proc[tickcore_proc.script.items.is_tickitem]>:
         - determine <[item]>
-    - determine <[item].script.name.proc[tickcore_proc.script.items.generate]>
+    - define new_item <[item].script.name.proc[tickcore_proc.script.items.generate]>
+    - define old_modifier_map <[item].proc[tickcore_proc.script.items.get_stat_map].parse_value_tag[<[parse_value].exclude[BASE]>]>
+    - determine <[new_item].proc[tickcore_proc.script.items.add_stats].context[<[old_modifier_map]>]>
 tickcore_update_items_task:
     type: task
     debug: false
@@ -198,11 +208,11 @@ tickcore_update_items_world:
     debug: false
     events:
         on player opens inventory:
-        - stop "if:<script[tickcore_data].data_key[item updating.container open].if_null[true].not>"
+        - stop if:<script[tickcore_data].data_key[item updating.container open].if_null[true].not>
         - if <context.inventory.id_holder.object_type> == location:
             - run tickcore_update_items_task def:<context.inventory>
         on player picks up item:
-        - stop "if:<script[tickcore_data].data_key[item updating.item pickup].if_null[true].not>"
+        - stop if:<script[tickcore_data].data_key[item updating.item pickup].if_null[true].not>
         - determine ITEM:<context.item.proc[tickcore_update_item]>
 
 tickcore_main_command:
