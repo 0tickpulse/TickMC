@@ -1,7 +1,7 @@
 tick_economy_data:
     type: data
     money give message: <&[base]>[+<[amount].proc[tick_economy_format_money]>]
-    money tale message: <&[base]>[-<[amount].proc[tick_economy_format_money]>]
+    money take message: <&[base]>[-<[amount].proc[tick_economy_format_money]>]
 tick_economy_main:
     type: economy
     debug: false
