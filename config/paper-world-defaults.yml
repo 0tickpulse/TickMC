@@ -15,7 +15,7 @@
 _version: 29
 anticheat:
   anti-xray:
-    enabled: false
+    enabled: true
     engine-mode: 1
     hidden-blocks:
     - copper_ore
@@ -73,7 +73,7 @@ collisions:
 entities:
   armor-stands:
     do-collision-entity-lookups: true
-    tick: true
+    tick: false
   behavior:
     baby-zombie-movement-modifier: 0.5
     disable-chest-cat-detection: false

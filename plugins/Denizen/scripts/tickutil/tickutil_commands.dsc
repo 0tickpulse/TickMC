@@ -6,13 +6,42 @@ command_manager:
     script:
     - debug error "Please specify a path to inject."
     - stop
+    tab_complete_helper:
+    - define tab_completers <queue.script.data_key[data.tab_complete]>
+    - define current_arg <context.args.size.max[1]>
+    - if <context.args.size> >= 1 && <context.raw_args.ends_with[ ]>:
+            - define current_arg:++
+
+    - define tab_completions <list>
+    - foreach <[tab_completers]> key:index as:arg_matchers:
+        - if <[index]> contains <[current_arg]>:
+            - foreach <[arg_matchers].parse[as[map]]> as:arg_matcher:
+                - if <[arg_matcher.matcher].parsed>:
+                    - foreach <[arg_matcher.values].parsed> as:value:
+                        - define tab_completions:->:<[value]>
+    - if <[tab_completers].keys> contains global:
+        - foreach <[tab_completers.global].parse[as[map]]> as:arg_matcher:
+            - if <[arg_matcher.matcher].parsed>:
+                - foreach <[arg_matcher.values].parsed> as:value:
+                    - define tab_completions:->:<[value]>
+
+    - determine <[tab_completions]>
+    flag_args:
+    - define flag_args <map>
+    - foreach <context.args> as:arg:
+        - if !<[arg].starts_with[--]>:
+            - define flag_args.linear_args:->:<[arg]>
+            - foreach next
+        - define flag_args.prefixed_args.<[arg].before_last[:].after[--]> <[arg].contains_text[:].if_true[<[arg].after_last[:]>].if_false[true]>
     player_only:
     - if <queue.script.data_key[data.player_only].if_null[false]> && !<player.exists>:
         - narrate "<&[error]>This command is player-only!"
         - stop
     args_manager:
-    - define required_args <queue.script.data_key[data.required_args].if_null[null]>
-    - define max_args <queue.script.data_key[data.max_args].if_null[null]>
+    - if <queue.definitions> !contains required_args:
+        - define required_args <queue.script.data_key[data.required_args].if_null[null]>
+    - if <queue.definitions> !contains max_args:
+        - define max_args <queue.script.data_key[data.max_args].if_null[null]>
     - if <[required_args]> != null:
         - if <context.args.size> < <[required_args]>:
             - narrate "<&[error]>Not enough args! <queue.script.parsed_key[usage]>"
@@ -22,7 +51,9 @@ command_manager:
             - narrate "<&[error]>Too many args! <queue.script.parsed_key[usage]>"
             - stop
     require_player:
-    - if !<queue.definitions> !contains require_players:
+    - if <player.exists>:
+        - define command_runner <player>
+    - if <queue.definitions> !contains require_players:
         - define require_players <queue.script.data_key[data.require_player].if_null[null]>
     - foreach <[require_players]> as:require_player:
         - if <[require_player]> != null:

@@ -28,7 +28,11 @@ tickcore_custom_attack:
         after player left clicks block:
         - if <player.proc[tickcore_proc.script.players.get_stat].context[attack_speed]> != 0:
             - ratelimit <player> <element[1].div[<player.proc[tickcore_proc.script.players.get_stat].context[attack_speed]>].as[duration]>
+        - else:
+            - stop
         - define element_map <map>
+        - if !<player.item_in_hand.proc[tickcore_proc.script.items.is_tickitem]>:
+            - stop
         - foreach <proc[tickcore_proc.script.core.get_all_stat_ids]> as:stat_id:
             - if !<[stat_id].starts_with[damage_]>:
                 - foreach next
@@ -45,7 +49,7 @@ tickcore_custom_attack:
             - stop
         - if !<player.location.facing[<context.entity.location>]>:
             - stop
-        - if <player.item_in_hand.material.name.if_null[null]> == air && <player.target.entity_type.if_null[null]> in item_frame|armor_stand:
+        - if <context.entity.entity_type> in <script[tickcore_impl_data].data_key[damage indicator blacklist]>:
             - stop
         - determine passively cancelled
         - inject tickcore_custom_attack "path:events.after player left clicks block"
@@ -94,6 +98,9 @@ tickcore_impl_damage_indicators:
     debug: false
     events:
         on entity damaged:
+        # Blacklist
+        - if <context.entity.entity_type> in <script[tickcore_impl_data].data_key[damage indicator blacklist]>:
+            - stop
         # Corrects magic damage (witches have a natural resistance to magic damage)
         - if <context.entity.entity_type> == witch:
             - determine passively <context.final_damage.mul[20].div[3]>
@@ -126,16 +133,6 @@ tickcore_impl_damage_indicators:
         - define hologram <entity[armor_stand[visible=false;is_small=true;custom_name=<[element_displays].separated_by[  ]>;custom_name_visible=true]]>
         - fakespawn <[hologram]> <[location]> players:<[players]> duration:2s
 
-tickcore_no_attack:
-    type: world
-    debug: false
-    events:
-        on player damages entity:
-        - if <context.cause> == ENTITY_ATTACK:
-            - determine passively cancelled
-        #on delta time secondly:
-        #- foreach <server.online_players> as:__player:
-        #    - cast weakness duration:3s amplifier:5 hide_particles no_ambient no_icon
 
 
 tickcore_trigger_non_player_abilities:

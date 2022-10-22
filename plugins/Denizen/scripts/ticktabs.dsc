@@ -24,15 +24,15 @@ ticktab_config:
 
   # The player list manager. This manages the players in the tablist, allowing you to do cool stuff in it!
   player list manager:
-    enabled: false
+    enabled: true
     # What the player should be displayed as in the player list
-    player list name: <[full_name]>
+    player list name: <&sp><player.proc[tick_chat_format_player_name]>
     # How many times it should update per second. Higher = more performance intensive.
     update frequency: 3
     # Also update the player
     also update on player join and leave: true
     sorting:
-      enabled: true
+      enabled: false
       # How it should be sorted.
       # group - sorts by the Vault group. Requires the plugin Vault.
       # permission - sorts by permissions.

@@ -10,7 +10,11 @@ particle_generator:
                 - playeffect effect:<[particle_data.effect]> at:<[locations]> quantity:<[quantity].if_null[1]> velocity:<[velocity].if_null[0,0,0]> offset:<[offset].if_null[<[particle_data.offset].if_null[0.5,0.5,0.5]>]> special_data:<[particle_data.special_data].if_null[]> data:<[particle_data.data].if_null[0]> visibility:<[particle_data.visibility].if_null[30]>
             - else:
                 - playeffect effect:<[particle_data.effect]> at:<[locations]> quantity:<[quantity].if_null[1]> velocity:<[velocity].if_null[0,0,0]> offset:<[offset].if_null[<[particle_data.offset].if_null[0.5,0.5,0.5]>]> data:<[particle_data.data].if_null[0]> visibility:<[particle_data.visibility].if_null[30]>
-
+tickcore_impl_data:
+    type: data
+    damage indicator blacklist:
+    - item_frame
+    - armor_stand
 
 tickcore_ability_data:
     type: data

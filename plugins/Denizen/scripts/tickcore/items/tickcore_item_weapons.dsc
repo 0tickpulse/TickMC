@@ -7,7 +7,7 @@ netherite_swaxovel:
     data:
         tickcore:
             stats:
-                damage_shadow: 8
+                damage_shadow: 13
                 attack_speed: 1.6
                 abilities:
                     1:
