@@ -4,8 +4,6 @@ tick_discord_data:
     minecraft channel: 967428382721703966
     formatted minecraft to discord message: <[role].exists.if_true[<[role].name> ].if_false[]>**<player.name>** » <[message].strip_color>
     formatted discord to minecraft message: <script[icons].parsed_key[discord]> <[user].nickname[<script[tick_discord_data].data_key[main group]>].if_null[<[user].name>]> <gray>» <white><[message]>
-    # @ Do not share!
-    #webhook url: https://discord.com/api/webhooks/1033530017340195007/4w4iZjb_omPVoANI8GIrdIBlj5jhQbXGEZNBr9dtkhtH4Vje1wsR0X8KANj43uIiHHgK
     role group links:
     - [group=admin;role=tick_discord,<script[tick_discord_data].data_key[main group]>,967427661695692880]
 
