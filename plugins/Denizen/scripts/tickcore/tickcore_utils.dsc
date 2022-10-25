@@ -13,8 +13,8 @@ tickcore_util_item_shortcut_command:
         max_args: 2
         player_only: true
     script:
-    - inject command_manager path:args_manager
-    - inject command_manager path:player_only
+    - inject command_manager.args_manager
+    - inject command_manager.player_only
     - define item_input <context.args.get[1]>
     - define properties <context.args.get[2].if_null[<map>]>
 

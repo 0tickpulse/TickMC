@@ -40,21 +40,21 @@ tick_world_manager_command:
             - [matcher=<context.args.get[1].equals[create].if_null[false].and[<[current_arg].is_more_than[1]>].and[<context.raw_args.ends_with[ --worldtype:]>]>;values=<server.world_types.parse_tag[<context.args.last><[parse_value]>]>]
             - [matcher=<context.args.get[1].equals[create].if_null[false].and[<[current_arg].is_more_than[1]>].and[<context.raw_args.ends_with[ --environment:]>]>;values=<list[NORMAL|NETHER|THE_END|CUSTOM].parse_tag[<context.args.last><[parse_value]>]>]
     tab complete:
-    - inject command_manager path:tab_complete_helper
+    - inject command_manager.tab_complete_helper
     script:
-    - inject command_manager path:args_manager
+    - inject command_manager.args_manager
     - choose <context.args.get[1]>:
         - case teleport:
             - define require_worlds 2
-            - inject command_manager path:require_world
+            - inject command_manager.require_world
             - define require_players 3
-            - inject command_manager path:require_player
+            - inject command_manager.require_player
             - teleport <player> <[world].spawn_location>
             - narrate "<&[success]>Teleported '<player.name>' to '<[world].name>'!"
         - case create:
             - define required_args 2
-            - inject command_manager path:args_manager
-            - inject command_manager path:flag_args
+            - inject command_manager.args_manager
+            - inject command_manager.flag_args
             - define flag_args.linear_args <[flag_args.linear_args].remove[1]>
             - define generator <[flag_args.prefixed_args.generator].if_null[minecraft:overworld]>
             - define seed <[flag_args.prefixed_args.seed].if_null[null]>

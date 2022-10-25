@@ -20,7 +20,7 @@ back_command:
     data:
         require_player: 1
     script:
-    - inject command_manager path:require_player
+    - inject command_manager.require_player
     - define location <player.flag[tick_essentials.back_location].if_null[null]>
     - if <[location]> == null:
         - narrate "<&[error]>The player '<player.name>' does not have a previous location logged!"
@@ -56,7 +56,7 @@ time_shortcut:
         - 2
     permission: tick_essentials.command.time
     script:
-    - inject command_manager path:require_world
+    - inject command_manager.require_world
     - define time <context.args.get[1].as[duration].if_null[null]>
     - if <[time]> == null:
         - narrate "<&[error]>Invalid time specified!"
@@ -94,7 +94,7 @@ gamemode_shortcut:
             - 3
             - sp
     script:
-    - inject command_manager path:args_manager
+    - inject command_manager.args_manager
     - if <context.args.size> == 0:
         - narrate <&[error]><script.data_key[usage]>
         - stop
@@ -111,7 +111,7 @@ gamemode_shortcut:
         - if <[command_runner]> != <player> && !<[command_runner].has_permission[tick_essentials.command.gm.other]>:
             - narrate "<&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
             - stop
-    - inject command_manager path:require_player
+    - inject command_manager.require_player
     - adjust <player> gamemode:<[to_set]>
     - narrate "<&[success]>Set your gamemode to <[to_set]>!"
 
@@ -128,7 +128,7 @@ gmc_command:
         - 1
     permission: tick_essentials.command.gm.creative
     script:
-    - inject command_manager path:require_player
+    - inject command_manager.require_player
     - if <[command_runner].exists>:
         - if <[command_runner]> != <player> && !<[command_runner].has_permission[tick_essentials.command.gm.other]>:
             - narrate "<&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
@@ -148,7 +148,7 @@ gms_command:
         - 1
     permission: tick_essentials.command.gm.survival
     script:
-    - inject command_manager path:require_player
+    - inject command_manager.require_player
     - if <[command_runner].exists>:
         - if <[command_runner]> != <player> && !<[command_runner].has_permission[tick_essentials.command.gm.other]>:
             - narrate "<&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
@@ -168,7 +168,7 @@ gma_command:
         - 1
     permission: tick_essentials.command.gm.adventure
     script:
-    - inject command_manager path:require_player
+    - inject command_manager.require_player
     - if <[command_runner].exists>:
         - if <[command_runner]> != <player> && !<[command_runner].has_permission[tick_essentials.command.gm.other]>:
             - narrate "<&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
@@ -188,7 +188,7 @@ gmsp_command:
         - 1
     permission: tick_essentials.command.gm.spectator
     script:
-    - inject command_manager path:require_player
+    - inject command_manager.require_player
     - if <[command_runner].exists>:
         - if <[command_runner]> != <player> && !<[command_runner].has_permission[tick_essentials.command.gm.other]>:
             - narrate "<&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
@@ -210,7 +210,7 @@ heal_command:
         - 1
     permission: tick_essentials.command.heal
     script:
-    - inject command_manager path:require_player
+    - inject command_manager.require_player
     - if <[command_runner].exists>:
         - if <[command_runner]> != <player> && !<[command_runner].has_permission[tick_essentials.command.heal.other]>:
             - narrate "<&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
@@ -231,7 +231,7 @@ feed_command:
         - 1
     permission: tick_essentials.command.feed
     script:
-    - inject command_manager path:require_player
+    - inject command_manager.require_player
     - if <[command_runner].exists>:
         - if <[command_runner]> != <player> && !<[command_runner].has_permission[tick_essentials.command.feed.other]>:
             - narrate "<&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
