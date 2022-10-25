@@ -1,3 +1,5 @@
+
+
 vanilla_override_wooden_sword:
     type: item
     material: wooden_sword

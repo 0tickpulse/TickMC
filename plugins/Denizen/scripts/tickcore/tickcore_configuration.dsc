@@ -243,13 +243,32 @@ tickcore_data:
     - defense_wind
     - abilities
     - gemstones
+    - gemstone_slots
     - description
     - <&sp.repeat[50].color[dark_gray].strikethrough>
     stats:
+        implementations:
+            item default: <list>
+            entity default: <list>
+            lore format: []
+            item stat calculation: <[map].values.combine>
+            player stat calculation: null
         gemstones:
+            item default: <list>
+            entity default: <list>
             lore format:
             - <empty>
-            - <[value].parse[get[name]].separated_by[<n>]>
+            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Gemstones<&co>
+            - <[value].parse[proc[tickutil_items.script.display]].parse_tag[   <dark_gray>» <&chr[20E3].custom_color[emphasis]> <[parse_value]>].separated_by[<n>]>
+            item stat calculation: <[map].values.combine>
+            player stat calculation: null
+        gemstone_slots:
+            item default: <list>
+            entity default: <list>
+            lore format:
+            - <[stat_map].keys.contains[gemstones].if_true[].if_false[<n><script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Gemstones<&co><n>]><[item].proc[tickcore_gemstones_proc.script.get_remaining_gemstone_slots].if_null[<[value]>].parse_tag[   <dark_gray>» <&chr[20E3]> Empty <[parse_value]> gem slot].separated_by[<n>]>
+            item stat calculation: <[map].values.combine>
+            player stat calculation: null
 
         reach_distance:
             item default: 0
@@ -418,7 +437,7 @@ tickcore_data:
         abilities:
             lore format:
             - <empty>
-            - <[value].parse_tag[<script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[emphasis]><script[tickcore_ability_data].parsed_key[trigger_names.<[parse_value.trigger]>].if_null[<[parse_value.trigger].replace[_].with[ ].to_titlecase>]> <dark_gray>» <&[emphasis]><[parse_value.name]><[parse_value].keys.contains[cooldown].if_true[ <dark_gray>(<[parse_value.cooldown]>)].if_false[]><n><&[base]><[parse_value.description].parsed.proc[tickutil_text.script.lore_section_no_icon]>].separated_by[<n.repeat[2]>]>
+            - <[value].parse_tag[<script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[emphasis]><script[tickcore_ability_data].parsed_key[trigger_names.<[parse_value.trigger]>].if_null[<[parse_value.trigger].replace[_].with[ ].to_titlecase>]> <dark_gray>» <&[emphasis]><[parse_value.name]><[parse_value].keys.contains[cooldown].if_true[ <dark_gray>(<[parse_value.cooldown]>)].if_false[]><n><&[base]><[parse_value.description].parsed.proc[tickutil_text.script.split_description_no_icon]>].separated_by[<n.repeat[2]>]>
             item stat calculation: <[map].values.combine.parse[values].combine>
             player stat calculation: <[map].values.combine>
 

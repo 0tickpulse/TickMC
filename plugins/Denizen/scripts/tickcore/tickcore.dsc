@@ -46,8 +46,6 @@ tickcore_proc:
             - determine <[1].with_single[attribute_modifiers=<[1].attribute_modifiers.include[<[attribute_map]>]>]>
             # definitions: item|stat
             get_stat:
-            - if !<[2].exists>:
-                - debug error Bad!
             - if !<[1].proc[tickcore_proc.script.items.is_tickitem]>:
                 - stop
             - define map <[1].flag[tickcore.stats.<[2]>].if_null[null]>
@@ -57,10 +55,14 @@ tickcore_proc:
             # definitions: item
             get_stat_map:
             - if !<[1].proc[tickcore_proc.script.items.is_tickitem]>:
-                - stop
+                - determine <map>
             - determine <[1].flag[tickcore.stats]>
+            get_stat_map_simple:
+            - determine <[1].proc[tickcore_proc.script.items.get_stat_map].parse_value_tag[<[1].proc[tickcore_proc.script.items.get_stat].context[<[parse_key]>]>]>
             # definitions: item
             is_tickitem:
+            - if <[1].material.name> == air:
+                - determine false
             - determine <[1].has_flag[tickcore.stats]>
             generate:
             - define id <[1]>
@@ -74,7 +76,7 @@ tickcore_proc:
             - define item <[id].as[item].with_map[<[default_item_properties]>]>
 
             # Stat manager
-            - define stat_map <[item_data.tickcore.stats].parse_value_tag[<map[base=<[parse_value]>]>].if_null[null]>
+            - define stat_map <[item_data.tickcore.stats].parse_value_tag[<map.with[base].as[<[parse_value]>]>].if_null[null]>
             - if <[stat_map]> == null:
                 - debug error "Item '<[id]>' is missing a data.tickcore.stats key in the item script!"
                 - stop
@@ -92,6 +94,7 @@ tickcore_proc:
             - define stat_global_map <script[tickcore_data].data_key[stats].if_null[null]>
             - define lore <list>
             - define stats_to_add "<script[tickcore_data].data_key[lore order]>"
+            - define item <[item].with_flag[tickcore.stats:<[stat_map]>]>
             - foreach <[stats_to_add]> as:stat_id:
                 - if <[stat_map].keys> !contains <[stat_id]>:
                     - if <proc[tickcore_proc.script.core.get_all_stat_ids]> !contains <[stat_id]>:
@@ -106,7 +109,6 @@ tickcore_proc:
                     - define lore:->:<[line].parsed.parsed>
                 - define value:!
             # Flag the item
-            - define item <[item].with_flag[tickcore.stats:<[stat_map]>]>
             # Add the generated lore to the item
             - define item <[item].with[lore=<[lore]>]>
             - determine <[item]>

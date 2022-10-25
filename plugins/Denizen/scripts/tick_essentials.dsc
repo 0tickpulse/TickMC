@@ -1,9 +1,13 @@
 
+tick_essentials_proc:
+    type: procedure
+    script:
+        online_players:
+        - determine <server.online_players>
 tick_essentials_data:
     type: data
     # Logs player teleports for the /back command.
     log teleports: true
-
 
 back_command:
     type: command
@@ -68,7 +72,7 @@ gamemode_shortcut:
     description: A shortcut command to change your gamemode.
     tab completions:
         1: <script.parsed_key[data.gamemode_aliases].to_pair_lists.parse[combine].combine>
-        2: <server.online_players.parse[name]>
+        2: <proc[tick_essentials_proc.script.online_players].parse[name]>
     usage: /gm [gamemode] (player)
     permission: tick_essentials.command.gm
     data:
@@ -117,7 +121,7 @@ gmc_command:
     debug: false
     description: A shortcut command to change your gamemode to creative.
     tab completions:
-        1: <server.online_players.parse[name]>
+        1: <proc[tick_essentials_proc.script.online_players].parse[name]>
     usage: /gmc (player)
     data:
         require_player:
@@ -137,7 +141,7 @@ gms_command:
     debug: false
     description: A shortcut command to change your gamemode to survival.
     tab completions:
-        1: <server.online_players.parse[name]>
+        1: <proc[tick_essentials_proc.script.online_players].parse[name]>
     usage: /gms (player)
     data:
         require_player:
@@ -157,7 +161,7 @@ gma_command:
     debug: false
     description: A shortcut command to change your gamemode to adventure.
     tab completions:
-        1: <server.online_players.parse[name]>
+        1: <proc[tick_essentials_proc.script.online_players].parse[name]>
     usage: /gma (player)
     data:
         require_player:
@@ -177,7 +181,7 @@ gmsp_command:
     debug: false
     description: A shortcut command to change your gamemode to spectator.
     tab completions:
-        1: <server.online_players.parse[name]>
+        1: <proc[tick_essentials_proc.script.online_players].parse[name]>
     usage: /gmsp (player)
     data:
         require_player:
@@ -199,7 +203,7 @@ heal_command:
     debug: false
     description: A shortcut command to heal.
     tab completions:
-        1: <server.online_players.parse[name]>
+        1: <proc[tick_essentials_proc.script.online_players].parse[name]>
     usage: /heal (player)
     data:
         require_player:
@@ -220,7 +224,7 @@ feed_command:
     debug: false
     description: A shortcut command to feed.
     tab completions:
-        1: <server.online_players.parse[name]>
+        1: <proc[tick_essentials_proc.script.online_players].parse[name]>
     usage: /feed (player)
     data:
         require_player:

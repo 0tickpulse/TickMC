@@ -1,3 +1,16 @@
+tick_chat_custom_tabcomplete:
+    type: world
+    debug: false
+    data:
+        tab completions:
+        - (i)
+        - (l)
+        - (/command)
+        - (!/command)
+    events:
+        on delta time minutely:
+        - foreach <server.online_players> as:__player:
+            - adjust <player> add_tab_completions:<script.data_key[data.tab completions]>
 tick_chat_world:
     type: world
     enabled: true
@@ -38,8 +51,11 @@ tick_chat_world:
                 - define message <[message].replace[@<[pinged].name>].with[<element[@<[pinged].name>].custom_color[emphasis]>]>
                 - define toast_map <script.parsed_key[data.ping toast]>
                 - toast <[toast_map.text].if_null[Please configure some text!]> frame:<[toast_map.frame].if_null[goal]> icon:<[toast_map.icon].if_null[stone]>
+        - customevent id:tick_chat_player_sends_message context:[message=<[message]>;formatted_message=<script.parsed_key[data.chat format]>] save:event
+        - if <entry[event].was_cancelled>:
+            - stop
         - announce <script.parsed_key[data.chat format]>
-        - debug log "<player.proc[tick_logging_util_proc.script.format_player]>: <[message]>"
+        - announce to_console "<player.proc[tick_logging_util_proc.script.format_player]>: <[message]>"
         on player receives message:
         - define message <context.message>
         - foreach <script.data_key[data.chat replacements.on receive message].keys> as:path:

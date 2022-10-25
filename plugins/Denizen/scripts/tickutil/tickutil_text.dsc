@@ -20,9 +20,25 @@ tickutil_text:
         split_description:
         - define lines <[1].split_lines_by_width[<&sp.repeat[50].text_width.sub[<element[   »].text_width>]>]>
         - determine <[lines].lines_to_colored_list.separated_by[<n>].proc[tickutil_text.script.lore_section]>
+        split_description_no_icon:
+        - define lines <[1].split_lines_by_width[<&sp.repeat[50].text_width.sub[<element[   »].text_width>]>]>
+        - determine <[lines].lines_to_colored_list.separated_by[<n>].proc[tickutil_text.script.lore_section_no_icon]>
 
 icons:
     type: data
+    discord: DISCORD
+    spaces:
+        2: <element[1].font[spaces].color[white]>
+        4: <element[2].font[spaces].color[white]>
+        8: <element[3].font[spaces].color[white]>
+        16: <element[4].font[spaces].color[white]>
+        32: <element[5].font[spaces].color[white]>
+        64: <element[6].font[spaces].color[white]>
+        128: <element[7].font[spaces].color[white]>
+        256: <element[8].font[spaces].color[white]>
+        512: <element[9].font[spaces].color[white]>
+    guis:
+        resonance_station: <element[r].font[guis].color[white]>
     damage_indicators:
         earth: <element[e].font[damage_indicators].color[white]>
         ender: <element[n].font[damage_indicators].color[white]>

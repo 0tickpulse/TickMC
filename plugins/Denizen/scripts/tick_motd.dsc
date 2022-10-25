@@ -24,7 +24,6 @@ tick_motd_world:
   events:
     on server list ping:
     - define ip <context.address>
-    #- ~webget
     - define line1 <script[tick_motd_data].data_key[line_1].random.parsed>
     - define line2 <script[tick_motd_data].data_key[line_2].random.parsed>
     - determine passively <[line1]><n><[line2]>

@@ -95,6 +95,8 @@ lights_splendor:
     data:
         tickcore:
             stats:
+                gemstone_slots:
+                - crystal
                 reach_distance: 5
                 attack_speed: 3
                 damage_light: 85

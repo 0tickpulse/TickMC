@@ -21,7 +21,7 @@ tick_economy_main:
     # A tag that returns a boolean indicating whether the linked player has the amount specified by def "<[amount]>".
     # Use a 'proc[]' tag if you need more complex logic.
     # Must return 'true' or 'false'.
-    has: <player.flag[tick_economy.money].is[or_more].than[<[amount]>]>
+    has: <player.flag[tick_economy.money].is_more_than_or_equal_to[<[amount]>]>
     # A script that removes the amount of money needed from a player.
     # Note that it's generally up to the systems calling this script to verify that the amount can be safely withdrawn, not this script itself.
     # However you may wish to verify that the player has the amount required within this script.
