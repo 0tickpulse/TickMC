@@ -1,9 +1,4 @@
-# tickcore_smithing:
-#     type: world
-#     debug: false
-#     events:
-#         on player smiths item ignorecancelled:true:
-#         - debug log <context.cancelled>
+
 tickcore_gemstones_proc:
     type: procedure
     debug: false
@@ -26,6 +21,21 @@ tickcore_gemstones_proc:
             - if <[key].starts_with[gemstone_<[type]>_]>:
                 - define i:++
         - determine <[i]>
+        # Gets what type to apply, or null if can't apply
+        get_apply_type:
+        - define item <[1]>
+        - define gemstone <[2]>
+        - if !<[gemstone].proc[tickcore_proc.script.items.is_tickitem]> || !<[item].proc[tickcore_proc.script.items.is_tickitem]>:
+            - stop
+        - define gemstone_slots <[item].proc[tickcore_proc.script.items.get_stat].context[gemstone_slots]>
+        - if <[gemstone_slots]> == null:
+            - stop
+        - foreach <[gemstone].proc[tickcore_proc.script.items.get_stat].context[implementations]> as:id:
+            - if <[gemstone_slots].parse_tag[gemstone_<[parse_value]>]> contains <[id]>:
+                - define gemstone_type <[id].after[gemstone_]>
+        - if <[item].proc[tickcore_gemstones_proc.script.get_remaining_gemstone_slots].find[<[gemstone_type]>]> == -1:
+            - stop
+        - determine <[gemstone_type]>
         apply_gemstone:
         - define item <[1]>
         - define gemstone <[2]>
@@ -57,17 +67,8 @@ tickcore_gemstones_world:
         - define item <context.inventory.slot[1]>
         - define gemstone <context.inventory.slot[2]>
 
-        - if !<[gemstone].proc[tickcore_proc.script.items.is_tickitem]> || !<[item].proc[tickcore_proc.script.items.is_tickitem]>:
-            - stop
-        - define gemstone_slots <[item].proc[tickcore_proc.script.items.get_stat].context[gemstone_slots]>
-        - if <[gemstone_slots]> == null:
-            - stop
-        - foreach <[gemstone].proc[tickcore_proc.script.items.get_stat].context[implementations]> as:id:
-            - if <[gemstone_slots].parse_tag[gemstone_<[parse_value]>]> contains <[id]>:
-                - define gemstone_type <[id].after[gemstone_]>
-        #- if <[item].proc[tickcore_gemstones_proc.script.get_gemstones_with_type].context[<[gemstone_type]>]> < 1:
-            #- stop
-        - if <[item].proc[tickcore_gemstones_proc.script.get_remaining_gemstone_slots].find[<[gemstone_type]>]> == -1:
+        - define gemstone_type <[item].proc[tickcore_gemstones_proc.script.get_apply_type].context[<[gemstone]>].if_null[null]>
+        - if <[gemstone_type]> == null:
             - stop
 
         - define new_item <[item].proc[tickcore_gemstones_proc.script.apply_gemstone].context[<[gemstone]>|<[gemstone_type]>]>

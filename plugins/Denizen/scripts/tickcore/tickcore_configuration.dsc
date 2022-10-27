@@ -15,6 +15,7 @@ tickcore_impl_data:
     damage indicator blacklist:
     - item_frame
     - armor_stand
+    - dropped_item
 
 tickcore_ability_data:
     type: data
@@ -244,13 +245,20 @@ tickcore_data:
     - abilities
     - gemstones
     - gemstone_slots
+    - implementations
     - description
     - <&sp.repeat[50].color[dark_gray].strikethrough>
     stats:
         implementations:
             item default: <list>
             entity default: <list>
-            lore format: []
+            lore format:
+            - <empty>
+            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>This item is a<&co>
+            - <[value].parse_tag[<script[tickcore_data].parsed_key[stats.implementations.data.aliases.<[parse_value]>].if_null[<[parse_value]>]>].separated_by[<n>].proc[tickutil_text.script.lore_section_no_icon]>
+            data:
+                aliases:
+                    gemstone_crystal: Crystal gem stone
             item stat calculation: <[map].values.combine>
             player stat calculation: null
         gemstones:
