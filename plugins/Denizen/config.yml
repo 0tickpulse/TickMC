@@ -340,3 +340,4 @@ Colors:
     wind: <&color[#FFFFFF]>
     #
     admin: <&color[#ff5555]>
+    console: <white>

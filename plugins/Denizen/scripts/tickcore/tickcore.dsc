@@ -1,3 +1,40 @@
+tickcore_recalculate_stats_task:
+    type: task
+    debug: false
+    script:
+    - flag <player> tickcore.stat_map:<player.proc[tickcore_proc.script.players.get_stat_map_raw]>
+tickcore_apply_stats_to_players_world:
+    type: world
+    debug: false
+    events:
+        after player scrolls their hotbar:
+        - ratelimit <player> 2t
+        - run tickcore_recalculate_stats_task
+        after player clicks item in inventory:
+        - ratelimit <player> 15t
+        - run tickcore_recalculate_stats_task
+        after player equips item:
+        - ratelimit <player> 2t
+        - run tickcore_recalculate_stats_task
+        after player unequips item:
+        - ratelimit <player> 2t
+        - run tickcore_recalculate_stats_task
+        after player consumes item:
+        - run tickcore_recalculate_stats_task
+        after player item takes damage:
+        - run tickcore_recalculate_stats_task
+        # An event which MythicCrucible forgot about
+        after player breaks held item:
+        - run tickcore_recalculate_stats_task
+        after player picks up item:
+        - run tickcore_recalculate_stats_task
+        after player dies:
+        - run tickcore_recalculate_stats_task
+        after player respawns:
+        - run tickcore_recalculate_stats_task
+        after player joins:
+        - run tickcore_recalculate_stats_task
+
 tickcore_task:
     type: task
     debug: false
@@ -162,6 +199,8 @@ tickcore_proc:
             - determine <[entity]>
         players:
             get_stat_map:
+            - determine <[1].flag[tickcore.stat_map].if_null[<[1].proc[tickcore_proc.script.players.get_stat_map_raw]>]>
+            get_stat_map_raw:
             - define player <[1]>
             - define map <map>
             - foreach <script[tickcore_data].data_key[slots to check for stats].if_null[<list>]> as:slot:

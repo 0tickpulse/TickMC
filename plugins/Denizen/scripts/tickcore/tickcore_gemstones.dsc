@@ -36,6 +36,7 @@ tickcore_gemstones_proc:
         - if <[item].proc[tickcore_gemstones_proc.script.get_remaining_gemstone_slots].find[<[gemstone_type]>]> == -1:
             - stop
         - determine <[gemstone_type]>
+        # @ Warning: This does not check if the item can be applied. This only applies the gemstone's stats.
         apply_gemstone:
         - define item <[1]>
         - define gemstone <[2]>
@@ -46,6 +47,13 @@ tickcore_gemstones_proc:
         - define add_stats <[2].proc[tickcore_proc.script.items.get_stat_map_simple].exclude[implementations].parse_value_tag[<map[gemstone_<[gemstone_type]>_<[gemstone_id]>=<[parse_value]>]>]>
         - define add_stats.gemstones.gemstone_<[gemstone_type]>_<[gemstone_id]>:->:<[gemstone]>
         - determine <[item].proc[tickcore_proc.script.items.add_stats].context[<[add_stats]>]>
+        can_apply_gemstone:
+        - define item <[1]>
+        - define gemstone <[2]>
+        - define gemstone_type <[item].proc[tickcore_gemstones_proc.script.get_apply_type].context[<[gemstone]>].if_null[null]>
+        - if <[gemstone_type]> == null:
+            - determine false
+        - determine true
         remove_all_gemstones:
         - define item <[1]>
         - define stat_map <[1].proc[tickcore_proc.script.items.get_stat_map]>
@@ -113,17 +121,30 @@ tickcore_gemstones_inventory_generate_items:
     script:
     - define input <[inventory].slot[11]>
 
-    - define gemstones <[input].proc[tickcore_gemstones_proc.script.get_remaining_gemstone_slots].size.if_null[0]>
-    - define empty_slot_index <util.list_numbers_to[<[gemstones]>]>
+    - define gemstone_slots <[input].proc[tickcore_gemstones_proc.script.get_remaining_gemstone_slots].size.if_null[0]>
+    - define empty_slot_index <util.list_numbers_to[<[gemstone_slots]>]>
     - define gemstone_slots <[inventory].script.data_key[data.slots]>
     - if !<[empty_slot_index].is_empty>:
         - define slots <[gemstone_slots].get[<[empty_slot_index]>]>
         - foreach <[slots]> as:slot:
             - if <[inventory].slot[<[slot]>]> matches tickutil_inventories_container_fill_item:
-                - announce <[slot]>:<[inventory].slot[<[slot]>]>
                 - inventory set slot:<[slot]> o:air d:<[inventory]>
     - foreach <[gemstone_slots].exclude[<[slots].if_null[<list>]>]> as:slot:
         - inventory set slot:<[slot]> o:tickutil_inventories_container_fill_item d:<[inventory]>
+
+    - if !<[slots].exists>:
+        - stop
+    - define gemstone_items <[gemstone_slots].get[<[slots]>].as[list].parse_tag[<[inventory].slot[<[parse_value]>]>]>
+    - define output <[input]>
+    - foreach <[gemstone_items]> as:gemstone:
+        - if !<[output].proc[tickcore_gemstones_proc.script.can_apply_gemstone].context[<[gemstone]>]>:
+            - foreach stop
+        - define type <[output].proc[tickcore_gemstones_proc.script.get_apply_type].context[<[gemstone]>]>
+        - define output <[output].proc[tickcore_gemstones_proc.script.apply_gemstone].context[<[gemstone]>|<[type]>]>
+    - if <[input]> == <[output]>:
+        - stop
+    - inventory set slot:17 o:<[output]> d:<[inventory]>
+
 tickcore_gemstones_inventory_world:
     type: world
     debug: false

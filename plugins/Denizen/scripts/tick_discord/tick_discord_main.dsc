@@ -1,9 +1,18 @@
+# @ ----------------------------------------------------------
+# Tick Discord Main
+# The main script that powers the Discord bot in TickMC.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 tick_discord_data:
     type: data
     main group: 967071106261458954
     minecraft channel: 967428382721703966
-    formatted minecraft to discord message: <[role].exists.if_true[<[role].name> ].if_false[]>**<player.name>** » <[message].strip_color>
-    formatted discord to minecraft message: <script[icons].parsed_key[discord]> <[user].nickname[<script[tick_discord_data].data_key[main group]>].if_null[<[user].name>]> <gray>» <white><[message]>
+    lang:
+        formatted minecraft to discord message: <[role].exists.if_true[<[role].name> ].if_false[]>**<player.name>** » <[message].strip_color>
+        formatted discord to minecraft message: <script[icons].parsed_key[discord]> <[user].nickname[<script[tick_discord_data].data_key[main group]>].if_null[<[user].name>]> <gray>» <white><[message]>
+        server start message: <discord_embed.with[title].as[<&lt>:tickmc:1028038909864710244<&gt> TickMC has started!].with[description].as[You can join now via `tick-mc.net`!].with[color].as[red]>
+        server stop message: <discord_embed.with[title].as[<&lt>:tickmc:1028038909864710244<&gt> TickMC has stopped!].with[description].as[Please wait a bit for it to restart!].with[color].as[red]>
     role group links:
     - [group=admin;role=tick_discord,<script[tick_discord_data].data_key[main group]>,967427661695692880]
 
@@ -12,6 +21,7 @@ tick_discord_connect:
     debug: false
     script:
     - ~discordconnect id:tick_discord token:<secret[tick_discord_token]>
+    - ~discordmessage id:tick_discord channel:<script[tick_discord_data].data_key[minecraft channel]> <script[tick_discord_data].parsed_key[lang.server start message]>
 tick_discord_connect_world:
     type: world
     debug: false
@@ -23,6 +33,8 @@ tick_discord_world:
     type: world
     debug: false
     events:
+        on shutdown:
+        - ~discordmessage id:tick_discord channel:<script[tick_discord_data].data_key[minecraft channel]> <script[tick_discord_data].parsed_key[lang.server stop message]>
         after custom event id:tick_chat_player_sends_message:
         - if <discord_bots.parse[name]> !contains tick_discord:
             - stop
@@ -31,7 +43,7 @@ tick_discord_world:
         - foreach <script[tick_discord_data].data_key[role group links].parse[as[map]]> as:map:
             - if <[groups]> contains <[map.group]>:
                 - define role <[map.role].parsed.as[discordrole]>
-        - ~discordmessage id:tick_discord channel:<script[tick_discord_data].data_key[minecraft channel]> <script[tick_discord_data].parsed_key[formatted minecraft to discord message]> no_mention
+        - ~discordmessage id:tick_discord channel:<script[tick_discord_data].data_key[minecraft channel]> <script[tick_discord_data].parsed_key[lang.formatted minecraft to discord message]> no_mention
         after discord message received:
         - if <context.channel.id> != <script[tick_discord_data].data_key[minecraft channel].as[discordchannel].id>:
             - stop
@@ -39,7 +51,7 @@ tick_discord_world:
         - if <[user].is_bot>:
             - stop
         - define message <context.new_message.text>
-        - announce <script[tick_discord_data].parsed_key[formatted discord to minecraft message]>
+        - announce <script[tick_discord_data].parsed_key[lang.formatted discord to minecraft message]>
 tick_discord_register_commands:
     type: task
     debug: false
@@ -61,7 +73,8 @@ tick_discord_command_manager:
                     - define message "There are no online players!"
                 - else:
                     - define message <[players].comma_separated>
-                - ~discordinteraction reply interaction:<[interaction]> <[message]>
+                - ~discordinteraction delete interaction:<[interaction]>
+                #- ~discordinteraction reply interaction:<[interaction]> <[message]>
 
 # tick_discord_webhook_task:
 #     type: task

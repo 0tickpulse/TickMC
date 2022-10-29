@@ -23,6 +23,12 @@ tickutil_text:
         split_description_no_icon:
         - define lines <[1].split_lines_by_width[<&sp.repeat[50].text_width.sub[<element[   »].text_width>]>]>
         - determine <[lines].lines_to_colored_list.separated_by[<n>].proc[tickutil_text.script.lore_section_no_icon]>
+        dark_background:
+        - define width <[1].text_width>
+        - define times <[width].div[3.5].round_up>
+        - define string <empty>
+        - foreach <[1].to_list> as:char:
+            - define string <[string]>
 
 icons:
     type: data

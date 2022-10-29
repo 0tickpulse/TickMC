@@ -4,6 +4,9 @@ tickcore_stat_link:
     events:
         on custom event id:tickcore_entity_spawns:
         - adjust <context.entity> max_health:<context.stats.get[max_health].if_null[<context.entity.health_max>]>
+        on delta time secondly:
+        - foreach <server.online_players> as:__player:
+            - adjust <player> max_health:<player.proc[tickcore_proc.script.players.get_stat].context[max_health]>
 
 tickcore_run_slash:
     type: task
@@ -57,7 +60,7 @@ tickcore_custom_attack:
 tickcore_impl_do_damage_task:
     type: task
     debug: false
-    definitions: targets|element_map|source|cause|knockback
+    definitions: targets|element_map|source|cause|knockback|crit_chance
     script:
     - foreach <[targets]> as:target:
         - define amount 0
@@ -71,7 +74,9 @@ tickcore_impl_do_damage_task:
             - else:
                 - define to_add <[element_damage]>
             - define new_element_map.<[element]>:<[to_add]>
-            - define has_crit <util.random_chance[<[source].proc[tickcore_proc.script.entities.get_stat].context[crit_chance]>].if_null[false]>
+            - if !<[crit_chance].exists>:
+                - define crit_chance <[source].proc[tickcore_proc.script.entities.get_stat].context[crit_chance]>
+            - define has_crit <util.random_chance[<[crit_chance]>].if_null[false]>
             - if <[has_crit]>:
                 - define amount:+:<[to_add].mul[<[source].proc[tickcore_proc.script.entities.get_stat].context[crit_damage].add[1]>]>
             - else:

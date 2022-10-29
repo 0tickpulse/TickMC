@@ -2,6 +2,15 @@
 ticktab_config:
     type: data
 
+    bossbar:
+        enabled: true
+        update frequency: 1
+        bossbar:
+            text: <player.proc[tick_chat_format_player_name]>         <reset><util.time_now.format[hh:mm:ss]> UTC
+            color: white
+            style: SOLID
+            progress: 1
+
     # The header and footer. They are lines of text that exist above and below the player list respectively.
     header and footer:
         enabled: true
@@ -19,7 +28,7 @@ ticktab_config:
         # Configure the footer. (The text below the player list)
         footer:
         - <gray>Your ping: <red><[ping]>ms
-        - <gray>Tick duration: <red><[mspt]>ms
+        - <gray>Tick duration: <red><[mspt]>ms    <gray>RAM: <[ram_usage_gb].round_to_precision[0.1].color[red]>/<[ram_allocated_gb].round_to_precision[0.1].color[red]><red>GB
 
     # The player list manager. This manages the players in the tablist, allowing you to do cool stuff in it!
     player list manager:
@@ -55,12 +64,29 @@ ticktab_main_world:
         # Header and footer logic
         - run ticktab_header_footer_logic_task
         - run ticktab_player_list_manager_task
+        - run ticktab_bossbar_task
         after player joins:
         - if <script[ticktab_config].data_key[player list manager.also update on player join and leave].if_null[false]>:
             - run ticktab_player_list_manager_task
         after player quits:
         - if <script[ticktab_config].data_key[player list manager.also update on player join and leave].if_null[false]>:
             - run ticktab_player_list_manager_task
+ticktab_bossbar_task:
+    type: task
+    debug: false
+    script:
+    - define per_second <script[ticktab_config].data_key[bossbar.update frequency].if_null[1].min[20]>
+    - define interval <element[1].div[<[per_second]>]>
+    - repeat <[per_second]>:
+        - if <script[ticktab_config].data_key[bossbar.enabled]>:
+            - if <server.current_bossbars> !contains ticktab_bossbar:
+                - bossbar create ticktab_bossbar players:<server.online_players>
+            - foreach <server.online_players> as:__player:
+                - bossbar update ticktab_bossbar players:<player> progress:<script[ticktab_config].parsed_key[bossbar.bossbar.progress].if_null[1]> style:<script[ticktab_config].parsed_key[bossbar.bossbar.style].if_null[solid]> color:<script[ticktab_config].parsed_key[bossbar.bossbar.color].if_null[red]> title:<script[ticktab_config].parsed_key[bossbar.bossbar.text]>
+            - stop
+        - if <server.current_bossbars> contains ticktab_bossbar:
+            - bossbar remove ticktab_bossbar
+        - wait <[interval]>s
 ticktab_header_footer_logic_task:
     type: task
     debug: false
@@ -125,7 +151,9 @@ ticktab_player_definitions_task:
     - define z <player.location.round.z>
     - define player_count <server.online_players.size>
     - define full_name <player.chat_prefix.parse_color.if_null[]><player.name><player.chat_suffix.parse_color.if_null[]>
-    - define ram <util.ram_usage.div[<util.ram_max>].mul[100].round>
+    - define ram_percent <util.ram_usage.div[<util.ram_max>].mul[100].round>
+    - define ram_usage_gb <util.ram_usage.div[1073741824]>
+    - define ram_allocated_gb <util.ram_allocated.div[1073741824]>
     - define mspt <paper.tick_times.first.in_milliseconds.round_to_precision[0.1]>
 
 

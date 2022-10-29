@@ -55,7 +55,7 @@ tick_chat_world:
         - if <entry[event].was_cancelled>:
             - stop
         - announce <script.parsed_key[data.chat format]>
-        - announce to_console "<player.proc[tick_logging_util_proc.script.format_player]>: <[message]>"
+        - run tick_logging_log_info def.source:Chat "def.message:<player.proc[tick_logging_util_proc.script.format_player]>: <[message]>"
         on player receives message:
         - define message <context.message>
         - foreach <script.data_key[data.chat replacements.on receive message].keys> as:path:
