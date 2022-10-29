@@ -49,11 +49,9 @@ resource_pack_update_command:
     aliases:
     - updaterp
     - updateresourcepack
-    - updatetickmcsamazingopensourceresourcepack
     - grp
     - getresourcepack
     - getpack
-    - gettickmcsamazingopensourceresourcepack
     description: Updates the resource pack. Won't work if you have it disabled.
     usage: /updatepack
     script:
