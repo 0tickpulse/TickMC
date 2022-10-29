@@ -38,7 +38,7 @@ resource_pack_send_task:
     debug: false
     script:
     - define pack_link <script[resource_pack_data].data_key[pack_link]>
-    - define prompt <script[resource_pack_data].data_key[pack_prompt]>
+    - define prompt <script[resource_pack_data].parsed_key[pack_prompt]>
 
     - define hash <server.flag[resource_pack.hash]>
 
