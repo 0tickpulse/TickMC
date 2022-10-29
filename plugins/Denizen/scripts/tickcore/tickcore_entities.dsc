@@ -1,3 +1,10 @@
+# @ ----------------------------------------------------------
+# TickCore Entities
+# All my custom mobs. Will be separated into different folders
+# in the future.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 cool_mob:
     type: entity
     entity_type: zombie

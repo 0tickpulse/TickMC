@@ -1,3 +1,8 @@
+# @ ----------------------------------------------------------
+# TickCore Gemstones
+# An implementation of TickCore that adds a gemstone system.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
 
 tickcore_gemstones_proc:
     type: procedure

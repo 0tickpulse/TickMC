@@ -1,3 +1,10 @@
+# @ ----------------------------------------------------------
+# TickCore Item Overrides
+# A simple script that overrides vanilla items with
+# corresponding TickCore items.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 tickcore_item_overrides_data:
     type: data
     convert on pickup: true

@@ -1,3 +1,9 @@
+# @ ----------------------------------------------------------
+# TickCore Archery
+# Overhauls the archery system in Minecraft.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 tickcore_archery_world:
     type: world
     debug: false

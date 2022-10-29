@@ -1,3 +1,8 @@
+# @ ----------------------------------------------------------
+# TickCore Configuration
+# The main configuration for TickCore.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
 
 particle_generator:
     type: task

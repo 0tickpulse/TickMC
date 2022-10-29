@@ -1,3 +1,9 @@
+# @ ----------------------------------------------------------
+# Tick's Essentials
+# A collection of useful things, similar to EssentialsX
+# plugin.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
 
 tick_essentials_proc:
     type: procedure

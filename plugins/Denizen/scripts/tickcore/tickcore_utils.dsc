@@ -1,3 +1,10 @@
+# @ ----------------------------------------------------------
+# TickCore Utils
+# A few simple utility scripts that are used in my TickCore
+# implementations.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 tickcore_util_item_shortcut_command:
     type: command
     debug: false

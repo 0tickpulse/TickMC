@@ -1,3 +1,10 @@
+# @ ----------------------------------------------------------
+# Tick's Sidebar
+# A highly flexible sidebar system, with presets, lines,
+# conditions, and more!
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 tick_sidebar_data:
     type: data
     refresh rate: 5

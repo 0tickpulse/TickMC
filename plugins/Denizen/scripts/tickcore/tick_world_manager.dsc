@@ -1,4 +1,8 @@
-
+# @ ----------------------------------------------------------
+# Tick's World Manager
+# ... a world manager.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
 
 tick_world_manager_cache_worlds_task:
     type: task

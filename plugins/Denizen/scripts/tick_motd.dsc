@@ -1,3 +1,10 @@
+# @ ----------------------------------------------------------
+# Tick's MOTD
+# A simple script that displays a customizable message of the
+# day in the Server List.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 tick_motd_data:
     type: data
     line_1:

@@ -1,3 +1,11 @@
+# @ ----------------------------------------------------------
+# Tick's No-Quick-Join
+# A variation of mcmonkey's script in the forums, this simple
+# script will prevent players from joining the server for a
+# few seconds after server starts.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 tick_no_quick_join_world:
     type: world
     debug: false

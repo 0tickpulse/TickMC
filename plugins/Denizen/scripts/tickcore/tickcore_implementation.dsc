@@ -1,3 +1,11 @@
+# @ ----------------------------------------------------------
+# TickCore Implementation
+# My main implementation of TickCore. Adds slashes, an
+# elemental combat system, item abilities, stat links,
+# damage indicators, etc.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 tickcore_stat_link:
     type: world
     debug: false

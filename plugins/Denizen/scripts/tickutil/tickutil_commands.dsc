@@ -1,3 +1,10 @@
+# @ ----------------------------------------------------------
+# TickUtil Commands
+# Adds many utility scripts that make command scripts much
+# easier.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 command_error_registry:
     type: data
 command_manager:

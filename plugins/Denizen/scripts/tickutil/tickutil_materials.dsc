@@ -1,3 +1,10 @@
+# @ ----------------------------------------------------------
+# TickUtil Materials
+# Adds many utility scripts that make materials easier to
+# manage.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 tickutil_materials_cache:
     type: world
     debug: false

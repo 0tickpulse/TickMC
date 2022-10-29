@@ -1,3 +1,12 @@
+# @ ----------------------------------------------------------
+# Tick's Daily Restarts
+# A script that restarts the server every 24 hours, with a
+# bossbar timer, countdown, title messages. It also restarts
+# the server early if no players are online, and kicks players
+# a few seconds before the restart for safety.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 tick_daily_restarts_stop_restart_task:
     type: task
     debug: false
@@ -73,7 +82,7 @@ tick_auto_save_task:
     type: task
     debug: false
     script:
-    - run tick_logging_log_info "def.source:Tick's daily restarts" def.message:Saving...
+    - run tick_logging_log_info "def.source:Tick's autosaver" def.message:Saving...
     - adjust server save
 tick_auto_save_world:
     type: world

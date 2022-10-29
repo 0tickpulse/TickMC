@@ -1,3 +1,10 @@
+# @ ----------------------------------------------------------
+# TickUtil Items
+# Adds many utility scripts that make item scripts much
+# easier.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 tickutil_items:
     type: procedure
     debug: false

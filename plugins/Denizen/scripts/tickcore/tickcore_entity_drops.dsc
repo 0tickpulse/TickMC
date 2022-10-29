@@ -1,3 +1,10 @@
+# @ ----------------------------------------------------------
+# TickCore Drops
+# An implementation of TickCore that adds customizable drops
+# to entities.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 tickcore_entity_drop_data:
     type: data
 

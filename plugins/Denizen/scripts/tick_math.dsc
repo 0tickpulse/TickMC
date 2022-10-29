@@ -1,3 +1,10 @@
+# @ ----------------------------------------------------------
+# Tick's Math
+# A math system that uses tokenization and parsing to evaluate
+# certain math expressions.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 tick_math_evaluate_proc:
     type: procedure
     debug: false

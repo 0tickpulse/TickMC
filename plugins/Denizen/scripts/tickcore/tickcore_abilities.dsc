@@ -1,3 +1,8 @@
+# @ ----------------------------------------------------------
+# Abilities for my weapons.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 attack_ability_test:
     type: task
     debug: false

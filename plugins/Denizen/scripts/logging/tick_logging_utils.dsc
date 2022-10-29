@@ -1,3 +1,9 @@
+# @ ----------------------------------------------------------
+# Tick's Logging Utils
+# Some simple logging utilities.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 tick_logging_util_proc:
     type: procedure
     debug: false

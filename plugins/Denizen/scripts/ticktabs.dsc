@@ -1,4 +1,11 @@
-# Configuration starts here
+# @ ----------------------------------------------------------
+# TickTabs
+# A flexible script that adds a header and footer to tablist,
+# manages players in the tablist, and as a bonus, adds a
+# bossbar.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 ticktab_config:
     type: data
 

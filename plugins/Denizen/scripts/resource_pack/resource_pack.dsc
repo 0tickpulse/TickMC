@@ -1,3 +1,9 @@
+# @ ----------------------------------------------------------
+# Tick's Resource Pack Manager
+# A script that will help you manage your resource packs.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 ##IgnoreWarning invalid_data_line_quotes
 resource_pack_data:
     type: data

@@ -1,3 +1,10 @@
+# @ ----------------------------------------------------------
+# TickUtil Inventory
+# Adds many utility scripts that makes it easier to work with
+# text.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 tickutil_text:
     type: procedure
     debug: false

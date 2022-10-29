@@ -1,3 +1,10 @@
+# @ ----------------------------------------------------------
+# TickCore Slash!
+# A script that uses trigonometry to generate slash points,
+# which when connected, create a slash effect.
+# Author: 0TickPulse
+# @ ----------------------------------------------------------
+
 slash_util_ring_proc:
     type: procedure
     debug: false
