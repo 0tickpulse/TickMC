@@ -13,9 +13,9 @@ resource_pack_data:
     pack_prompt: Please accept this pack!
     scripts:
         declined:
-        - narrate "It seems you have the resourcepack disabled! Please download it <element[here].custom_color[emphasis].bold.click_url[https://github.com/0tickpulse/tickmc_pack/raw/master/release.zip]>."
+        - narrate "<element[TickMC Pack].format[tickutil_text_prefix]> It seems you have the resourcepack disabled! Please download it <element[here].custom_color[emphasis].bold.click_url[https://github.com/0tickpulse/tickmc_pack/raw/master/release.zip]>."
         failed_download:
-        - narrate "It seems the pack failed to download! Please try to download it again <element[here].custom_color[emphasis].bold.click_url[https://github.com/0tickpulse/tickmc_pack/raw/master/release.zip]>."
+        - narrate "<element[TickMC Pack].format[tickutil_text_prefix]> It seems the pack failed to download! Please try to download it again <element[here].custom_color[emphasis].bold.click_url[https://github.com/0tickpulse/tickmc_pack/raw/master/release.zip]>."
         accepted:
         - stop
         successfully_loaded:
@@ -27,7 +27,7 @@ resource_pack_store_hash_task:
     - define hash_link <script[resource_pack_data].data_key[hash_link]>
 
     - ~webget https://<[hash_link]> save:hash
-    - define hash <entry[hash].result.split[ ].get[1]>
+    - define hash <entry[hash].result.split[<&sp>].get[1]>
 
     - if <server.flag[resource_pack.hash].if_null[null]> == <[hash]>:
         - stop
@@ -42,7 +42,7 @@ resource_pack_send_task:
 
     - define hash <server.flag[resource_pack.hash]>
 
-    - resourcepack url:https://<[pack_link]> hash:<[hash]> prompt:<[prompt]>
+    - resourcepack url:https://<[pack_link]>#<[hash]> hash:<[hash]> prompt:<[prompt]>
 resource_pack_update_command:
     type: command
     name: updatepack

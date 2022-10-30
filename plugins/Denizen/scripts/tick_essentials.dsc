@@ -29,14 +29,14 @@ back_command:
     - inject command_manager.require_player
     - define location <player.flag[tick_essentials.back_location].if_null[null]>
     - if <[location]> == null:
-        - narrate "<&[error]>The player '<player.name>' does not have a previous location logged!"
+        - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[error]>The player '<player.name>' does not have a previous location logged!"
         - stop
     - if <[command_runner]> != null:
         - if <[command_runner]> != <player> && !<[command_runner].has_permission[tick_essentials.command.back.other]>:
-            - narrate "<&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
+            - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
             - stop
     - teleport <player> <[location]>
-    - narrate "<&[success]>Teleported '<player.name>' to their previous location!"
+    - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[success]>Teleported '<player.name>' to their previous location!"
 back_command_logger_world:
     type: world
     debug: false
@@ -65,10 +65,10 @@ time_shortcut:
     - inject command_manager.require_world
     - define time <context.args.get[1].as[duration].if_null[null]>
     - if <[time]> == null:
-        - narrate "<&[error]>Invalid time specified!"
+        - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[error]>Invalid time specified!"
         - stop
     - time <[time]> <[world]>
-    - narrate "<&[success]>Changed the time to <[time].formatted> in <[world].name>!"
+    - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[success]>Changed the time to <[time].formatted> in <[world].name>!"
 
 # @ Gamemode commands
 gamemode_shortcut:
@@ -108,18 +108,18 @@ gamemode_shortcut:
         - if <context.args.get[1]> in <[aliases].include[<[gamemode]>]>:
             - define to_set <[gamemode]>
     - if !<[to_set].exists>:
-        - narrate "<&[error]>Invalid gamemode!"
+        - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[error]>Invalid gamemode!"
         - stop
     - if <[command_runner].exists>:
         - if !<[command_runner].has_permission[tick_essentials.command.gm.<[to_set]>]>:
-            - narrate "<&[error]>You do not have permission to use this gamemode!" targets:<[command_runner]>
+            - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[error]>You do not have permission to use this gamemode!" targets:<[command_runner]>
             - stop
         - if <[command_runner]> != <player> && !<[command_runner].has_permission[tick_essentials.command.gm.other]>:
-            - narrate "<&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
+            - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
             - stop
     - inject command_manager.require_player
     - adjust <player> gamemode:<[to_set]>
-    - narrate "<&[success]>Set your gamemode to <[to_set]>!"
+    - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[success]>Set your gamemode to <[to_set]>!"
 
 gmc_command:
     type: command
@@ -137,10 +137,10 @@ gmc_command:
     - inject command_manager.require_player
     - if <[command_runner].exists>:
         - if <[command_runner]> != <player> && !<[command_runner].has_permission[tick_essentials.command.gm.other]>:
-            - narrate "<&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
+            - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
             - stop
     - adjust <player> gamemode:creative
-    - narrate "<&[success]>Set your gamemode to creative!"
+    - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[success]>Set your gamemode to creative!"
 gms_command:
     type: command
     name: gms
@@ -157,10 +157,10 @@ gms_command:
     - inject command_manager.require_player
     - if <[command_runner].exists>:
         - if <[command_runner]> != <player> && !<[command_runner].has_permission[tick_essentials.command.gm.other]>:
-            - narrate "<&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
+            - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
             - stop
     - adjust <player> gamemode:survival
-    - narrate "<&[success]>Set your gamemode to survival!"
+    - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[success]>Set your gamemode to survival!"
 gma_command:
     type: command
     name: gma
@@ -177,10 +177,10 @@ gma_command:
     - inject command_manager.require_player
     - if <[command_runner].exists>:
         - if <[command_runner]> != <player> && !<[command_runner].has_permission[tick_essentials.command.gm.other]>:
-            - narrate "<&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
+            - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
             - stop
     - adjust <player> gamemode:adventure
-    - narrate "<&[success]>Set your gamemode to adventure!"
+    - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[success]>Set your gamemode to adventure!"
 gmsp_command:
     type: command
     name: gmsp
@@ -197,10 +197,10 @@ gmsp_command:
     - inject command_manager.require_player
     - if <[command_runner].exists>:
         - if <[command_runner]> != <player> && !<[command_runner].has_permission[tick_essentials.command.gm.other]>:
-            - narrate "<&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
+            - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
             - stop
     - adjust <player> gamemode:spectator
-    - narrate "<&[success]>Set your gamemode to spectator!"
+    - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[success]>Set your gamemode to spectator!"
 
 # @ Heal/feed commands
 heal_command:
@@ -219,7 +219,7 @@ heal_command:
     - inject command_manager.require_player
     - if <[command_runner].exists>:
         - if <[command_runner]> != <player> && !<[command_runner].has_permission[tick_essentials.command.heal.other]>:
-            - narrate "<&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
+            - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
             - stop
     - heal <player>
     - feed <player>
@@ -240,7 +240,7 @@ feed_command:
     - inject command_manager.require_player
     - if <[command_runner].exists>:
         - if <[command_runner]> != <player> && !<[command_runner].has_permission[tick_essentials.command.feed.other]>:
-            - narrate "<&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
+            - narrate "<element[Tick's Essentials].format[tickutil_text_prefix]> <&[error]>You do not have permission to do this to other players!" targets:<[command_runner]>
             - stop
     - feed <player>
     - narrate <&[success]>Fed!

@@ -5,6 +5,10 @@
 # Author: 0TickPulse
 # @ ----------------------------------------------------------
 
+tickutil_text_prefix:
+    type: format
+    format: <element[<[text].custom_color[emphasis].bold> ]><element[»].color[dark_gray]>
+
 tickutil_text:
     type: procedure
     debug: false
