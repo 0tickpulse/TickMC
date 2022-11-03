@@ -8,8 +8,8 @@
 resource_pack_data:
     type: data
     debug: false
-    pack_link: github.com/0tickpulse/tickmc_pack/raw/master/release.zip
-    hash_link: raw.githubusercontent.com/0tickpulse/tickmc_pack/master/hash.sha1
+    pack_link: https://github.com/0tickpulse/tickmc_pack/raw/master/release.zip
+    hash_link: https://raw.githubusercontent.com/0tickpulse/tickmc_pack/master/hash.sha1
     pack_prompt: Please accept this pack!
     scripts:
         declined:
@@ -24,9 +24,9 @@ resource_pack_store_hash_task:
     type: task
     debug: false
     script:
-    - define hash_link <script[resource_pack_data].data_key[hash_link]>
+    - define hash_link <script[resource_pack_data].parsed_key[hash_link]>
 
-    - ~webget https://<[hash_link]> save:hash
+    - ~webget <[hash_link]> save:hash
     - define hash <entry[hash].result.split[<&sp>].get[1]>
 
     - if <server.flag[resource_pack.hash].if_null[null]> == <[hash]>:
@@ -37,12 +37,12 @@ resource_pack_send_task:
     type: task
     debug: false
     script:
-    - define pack_link <script[resource_pack_data].data_key[pack_link]>
+    - define pack_link <script[resource_pack_data].parsed_key[pack_link]>
     - define prompt <script[resource_pack_data].parsed_key[pack_prompt]>
 
     - define hash <server.flag[resource_pack.hash]>
 
-    - resourcepack url:https://<[pack_link]>#<[hash]> hash:<[hash]> prompt:<[prompt]>
+    - resourcepack url:<[pack_link]>#<[hash]> hash:<[hash]> prompt:<[prompt]>
 resource_pack_update_command:
     type: command
     name: updatepack

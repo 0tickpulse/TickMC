@@ -264,6 +264,7 @@ tickcore_data:
             data:
                 aliases:
                     gemstone_crystal: Crystal gem stone
+                    weapon_melee: Melee weapon
             item stat calculation: <[map].values.combine>
             player stat calculation: null
         gemstones:
@@ -278,7 +279,10 @@ tickcore_data:
         gemstone_slots:
             item default: <list>
             entity default: <list>
-            lore format: <[stat_map].keys.contains[gemstones].if_true[].if_false[<n><script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Gemstones<&co><n>]><[item].proc[tickcore_gemstones_proc.script.get_remaining_gemstone_slots].if_null[<[value]>].parse_tag[   <dark_gray>» <&chr[20E3]> Empty <[parse_value]> gem slot].separated_by[<n>]>
+            lore format:
+            - <empty>
+            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Gemstones<&co>
+            - <[stat_map.gemstones].if_null[<list>].parse[proc[tickutil_items.script.display]].parse_tag[   <dark_gray>» <&chr[20E3].custom_color[emphasis]> <[parse_value]>].separated_by[<n>]><[item].proc[tickcore_gemstones_proc.script.get_remaining_gemstone_slots].if_null[<[value]>].parse_tag[   <dark_gray>» <&chr[20E3]> Empty <[parse_value]> gem slot].separated_by[<n>]>
             item stat calculation: <[map].values.combine>
             player stat calculation: null
 

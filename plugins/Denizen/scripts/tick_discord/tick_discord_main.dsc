@@ -8,6 +8,7 @@ tick_discord_data:
     type: data
     main group: 967071106261458954
     minecraft channel: 967428382721703966
+    staff channel: 1037123258891390996
     lang:
         formatted minecraft to discord message: <[role].exists.if_true[<[role].name> ].if_false[]>**<player.name>** » <[message].strip_color>
         formatted discord to minecraft message: <script[icons].parsed_key[discord]> <[user].nickname[<script[tick_discord_data].data_key[main group]>].if_null[<[user].name>]> <gray>» <white><[message]>

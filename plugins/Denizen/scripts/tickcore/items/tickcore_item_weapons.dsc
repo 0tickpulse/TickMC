@@ -7,6 +7,8 @@ netherite_swaxovel:
     data:
         tickcore:
             stats:
+                implementations:
+                - weapon_melee
                 damage_shadow: 13
                 attack_speed: 1.6
                 abilities:
@@ -33,6 +35,8 @@ emerald_sword:
     data:
         tickcore:
             stats:
+                implementations:
+                - weapon_melee
                 damage_earth: 8
                 attack_speed: 1.6
     recipes:
@@ -49,6 +53,8 @@ all_the_stats:
     data:
         tickcore:
             stats:
+                implementations:
+                - weapon_melee
                 description: <&[lore]>Some description here.
                 reach_distance: 1
                 damage_earth: 1
@@ -95,6 +101,8 @@ lights_splendor:
     data:
         tickcore:
             stats:
+                implementations:
+                - weapon_melee
                 gemstone_slots:
                 - crystal
                 reach_distance: 5

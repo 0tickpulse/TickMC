@@ -117,8 +117,8 @@ tick_sidebar_process_sidebar_task:
     type: task
     debug: false
     script:
-    - define sidebar_preset <player.flag[tick_sidebar.preset].if_null[<player.proc[tick_sidebar_get_available_presets_proc].first.if_null[null]>]>
-    - if <[sidebar_preset]> == null:
+    - define sidebar_preset <player.flag[tick_sidebar.preset].if_null[<player.proc[tick_sidebar_get_available_presets_proc].first.if_null[__null]>]>
+    - if <[sidebar_preset]> == __null:
         - stop
     - define sidebar_data <player.proc[tick_sidebar_process_lines_proc].context[<[sidebar_preset]>]>
     - sidebar title:<[sidebar_data.title]> values:<[sidebar_data.lines]> players:<player>

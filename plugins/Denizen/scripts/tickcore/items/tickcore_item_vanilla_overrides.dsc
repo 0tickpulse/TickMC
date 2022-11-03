@@ -6,6 +6,8 @@ vanilla_override_wooden_sword:
     data:
         tickcore:
             stats:
+                implementations:
+                - weapon_melee
                 damage_physical: 4
                 attack_speed: 1.6
                 description: Even a wooden sword in the right hands can dominate the battlefield.
@@ -27,6 +29,8 @@ vanilla_override_golden_sword:
     data:
         tickcore:
             stats:
+                implementations:
+                - weapon_melee
                 damage_physical: 4
                 attack_speed: 1.6
                 description: It is less well-known that gold is extremely fragile. Therefore, users of these swords are extremely stupid.
@@ -48,6 +52,8 @@ vanilla_override_stone_sword:
     data:
         tickcore:
             stats:
+                implementations:
+                - weapon_melee
                 damage_physical: 5
                 attack_speed: 1.6
 vanilla_override_stone_axe:
@@ -68,6 +74,8 @@ vanilla_override_iron_sword:
     data:
         tickcore:
             stats:
+                implementations:
+                - weapon_melee
                 damage_physical: 6
                 attack_speed: 1.6
 vanilla_override_iron_axe:
@@ -88,6 +96,8 @@ vanilla_override_diamond_sword:
     data:
         tickcore:
             stats:
+                implementations:
+                - weapon_melee
                 damage_physical: 7
                 attack_speed: 1.6
 vanilla_override_diamond_axe:
@@ -108,6 +118,8 @@ vanilla_override_netherite_sword:
     data:
         tickcore:
             stats:
+                implementations:
+                - weapon_melee
                 damage_physical: 8
                 attack_speed: 1.6
 vanilla_override_netherite_axe:

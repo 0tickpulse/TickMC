@@ -16,6 +16,14 @@ tickcore_stat_link:
         - foreach <server.online_players> as:__player:
             - adjust <player> max_health:<player.proc[tickcore_proc.script.players.get_stat].context[max_health]>
 
+tickcore_prevent_place_gear:
+    type: world
+    debug: false
+    events:
+        on player places block:
+        - if <context.item_in_hand.proc[tickcore_proc.script.items.get_stat].context[implementations].contains_any[weapon_melee]>:
+            - determine cancelled
+
 tickcore_run_slash:
     type: task
     debug: false
@@ -37,6 +45,10 @@ tickcore_custom_attack:
     debug: false
     events:
         after player left clicks block:
+        - if <player.item_in_hand> matches air:
+            - stop
+        - if <player.item_in_hand.proc[tickcore_proc.script.items.get_stat].context[implementations]> !contains weapon_melee:
+            - stop
         - if <player.proc[tickcore_proc.script.players.get_stat].context[attack_speed]> != 0:
             - ratelimit <player> <element[1].div[<player.proc[tickcore_proc.script.players.get_stat].context[attack_speed]>].as[duration]>
         - else:

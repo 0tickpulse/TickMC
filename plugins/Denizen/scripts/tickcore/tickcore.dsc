@@ -14,14 +14,13 @@ tickcore_apply_stats_to_players_world:
     type: world
     debug: false
     events:
-        after delta time secondly every:5:
+        after delta time secondly every:3:
         - foreach <server.online_players> as:__player:
             - run tickcore_recalculate_stats_task
         after player scrolls their hotbar:
-        - ratelimit <player> 2t
         - run tickcore_recalculate_stats_task
         after player clicks item in inventory:
-        - ratelimit <player> 15t
+        - ratelimit <player> 2t
         - run tickcore_recalculate_stats_task
         after player equips item:
         - ratelimit <player> 2t
@@ -36,8 +35,10 @@ tickcore_apply_stats_to_players_world:
         # An event which MythicCrucible forgot about
         after player breaks held item:
         - run tickcore_recalculate_stats_task
+        after player drops item:
+        - run tickcore_recalculate_stats_task
         after player picks up item:
-        - ratelimit <player> 2t
+        - wait 1t
         - run tickcore_recalculate_stats_task
         after player dies:
         - run tickcore_recalculate_stats_task

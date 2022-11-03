@@ -53,7 +53,7 @@ tick_daily_restarts_world:
     debug: false
     events:
         on system time 19:00:
-        - if !<script[tick_daily_restarts_restart_task].parsed_key[data.automaticall run]>:
+        - if !<script[tick_daily_restarts_restart_task].parsed_key[data.automatically run]>:
             - stop
         - run tick_daily_restarts_restart_task
         on player logs in server_flagged:tick_daily_restarts.restart_in_progress:
@@ -62,17 +62,17 @@ tick_daily_restarts_world:
 tick_daily_restart_command:
     type: command
     name: dailyrestart
-    permission: tick_daily_restart.command.dailyrestart
     description: Starts the daily restart sequence.
     usage: /dailyrestart
+    permission: tick_daily_restarts.command.dailyrestart
     debug: false
     script:
     - run tick_daily_restarts_restart_task
 tick_daily_restart_stop_restart_command:
     type: command
     name: stopdailyrestart
-    permission: tick_daily_restart.command.stopdailyrestart
     description: Stops the daily restart sequence.
+    permission: tick_daily_restarts.command.stopdailyrestart
     usage: /stopdailyrestart
     debug: false
     script:

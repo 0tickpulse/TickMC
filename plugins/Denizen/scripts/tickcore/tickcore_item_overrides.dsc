@@ -56,7 +56,7 @@ tickcore_item_overrides_proc:
     script:
     - if <[item].script.exists>:
         - stop
-    - if <[item].material.name> == air:
+    - if <[item]> matches air:
         - stop
     - if <[item].raw_nbt.keys.contains_any[<script[tickcore_item_overrides_data].data_key[nbt exceptions]>]>:
         - stop

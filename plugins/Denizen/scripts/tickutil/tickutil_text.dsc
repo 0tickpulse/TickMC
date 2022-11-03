@@ -7,6 +7,7 @@
 
 tickutil_text_prefix:
     type: format
+    debug: false
     format: <element[<[text].custom_color[emphasis].bold> ]><element[»].color[dark_gray]>
 
 tickutil_text:
