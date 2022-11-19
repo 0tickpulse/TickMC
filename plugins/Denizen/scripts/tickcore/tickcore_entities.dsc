@@ -9,6 +9,13 @@ cool_mob:
     type: entity
     entity_type: zombie
 
+    mechanisms:
+        custom_name: Really cool mob
+        equipment:
+            helmet: diamond_helmet
+            chestplate: diamond_chestplate
+            leggings: diamond_leggings
+            boots: diamond_boots
     data:
         tickcore:
             level_modifiers:
@@ -27,4 +34,4 @@ cool_mob:
                 money: 10
                 items: stone|cobblestone
             death_messages:
-            - <element[<[entity].custom_name.if_null[<[entity].translated_name>]> was too cool for <[victim].name>].format[tickcore_util_formatter_death_message]>
+            - <element[<[entity].custom_name.if_null[<[entity].translated_name>]> was too cool for <[victim].proc[tick_chat_format_player_name]>].format[tickcore_util_formatter_death_message]>

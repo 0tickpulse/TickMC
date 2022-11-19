@@ -19,6 +19,7 @@ tickcore_impl_data:
     type: data
     damage indicator blacklist:
     - item_frame
+    - glow_item_frame
     - armor_stand
     - dropped_item
 
@@ -31,6 +32,7 @@ tickcore_ability_data:
         right_click: RMB
         sneak: Shift
         attack: Attack
+        custom_damage: Attack
         secondly: Every second
         death: Death
         walk: Walk
@@ -149,20 +151,20 @@ tickcore_effect_data:
     slash_effects:
         earth:
         - define sound_locations <[entity].location>
-        - inject <script> path:sound.<[element]>
-        - run particle_generator def.element:<[element]> def.locations:<[locations]>
+        - inject <script> path:sound.earth
+        - run particle_generator def.element:earth def.locations:<[locations]>
         ender:
         - define sound_locations <[entity].location>
-        - inject <script> path:sound.<[element]>
-        - run particle_generator def.element:<[element]> def.locations:<[locations]>
+        - inject <script> path:sound.ender
+        - run particle_generator def.element:ender def.locations:<[locations]>
         fire:
         - define sound_locations <[entity].location>
-        - inject <script> path:sound.<[element]>
-        - run particle_generator def.element:<[element]> def.locations:<[locations]>
+        - inject <script> path:sound.fire
+        - run particle_generator def.element:fire def.locations:<[locations]>
         ice:
         - define sound_locations <[entity].location>
-        - inject <script> path:sound.<[element]>
-        - run particle_generator def.element:<[element]> def.locations:<[locations]>
+        - inject <script> path:sound.ice
+        - run particle_generator def.element:ice def.locations:<[locations]>
         - define fire_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
         - define lava_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
         - define water_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter_tag[<[filter_value].block.material.name.equals[water].or[<[filter_value].material.waterlogged.if_null[false]>]>].deduplicate>
@@ -172,24 +174,24 @@ tickcore_effect_data:
         - showfake frosted_ice <[water_blocks]> d:3s players:<server.online_players>
         light:
         - define sound_locations <[entity].location>
-        - inject <script> path:sound.<[element]>
-        - run particle_generator def.element:<[element]> def.locations:<[locations]>
+        - inject <script> path:sound.light
+        - run particle_generator def.element:light def.locations:<[locations]>
         physical:
         - define sound_locations <[entity].location>
-        - inject <script> path:sound.<[element]>
-        - run particle_generator def.element:<[element]> def.locations:<[locations]>
+        - inject <script> path:sound.physical
+        - run particle_generator def.element:physical def.locations:<[locations]>
         shadow:
         - define sound_locations <[entity].location>
-        - inject <script> path:sound.<[element]>
-        - run particle_generator def.element:<[element]> def.locations:<[locations]>
+        - inject <script> path:sound.shadow
+        - run particle_generator def.element:shadow def.locations:<[locations]>
         thunder:
         - define sound_locations <[entity].location>
-        - inject <script> path:sound.<[element]>
-        - run particle_generator def.element:<[element]> def.locations:<[locations]>
+        - inject <script> path:sound.thunder
+        - run particle_generator def.element:thunder def.locations:<[locations]>
         water:
         - define sound_locations <[entity].location>
-        - inject <script> path:sound.<[element]>
-        - run particle_generator def.element:<[element]> def.locations:<[locations]>
+        - inject <script> path:sound.water
+        - run particle_generator def.element:water def.locations:<[locations]>
         - define fire_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
         - define lava_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
         - playsound sound:block_fire_extinguish <[fire_blocks]>
@@ -197,8 +199,8 @@ tickcore_effect_data:
         - showfake obsidian <[lava_blocks]> d:3s players:<server.online_players>
         wind:
         - define sound_locations <[entity].location>
-        - inject <script> path:sound.<[element]>
-        - run particle_generator def.element:<[element]> def.locations:<[locations]>
+        - inject <script> path:sound.wind
+        - run particle_generator def.element:wind def.locations:<[locations]>
 tickcore_data:
     type: data
     item updating:
@@ -247,6 +249,7 @@ tickcore_data:
     - defense_thunder
     - defense_water
     - defense_wind
+    - knockback_resistance
     - abilities
     - gemstones
     - gemstone_slots
@@ -432,6 +435,14 @@ tickcore_data:
             entity default: 0
             lore format:
             - <script[icons].parsed_key[elements.wind]> <dark_gray>» <&[wind]>Wind defense <dark_gray>- <&[wind]><[value].proc[tickcore_proc.script.util.sign_prefix]>
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
+
+        knockback_resistance:
+            item default: 0
+            entity default: 0
+            lore format:
+            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Knockback resistance <dark_gray>- <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
 

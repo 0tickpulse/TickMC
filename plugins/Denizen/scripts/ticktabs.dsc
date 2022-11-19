@@ -31,7 +31,7 @@ ticktab_config:
         - <empty>
         - <empty>
         - <empty>
-        - <white><&font[icons]>t
+        - <script[icons].parsed_key[logo]>
         # Configure the footer. (The text below the player list)
         footer:
         - <gray>Your ping: <red><[ping]>ms

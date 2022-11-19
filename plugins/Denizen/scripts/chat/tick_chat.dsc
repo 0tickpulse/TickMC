@@ -67,4 +67,4 @@ tick_chat_format_player_name:
     debug: false
     definitions: player
     script:
-    - determine <player.chat_prefix.replace[&_].with[&].parsed><player.name><player.chat_suffix.replace[&_].with[&].parsed>
+    - determine <player.chat_prefix.replace[&_].with[&].parsed><player.display_name><player.chat_suffix.replace[&_].with[&].parsed>

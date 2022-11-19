@@ -179,10 +179,15 @@ tickcore_proc:
             get_stat:
             - if <[1].is_player>:
                 - determine <[1].proc[tickcore_proc.script.players.get_stat].context[<[2]>]>
+            - if <[2]> !in <proc[tickcore_proc.script.core.get_all_stat_ids]>:
+                - debug error "<[2]> is not a valid TickCore stat!"
+                - stop
             - define map <[1].proc[tickcore_proc.script.entities.get_stat_map].get[<[2]>].if_null[<map[DEFAULT=<script[tickcore_data].parsed_key[stats.<[2]>.entity default].if_null[null]>]>]>
             - determine <script[tickcore_data].parsed_key[stats.<[2]>.player stat calculation]>
             get_stat_map:
             - define entity <[1]>
+            - if <[entity].is_player>:
+                - determine <[entity].proc[tickcore_proc.script.players.get_stat_map]>
             - define map <map>
             - if !<[entity].equipment_map.exists>:
                 - determine <map>

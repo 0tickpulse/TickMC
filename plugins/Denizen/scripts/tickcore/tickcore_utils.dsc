@@ -10,30 +10,35 @@ tickcore_util_item_shortcut_command:
     debug: false
     name: item
     description: A shortcut command to obtain an item for yourself.
-    usage: /item [item] (properties as tickmap)
+    usage: <script.proc[command_manager_generate_usage]>
     aliases:
     - i
-    tab completions:
-        1: <server.material_types.parse[name].include[<proc[tickcore_proc.script.items.get_all_ids].if_null[<list>]>]>
     data:
-        required_args: 1
-        max_args: 2
-        player_only: true
+        args:
+            item:
+                type: linear
+                required: true
+                accepted: <server.material_types.parse[name].include[<proc[tickcore_proc.script.items.get_all_ids].if_null[<list>]>].contains[<[value]>]>
+                tab completes: <server.material_types.parse[name].include[<proc[tickcore_proc.script.items.get_all_ids].if_null[<list>]>]>
+                explanation: Any material name or TickItem ID.
+            properties:
+                type: prefixed
+                required: false
+                accepted: <[value].as[map].exists>
+                default: <map>
+                result: <[value].as[map]>
+                explanation: Properties as a MapTag.
+                usage text: <&lt>map<&gt>
+            player:
+                template: player
+    tab complete:
+    - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
-    - inject command_manager.player_only
-    - define item_input <context.args.get[1]>
-    - define properties <context.args.get[2].if_null[<map>]>
 
-    - if <[item_input]> in <proc[tickcore_proc.script.items.get_all_ids]>:
-        - define item <proc[tickcore_proc.script.items.generate].context[<[item_input]>]>
-    - else if <[item_input]> in <server.material_types.parse[name]>:
-        - define item <[item_input].as[item]>
-    - else:
-        - narrate "<&[error]>Invalid item '<[item_input]>'."
-        - stop
+    - define item <proc[tickcore_proc.script.items.get_all_ids].contains[<[arg.item]>].if_true[<[arg.item].proc[tickcore_proc.script.items.generate]>].if_false[<[arg.item].as[item]>]>
 
-    - foreach <[properties].as[map]> key:key as:value:
+    - foreach <[arg.properties].as[map]> key:key as:value:
         - if <[item].supports[<[key]>]>:
             - define item <[item].with[<[key]>=<[value]>]>
 
