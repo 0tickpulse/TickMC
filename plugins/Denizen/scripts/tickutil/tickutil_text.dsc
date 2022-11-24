@@ -45,6 +45,7 @@ tickutil_text:
 icons:
     type: data
     discord: DISCORD
+    hline: <&sp.repeat[80].strikethrough>
     ranks:
         admin: <element[a].font[tickmc:ranks].color[white]>
     logo: <element[t].font[tickmc:icons].color[white]>

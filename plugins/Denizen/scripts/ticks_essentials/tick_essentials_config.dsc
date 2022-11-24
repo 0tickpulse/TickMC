@@ -5,6 +5,8 @@ tick_essentials_data:
         # The below line is what I personally use for my server.
         prefix: <element[Tick's Essentials].format[tickutil_text_prefix]>
         # prefix: <element[Tick's Essentials].bold.custom_color[emphasis]> <dark_gray>» <reset>
+        # A horizontal line
+        hline: <&sp.repeat[80].color[dark_gray].strikethrough>
     commands:
         main:
             # @ The /tickessentials command
@@ -14,6 +16,11 @@ tick_essentials_data:
         # @ Developer commands
         # These commands make it easier for developers to make their own scripts.
         developers:
+            # @ The /commandlist command
+            # Permission: tickessentials.command.developers.commandlist
+            # Lists all commands in the server.
+            commandlist:
+                enabled: true
             # @ The /enum command
             # Permission: tick_essentials.command.developers.enum
             # This command allows you to get a list of all the enum values of a specified enum.
@@ -26,10 +33,22 @@ tick_essentials_data:
             pluginversions:
                 enabled: true
         # @ Staff commands
-        # These commands are intended to be used by server staff in order
-        # to make it easier to moderate players, debug issues, create
-        # content, etc.
+        # These commands make it easier as server staff.
         staff:
+            # @ The /sudo command
+            # Permission: tick_essentials.command.staff.sudo,
+            #             tick_essentials.command.staff.sudo.exempt
+            # This command allows you to run a command as another player.
+            # If the target player has permission 'tick_essentials.command.staff.sudo.exempt', it fails.
+            sudo:
+                enabled: true
+            # @ The /invsee command
+            # Permission: tick_essentials.command.staff.invsee,
+            #             tick_essentials.command.staff.invsee.exempt
+            # This command allows you to view the inventory of a player.
+            # If the target player has permission 'tick_essentials.command.staff.invsee.exempt', it fails.
+            invsee:
+                enabled: true
             # @ The /uploadlogs command
             # Permission: tick_essentials.command.staff.uploadlogs
             # This command allows you to read the logs file and upload the contents to hastebin.
@@ -52,15 +71,18 @@ tick_essentials_data:
             # Enabling this will use a player flag (tick_essentials.vanished)
             vanish:
                 enabled: true
-            # @ The /gm, /gmc, /gms, /gma, /gmsp commands
-            # Permission: tick_essentials.command.staff.gm,
-            #             tick_essentials.command.staff.gm.creative,
-            #             tick_essentials.command.staff.gm.survival,
-            #             tick_essentials.command.staff.gm.adventure,
-            #             tick_essentials.command.staff.gm.spectator
+            # @ The /gamemode, /gmc, /gms, /gma, /gmsp commands
+            # Permission: tick_essentials.command.staff.gamemode,
+            #             tick_essentials.command.staff.gamemode.creative,
+            #             tick_essentials.command.staff.gamemode.survival,
+            #             tick_essentials.command.staff.gamemode.adventure,
+            #             tick_essentials.command.staff.gamemode.spectator
             # This series of commands allow you to change your gamemode.
-            gm:
+            gamemode:
                 enabled: true
+                # When enabled, when a player joins with the permissions, a packet will be sent.
+                # This packet makes the client think they're opped, and therefore lets them use the F3+F4 and the F3+N shortcuts.
+                fake op: true
             # @ The /kick command
             # Permission: tick_essentials.command.staff.kick
             # This command allows you to kick a player from the server.
@@ -99,9 +121,22 @@ tick_essentials_data:
             # This command allows you to change the time in a world.
             time:
                 enabled: true
+        # @ Economy commands
+        # These commands make it easier to manage the economy.
+        economy:
+            # @ The /balance command
+            # Permission: tick_essentials.command.economy.balance
+            # This command allows you to check your balance.
+            balance:
+                enabled: true
         # @ Utility commands
         # These commands are simple utility commands that make simple tasks easier.
         utility:
+            # @ The /help command
+            # Permission: tick_essentials.command.utility.help
+            # This command allows you to send formatted text to users.
+            help:
+                enabled: true
             # @ The /heal command
             # Permission: tick_essentials.command.utility.heal
             # This command allows you to heal yourself.

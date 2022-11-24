@@ -218,10 +218,11 @@ tickcore_proc:
             get_stat_map:
             - determine <[1].flag[tickcore.stat_map].if_null[<[1].proc[tickcore_proc.script.players.get_stat_map_raw]>]>
             get_stat_map_raw:
-            - define player <[1]>
+            - define __player <[1]>
             - define map <map>
-            - foreach <script[tickcore_data].data_key[slots to check for stats].if_null[<list>]> as:slot:
-                - define item <[player].inventory.slot[<[slot]>]>
+            - foreach <script[tickcore_data].data_key[player items to check for stats].parse[parsed.as[map]].if_null[<list>]> as:slot_map:
+                - define item <[slot_map.item]>
+                - define slot <[slot_map.name]>
                 - if <[item].material.name> == AIR || !<[item].proc[tickcore_proc.script.items.is_tickitem]>:
                     - foreach next
                 - foreach <proc[tickcore_proc.script.core.get_all_stat_ids]> as:stat:
@@ -294,6 +295,7 @@ tickcore_main_command:
         1: getitem|giveitem|getstat|statmap|updateitems|modifyitemstat|spawnmob
         2: <script.parsed_key[data.tab_complete.2.<context.args.get[1]>].if_null[]>
         3: <context.args.get[1].is_in[giveitem|getstat].if_true[<proc[tickcore_proc.script.items.get_all_ids]>].if_false[]>
+    permission: tickcore.command.main
     script:
     - if <context.args.size> < 1:
         - narrate <&[error]><script.data_key[usage]>
@@ -348,7 +350,7 @@ tickcore_main_command:
                     - narrate "<&[error]>Invalid player name!"
                     - stop
                 - adjust <queue> linked_player:<[player]>
-            - narrate <player.proc[tickcore_proc.script.players.get_stat_map].to_yaml>
+            - narrate <player.proc[tickcore_proc.script.players.get_stat_map_raw].to_yaml>
 
         - case updateitems:
             - foreach <server.players.parse[inventory]> as:inventory:

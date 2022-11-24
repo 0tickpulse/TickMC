@@ -206,13 +206,13 @@ tickcore_data:
     item updating:
         container open: true
         item pickup: true
-    slots to check for stats:
-    - HEAD
-    - CHEST
-    - LEGS
-    - FEET
-    - HAND
-    - OFFHAND
+    player items to check for stats:
+    - [name=HEAD;item=<player.inventory.slot[HEAD]>]
+    - [name=CHEST;item=<player.inventory.slot[CHEST]>]
+    - [name=LEGS;item=<player.inventory.slot[LEGS]>]
+    - [name=FEET;item=<player.inventory.slot[FEET]>]
+    - [name=HAND;item=<player.inventory.slot[HAND]>]
+    - [name=OFFHAND;item=<player.inventory.slot[OFFHAND]>]
     default item properties:
         hides: ALL
         attribute_modifiers:

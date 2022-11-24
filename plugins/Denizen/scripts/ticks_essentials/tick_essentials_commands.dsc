@@ -17,10 +17,133 @@ tick_essentials_main_tickessentials_command:
     - te
     - tessentials
     - ticksessentials
+    data:
+        args:
+            page:
+                template: integer
+    tab complete:
+    - inject command_manager.tab_complete_engine
     script:
-    - narrate "<&[emphasis]>Tick's Essentials commands:"
+    - inject command_manager.args_manager
+    - define title "<&[emphasis]>Tick's Essentials commands:"
+    - define page <[arg.page].if_null[1]>
     - inject command_manager.formatted_help_same_file
-# @ DEVELOPER COMMANDS
+# @ DEVELOPERS COMMANDS
+tick_essentials_developer_commandlist_command:
+    type: command
+    debug: false
+    enabled: <script[tick_essentials_data].parsed_key[commands.developer.commandlist.enabled].if_null[true]>
+    name: commandlist
+    description: Enhanced Bukkit /help.
+    usage: <script[tick_essentials_developer_commandlist_command].proc[command_manager_generate_usage]>
+    permission: tick_essentials.command.developers.commandlist
+    aliases:
+    - commandslist
+    - cmdlist
+    - cmds
+    data:
+        args:
+            command:
+                type: linear
+                required: false
+                explanation: The name of any command.
+                accepted: <server.commands.include[<server.plugins.parse[commands.values.parse[get[aliases].if_null[<list>].combine]]>].contains[<[value]>]>
+                tab completes: <server.commands.include[<server.plugins.parse[commands.values.parse[get[aliases].if_null[<list>].combine]]>]>
+            #player: template=player
+    tab complete:
+    - inject command_manager.tab_complete_engine
+    script:
+    - inject command_manager.args_manager
+    - if <[arg.command].exists>:
+        - define search <[arg.command].to_list.contains[:].if_true[<[arg.command].after[:]>].if_false[<[arg.command]>]>
+        - define plugin <server.command_plugin[<[arg.command]>].if_null[null]>
+        - if <[plugin]> == null:
+            - define script <util.scripts.filter[container_type.equals[command]].filter_tag[<[filter_value].data_key[aliases].if_null[<list>].include[<[filter_value].data_key[name]>].contains[<[search]>]>]>
+            - if <[script].is_empty>:
+                - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>There are no plugins or scripts handling the command '/<[arg.command]>', and therefore I can't show the help for it."
+                - stop
+            - definemap command_info:
+                name: <[script].first.data_key[name]>
+                description: <[script].first.parsed_key[description]>
+                usage: <[script].first.parsed_key[usage]>
+            - if <[script].first.data_key[aliases].exists>:
+                - define command_info.aliases <[script].first.data_key[aliases]>
+        - else:
+            - define command_info_raw <[plugin].commands.filter_tag[<[filter_value.aliases].if_null[<list>].include[<[filter_key]>].contains[<[search]>]>]>
+            - define command_info <[command_info_raw].values.first.include[name=<[command_info_raw].keys.first>]>
+        - define lines <list>
+        - define lines:->:<script[tick_essentials_data].parsed_key[lang.hline]>
+        - define "lines:->:<&[emphasis]>Command: <&[base]>/<[arg.command]><[arg.command].equals[<[command_info.name]>].if_true[].if_false[ <dark_gray>(Alias of /<[command_info.name]>)]>"
+        - if <[plugin]> != null:
+            - define "lines:->:<&[emphasis]>Plugin: <&[base]><[plugin].name>"
+        - define lines:->:<empty>
+        - define "lines:->:<&[emphasis]>Description: <&[base]><[command_info.description]>"
+        - define lines:->:<empty>
+        - define "lines:->:<&[emphasis]>Usage: <&[base]><[command_info.usage].if_null[/<[command_info.name]>].replace[<&lt>command<&gt>].with[<[command_info.name]>]>"
+        - if <[command_info].keys> contains aliases:
+            - define lines:->:<empty>
+            - define lines:->:<&[emphasis]>Aliases<&co>
+            - define "lines:->:<&[base]><[command_info.aliases].parse_tag[<gray>- <[parse_value].custom_color[emphasis]>].separated_by[<n>]>"
+        - define lines:->:<script[tick_essentials_data].parsed_key[lang.hline]>
+        - define text <[lines].separated_by[<n>]>
+        - narrate <[text]>
+tick_essentials_developer_enchant_command:
+    type: command
+    debug: false
+    enabled: <script[tick_essentials_data].parsed_key[commands.developer.enchant.enabled].if_null[true]>
+    name: enchant
+    description: Enchants an item in the player's inventory.
+    usage: <script[tick_essentials_developer_enchant_command].proc[command_manager_generate_usage]>
+    permission: tick_essentials.command.developers.enchant
+    aliases:
+    - ench
+    data:
+        args:
+            enchantment:
+                type: linear
+                required: true
+                accepted: <server.enchantments.parse[name].contains[<[value]>]>
+                tab completes: <server.enchantments.parse[name]>
+                result: <[value].as[enchantment]>
+            level:
+                type: linear
+                required: true
+                accepted: <[value].is_integer.or[<[value].equals[remove]>]>
+                tab completes: remove
+                usage text: <&lt>level<&gt>/remove
+            bypass: template=boolean_default_false
+            player: template=player
+            s: template=boolean_default_false
+    tab complete:
+    - inject command_manager.tab_complete_engine
+    script:
+    - inject command_manager.args_manager
+    - if <player.exists>:
+        - if !<player.has_permission[tick_essentials.command.developer.enchant.bypass]>:
+            - define <[arg.bypass]> false
+        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.developer.enchant.other]>:
+            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to do this to other players!"
+            - stop
+    - define item <[arg.player].item_in_hand>
+    - if <[item]> matches air:
+        - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You must be holding an item to enchant it!"
+        - stop
+    - if <[arg.level].is_integer>:
+        - if !<[arg.enchantment].can_enchant[<[item]>]> && !<[arg.bypass]>:
+            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You cannot enchant this item with <[arg.enchantment].name>!"
+            - stop
+        - if <[arg.level]> > <enchantment[<[arg.enchantment]>].max_level> && !<[arg.bypass]>:
+            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>The maximum level for <[arg.enchantment].name> is <enchantment[<[arg.enchantment]>].max_level>!"
+            - stop
+        - inventory adjust d:<[arg.player].inventory> slot:hand enchantments:<[item].enchantment_map.include[<map.with[<[arg.enchantment].name>].as[<[arg.level]>]>]>
+        - define message "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Successfully enchanted <[arg.player].name>'s <[item].display.if_null[<[item].material.translated_name>]> <&[success]>with <[arg.enchantment].name> <[arg.level]>!"
+    - else:
+        - inventory adjust d:<[arg.player].inventory> slot:hand remove_enchantments:<[arg.enchantment]>
+        - define message "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Successfully removed <[arg.enchantment].name> from <[arg.player].name>'s <[item].display.if_null[<[item].material.translated_name>]><&[success]>!"
+    - if <[arg.s]>:
+        - stop
+    - narrate <[message]>
+
 tick_essentials_developer_enum_command:
     type: command
     name: enum
@@ -84,6 +207,53 @@ tick_essentials_developer_pluginversions_command:
     script:
     - narrate <server.plugins.parse_tag[<&[base]><[parse_value].name.custom_color[emphasis]> - Version <[parse_value].version.custom_color[emphasis]>].separated_by[<n>]>
 # @ STAFF COMMANDS
+tick_essentials_staff_sudo_command:
+    type: command
+    debug: false
+    enabled: <script[tick_essentials_data].parsed_key[commands.staff.sudo.enabled].if_null[true]>
+    name: sudo
+    description: Executes a command as another player.
+    usage: <script[tick_essentials_staff_sudo_command].proc[command_manager_generate_usage]>
+    data:
+        args:
+            player: template=player_strict
+            command: required=true;type=linear;spread=true
+            s: template=boolean_default_false
+    permission: tick_essentials.command.staff.sudo
+    tab complete:
+    - inject command_manager.tab_complete_engine
+    script:
+    - inject command_manager.args_manager
+    - if <[arg.player].has_permission[tick_essentials.command.staff.sudo.exempt]>:
+        - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You cannot execute commands as <[arg.player].name>!"
+        - stop
+    - execute as_player <[arg.command]> player:<[arg.player]>
+    - if <[arg.s]>:
+        - stop
+    - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Running command '<[arg.command]>' as '<[arg.player].name>'"
+tick_essentials_staff_invsee_command:
+    type: command
+    debug: false
+    enabled: <script[tick_essentials_data].parsed_key[commands.staff.invsee.enabled].if_null[true]>
+    name: invsee
+    description: Opens the inventory of another player.
+    usage: <script[tick_essentials_staff_invsee_command].proc[command_manager_generate_usage]>
+    data:
+        args:
+            player: template=player_strict
+    permission: tick_essentials.command.staff.invsee
+    tab complete:
+    - inject command_manager.tab_complete_engine
+    script:
+    - inject tick_essentials_utility_injections.player_only
+    - inject command_manager.args_manager
+    - if !<player.exists>:
+        - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You must be a player to use this command!"
+        - stop
+    - if <[arg.player].has_permission[tick_essentials.command.staff.invsee.exempt]>:
+        - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You cannot view this player's inventory!"
+        - stop
+    - inventory open d:<[arg.player].inventory>
 tick_essentials_staff_uploadlogs_command:
     type: command
     debug: false
@@ -132,12 +302,14 @@ tick_essentials_staff_vanish_command:
 #   | Gamemode commands
 tick_essentials_staff_gamemode_shortcut:
     type: command
-    name: gm
-    enabled: <script[tick_essentials_data].parsed_key[commands.staff.gm.enabled].if_null[true]>
+    name: gamemode
+    enabled: <script[tick_essentials_data].parsed_key[commands.staff.gamemode.enabled].if_null[true]>
     debug: false
     description: A shortcut command to change your gamemode.
-    usage: <script.proc[command_manager_generate_usage]>
-    permission: tick_essentials.command.staff.gm
+    usage: <script[tick_essentials_staff_gamemode_shortcut].proc[command_manager_generate_usage]>
+    permission: tick_essentials.command.staff.gamemode
+    aliases:
+    - gm
     data:
         args:
             gamemode:
@@ -147,7 +319,7 @@ tick_essentials_staff_gamemode_shortcut:
                 tab completes: <queue.script.parsed_key[data.gamemode_aliases].keys>
                 explanation: The gamemode to set the player to.
             player: template=player
-            s: template=silent
+            s: template=boolean_default_false
         gamemode_aliases:
             survival:
             - 0
@@ -169,10 +341,10 @@ tick_essentials_staff_gamemode_shortcut:
         - if <[arg.gamemode]> in <[aliases].include[<[gamemode]>]>:
             - define to_set <[gamemode]>
     - if <player.exists>:
-        - if !<player.has_permission[tick_essentials.command.staff.gm.<[to_set]>]>:
+        - if !<player.has_permission[tick_essentials.command.staff.gamemode.<[to_set]>]>:
             - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to use this gamemode!"
             - stop
-        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.staff.gm.other]>:
+        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.staff.gamemode.other]>:
             - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to do this to other players!"
             - stop
     - adjust <[arg.player]> gamemode:<[to_set]>
@@ -185,21 +357,21 @@ tick_essentials_staff_gamemode_shortcut:
 tick_essentials_staff_gmc_command:
     type: command
     name: gmc
-    enabled: <script[tick_essentials_data].parsed_key[commands.staff.gm.enabled].if_null[true]>
+    enabled: <script[tick_essentials_data].parsed_key[commands.staff.gamemode.enabled].if_null[true]>
     debug: false
     description: A shortcut command to change your gamemode to creative.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_staff_gmc_command].proc[command_manager_generate_usage]>
     data:
         args:
             player: template=player
-            s: template=silent
-    permission: tick_essentials.command.staff.gm.creative
+            s: template=boolean_default_false
+    permission: tick_essentials.command.staff.gamemode.creative
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
     - if <player.exists>:
-        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.staff.gm.other]>:
+        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.staff.gamemode.other]>:
             - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to do this to other players!"
             - stop
     - adjust <[arg.player]> gamemode:creative
@@ -209,21 +381,21 @@ tick_essentials_staff_gmc_command:
 tick_essentials_staff_gms_command:
     type: command
     name: gms
-    enabled: <script[tick_essentials_data].parsed_key[commands.staff.gm.enabled].if_null[true]>
+    enabled: <script[tick_essentials_data].parsed_key[commands.staff.gamemode.enabled].if_null[true]>
     debug: false
     description: A shortcut command to change your gamemode to survival.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_staff_gms_command].proc[command_manager_generate_usage]>
     data:
         args:
             player: template=player
-            s: template=silent
-    permission: tick_essentials.command.staff.gm.survival
+            s: template=boolean_default_false
+    permission: tick_essentials.command.staff.gamemode.survival
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
     - if <player.exists>:
-        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.staff.gm.other]>:
+        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.staff.gamemode.other]>:
             - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to do this to other players!"
             - stop
     - adjust <[arg.player]> gamemode:survival
@@ -233,21 +405,21 @@ tick_essentials_staff_gms_command:
 tick_essentials_staff_gma_command:
     type: command
     name: gma
-    enabled: <script[tick_essentials_data].parsed_key[commands.staff.gm.enabled].if_null[true]>
+    enabled: <script[tick_essentials_data].parsed_key[commands.staff.gamemode.enabled].if_null[true]>
     debug: false
     description: A shortcut command to change your gamemode to adventure.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_staff_gma_command].proc[command_manager_generate_usage]>
     data:
         args:
             player: template=player
-            s: template=silent
-    permission: tick_essentials.command.staff.gm.adventure
+            s: template=boolean_default_false
+    permission: tick_essentials.command.staff.gamemode.adventure
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
     - if <player.exists>:
-        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.staff.gm.other]>:
+        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.staff.gamemode.other]>:
             - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to do this to other players!"
             - stop
     - adjust <[arg.player]> gamemode:adventure
@@ -257,21 +429,21 @@ tick_essentials_staff_gma_command:
 tick_essentials_staff_gmsp_command:
     type: command
     name: gmsp
-    enabled: <script[tick_essentials_data].parsed_key[commands.staff.gm.enabled].if_null[true]>
+    enabled: <script[tick_essentials_data].parsed_key[commands.staff.gamemode.enabled].if_null[true]>
     debug: false
     description: A shortcut command to change your gamemode to spectator.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_staff_gmsp_command].proc[command_manager_generate_usage]>
     data:
         args:
             player: template=player
-            s: template=silent
-    permission: tick_essentials.command.staff.gm.spectator
+            s: template=boolean_default_false
+    permission: tick_essentials.command.staff.gamemode.spectator
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
     - if <player.exists>:
-        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.staff.gm.other]>:
+        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.staff.gamemode.other]>:
             - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to do this to other players!"
             - stop
     - adjust <[arg.player]> gamemode:spectator
@@ -285,15 +457,16 @@ tick_essentials_staff_kick_command:
     enabled: <script[tick_essentials_data].parsed_key[commands.staff.kick.enabled].if_null[true]>
     debug: false
     description: A shortcut command to kick a player.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_staff_kick_command].proc[command_manager_generate_usage]>
     data:
         args:
             player: template=player
             reason:
-                type: prefixed
+                type: linear
                 required: false
                 default: Kicked by <player.name.if_null[console]>.
-            s: template=silent
+                spread: true
+            s: template=boolean_default_false
     permission: tick_essentials.command.staff.kick
     tab complete:
     - inject command_manager.tab_complete_engine
@@ -310,30 +483,39 @@ tick_essentials_staff_ban_command:
     enabled: <script[tick_essentials_data].parsed_key[commands.staff.ban.enabled].if_null[true]>
     debug: false
     description: Bans a player, making them unable to play on the server.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_staff_ban_command].proc[command_manager_generate_usage]>
     data:
         args:
             player: template=player_include_offline_strict
             duration:
-                template: duration
+                type: linear
                 required: false
+                accepted: <[value].as[duration].exists.or[<[value].equals[permanent]>]>
+                default: permanent
+                usage text:
+                    auto format: true
+                    list:
+                    - <&lt>duration<&gt>
+                    - <&lc>permanent<&rc>
+                tab completes: permanent
             reason:
-                type: prefixed
+                type: linear
                 required: false
+                spread: true
                 default: Banned by <player.name.if_null[console]>.
-            s: template=silent
+            s: template=boolean_default_false
     permission: tick_essentials.command.staff.ban
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
-    - if <[arg.duration].exists>:
-        - ban <[arg.player]> reason:<[arg.reason]> source:<player.name.if_null[console]> expire:<[arg.duration]>
+    - if <[arg.duration].as[duration].exists>:
+        - ban <[arg.player]> reason:<[arg.reason]> soucre:<player.name.if_null[console]> expire:<[arg.duration]>
     - else:
         - ban <[arg.player]> reason:<[arg.reason]> source:<player.name.if_null[console]>
     - if <[arg.s]>:
         - stop
-    - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Banned <[arg.player].name> for: '<[arg.reason]>'"
+    - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Banned <[arg.player].name><[arg.duration].as[duration].exists.if_true[ for <[arg.duration].as[duration].formatted>].if_false[ permanently]> for: '<[arg.reason]>'"
 
 tick_essentials_staff_unban_command:
     type: command
@@ -341,11 +523,11 @@ tick_essentials_staff_unban_command:
     enabled: <script[tick_essentials_data].parsed_key[commands.staff.unban.enabled].if_null[true]>
     debug: false
     description: Unbans a player, allowing them to play on the server again.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_staff_unban_command].proc[command_manager_generate_usage]>
     data:
         args:
             player: template=player_include_offline_strict
-            s: template=silent
+            s: template=boolean_default_false
     permission: tick_essentials.command.staff.unban
     tab complete:
     - inject command_manager.tab_complete_engine
@@ -359,22 +541,52 @@ tick_essentials_staff_unban_command:
         - stop
     - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Unbanned <[arg.player].name>!"
 # @ WORLD COMMANDS
+tick_essentials_world_speed_command:
+    type: command
+    name: speed
+    enabled: <script[tick_essentials_data].parsed_key[commands.world.speed.enabled].if_null[true]>
+    debug: false
+    description: Lets you change your walking/flying speed.
+    usage: <script[tick_essentials_world_speed_command].proc[command_manager_generate_usage]>
+    data:
+        args:
+            speed: type=linear;accepted=<[value].is_decimal>;required=true
+            type:
+                type: linear
+                required: false
+                default: walk
+                tab completes: walk|fly
+            player: template=player
+            s: template=boolean_default_false
+    permission: tick_essentials.command.world.speed
+    tab complete:
+    - inject command_manager.tab_complete_engine
+    script:
+    - inject command_manager.args_manager
+    - if <[arg.speed]> <= 0 || <[arg.speed]> > 1:
+        - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>Speed must be between 0 and 1!"
+        - stop
+    - choose <[arg.type]>:
+        - case walk:
+            - adjust <player> walk_speed:<[arg.speed]>
+        - case fly:
+            - adjust <player> fly_speed:<[arg.speed]>
+    - if <[arg.s]>:
+        - stop
+    - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Set <[arg.type]> speed of '<[arg.player].name>' to <[arg.speed]>!"
 tick_essentials_world_fly_command:
     type: command
     debug: false
     enabled: <script[tick_essentials_data].parsed_key[commands.world.fly.enabled].if_null[true]>
     name: fly
     description: Toggles flight mode (unless you specify true/false).
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_world_fly_command].proc[command_manager_generate_usage]>
     permission: tick_essentials.command.world.fly
     data:
         args:
-            player:
-                template: player
-            mode:
-                template: boolean_null
-            s:
-                template: silent
+            player: templat=player
+            mode: template=boolean_null
+            s: template=boolean_default_false
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
@@ -394,12 +606,12 @@ tick_essentials_sunday_shortcut:
     enabled: <script[tick_essentials_data].parsed_key[commands.world.sunday.enabled].if_null[true]>
     name: sunday
     description: Sets the time to day and the weather to sunny.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_sunday_shortcut].proc[command_manager_generate_usage]>
     permission: tick_essentials.command.world.sunday
     data:
         args:
             world: template=world_default_player
-            s: template=silent
+            s: template=boolean_default_false
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
@@ -416,7 +628,7 @@ tick_essentials_world_weather_shortcut:
     enabled: <script[tick_essentials_data].parsed_key[commands.world.weather.enabled].if_null[true]>
     name: weather
     description: As shortcut command to change the weather.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_world_weather_shortcut].proc[command_manager_generate_usage]>
     permission: tick_essentials.command.world.weather
     data:
         args:
@@ -425,14 +637,20 @@ tick_essentials_world_weather_shortcut:
                 required: true
                 tab completes: <list[sunny|storm|thunder|reset]>
                 accepted: <list[sunny|storm|thunder|reset].contains[<[value]>]>
-                usage text: sunny/storm/thunder/reset
+                usage text:
+                    auto format: true
+                    list:
+                    - sunny
+                    - storm
+                    - thunder
+                    - reset
             world: template=world_default_player
             duration:
                 type: prefixed
                 template: duration
                 required: false
                 default: null
-            s: template=silent
+            s: template=boolean_default_false
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
@@ -450,7 +668,7 @@ tick_essentials_world_weather_sun_command:
     enabled: <script[tick_essentials_data].parsed_key[commands.world.weather.enabled].if_null[true]>
     name: sun
     description: A shortcut command to change the weather to sunny.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_world_weather_sun_command].proc[command_manager_generate_usage]>
     permission: tick_essentials.command.world.weather
     data:
         args:
@@ -460,7 +678,7 @@ tick_essentials_world_weather_sun_command:
                 template: duration
                 required: false
                 default: null
-            s: template=silent
+            s: template=boolean_default_false
     script:
     - inject command_manager.args_manager
     - if <[arg.duration]> == null:
@@ -476,7 +694,7 @@ tick_essentials_world_weather_storm_command:
     enabled: <script[tick_essentials_data].parsed_key[commands.world.weather.enabled].if_null[true]>
     name: storm
     description: A shortcut command to change the weather to storm.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_world_weather_storm_command].proc[command_manager_generate_usage]>
     permission: tick_essentials.command.world.weather
     data:
         args:
@@ -486,7 +704,7 @@ tick_essentials_world_weather_storm_command:
                 template: duration
                 required: false
                 default: null
-            s: template=silent
+            s: template=boolean_default_false
     script:
     - inject command_manager.args_manager
     - if <[arg.duration]> == null:
@@ -502,7 +720,7 @@ tick_essentials_world_weather_thunder_command:
     enabled: <script[tick_essentials_data].parsed_key[commands.world.weather.enabled].if_null[true]>
     name: thunder
     description: A shortcut command to change the weather to thunder.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_world_weather_thunder_command].proc[command_manager_generate_usage]>
     permission: tick_essentials.command.world.weather
     data:
         args:
@@ -512,7 +730,7 @@ tick_essentials_world_weather_thunder_command:
                 template: duration
                 required: false
                 default: null
-            s: template=silent
+            s: template=boolean_default_false
     script:
     - inject command_manager.args_manager
     - if <[arg.duration]> == null:
@@ -529,7 +747,7 @@ tick_essentials_world_time_shortcut:
     enabled: <script[tick_essentials_data].parsed_key[commands.world.time.enabled].if_null[true]>
     debug: false
     description: A shortcut command to change the time.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_world_time_shortcut].proc[command_manager_generate_usage]>
     data:
         args:
             time:
@@ -539,7 +757,7 @@ tick_essentials_world_time_shortcut:
                 explanation: The time to set the world to.
                 result: <[value].as[duration]>
             world: template=world_default_player
-            s: template=silent
+            s: template=boolean_default_false
     permission: tick_essentials.command.world.time
     tab complete:
     - inject command_manager.tab_complete_engine
@@ -557,11 +775,11 @@ tick_essentials_world_time_day_shortcut:
     enabled: <script[tick_essentials_data].parsed_key[commands.world.time.enabled].if_null[true]>
     debug: false
     description: A shortcut command to change the time to day.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_world_time_day_shortcut].proc[command_manager_generate_usage]>
     data:
         args:
             world: template=world_default_player
-            s: template=silent
+            s: template=boolean_default_false
     permission: tick_essentials.command.world.time
     tab complete:
     - inject command_manager.tab_complete_engine
@@ -578,11 +796,11 @@ tick_essentials_world_time_night_shortcut:
     enabled: <script[tick_essentials_data].parsed_key[commands.world.time.enabled].if_null[true]>
     debug: false
     description: A shortcut command to change the time to night.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_world_time_night_shortcut].proc[command_manager_generate_usage]>
     data:
         args:
             world: template=world_default_player
-            s: template=silent
+            s: template=boolean_default_false
     permission: tick_essentials.command.world.time
     tab complete:
     - inject command_manager.tab_complete_engine
@@ -593,7 +811,78 @@ tick_essentials_world_time_night_shortcut:
     - if <[arg.s]>:
         - stop
     - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Changed the time to night in world '<[world].name>'!"
+# @ ECONOMY COMMANDS
+tick_essentials_economy_pay_command:
+    type: command
+    debug: false
+    enabled: <script[tick_essentials_data].parsed_key[commands.economy.pay.enabled].if_null[true]>
+    name: pay
+    description: A shortcut command to pay another player.
+    usage: <script[tick_essentials_economy_pay_command].proc[command_manager_generate_usage]>
+    permission: tick_essentials.command.economy.pay
+    data:
+        args:
+            player: template=player_include_offline_strict
+            amount:
+                type: linear
+                required: true
+                accepted: <[value].is_decimal>
+                explanation: The amount to pay.
+    tab complete:
+    - inject command_manager.tab_complete_engine
+    script:
+    - inject command_manager.args_manager
+    - if <[arg.amount]> <= 0:
+        - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>Amount must be more than 0!"
+    - if <player.exists>:
+        - if <[arg.player]> == <player>:
+            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You can't pay yourself!"
+            - stop
+        - if <player.money> < <[arg.amount]>:
+            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You don't have enough money to do that!"
+            - stop
+    - money give quantity:<[arg.amount]> players:<[arg.player]>
+    - if <player.exists>:
+        - money take quantity:<[arg.amount]>
+        - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>You gave <[arg.player].name> <server.economy.format[<[arg.amount]>]>!"
+    - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]><player.name> gave you <server.economy.format[<[arg.amount]>]>!" targets:<[arg.player]>
+tick_essentials_economy_balance_shortcut:
+    type: command
+    name: balance
+    enabled: <script[tick_essentials_data].parsed_key[commands.economy.balance.enabled].if_null[true]>
+    debug: false
+    description: A shortcut command to check your balance.
+    usage: <script[tick_essentials_economy_balance_shortcut].proc[command_manager_generate_usage]>
+    aliases:
+    - bal
+    data:
+        args:
+            player: template=player_include_offline
+    permission: tick_essentials.command.economy.balance
+    tab complete:
+    - inject command_manager.tab_complete_engine
+    script:
+    - inject command_manager.args_manager
+    - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>The balance of <[arg.player].name> is <[arg.player].formatted_money>!"
 # @ UTILITY COMMANDS
+tick_essentials_utility_help_command:
+    type: command
+    name: help
+    enabled: <script[tick_essentials_data].parsed_key[commands.utility.help.enabled].if_null[true]>
+    debug: false
+    description: Sends formmated help text.
+    aliases:
+    - ?
+    usage: <script[tick_essentials_utility_help_command].proc[command_manager_generate_usage]>
+    data:
+        args:
+            player: template=player
+    permission: tick_essentials.command.utility.help
+    tab complete:
+    - inject command_manager.tab_complete_engine
+    script:
+    - inject command_manager.args_manager
+
 tick_essentials_utility_trash_command:
     type: command
     name: trash
@@ -603,11 +892,11 @@ tick_essentials_utility_trash_command:
     aliases:
     - disposal
     - dispose
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_utility_trash_command].proc[command_manager_generate_usage]>
     data:
         args:
             player: template=player
-            s: template=silent
+            s: template=boolean_default_false
     permission: tick_essentials.command.utility.trash
     tab complete:
     - inject command_manager.tab_complete_engine
@@ -628,7 +917,7 @@ tick_essentials_utility_nickname_command:
     enabled: <script[tick_essentials_data].parsed_key[commands.utility.nickname.enabled].if_null[true]>
     debug: false
     description: Changes your nickname.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_utility_nickname_command].proc[command_manager_generate_usage]>
     data:
         args:
             nickname:
@@ -636,7 +925,7 @@ tick_essentials_utility_nickname_command:
                 required: <[arg.reset].exists.not>
                 explanation: The nickname to set.
             player: template=player
-            s: template=silent
+            s: template=boolean_default_false
             reset: template=boolean_default_false
     permission: tick_essentials.command.utility.nickname
     tab complete:
@@ -668,13 +957,13 @@ tick_essentials_utility_heal_command:
     enabled: <script[tick_essentials_data].parsed_key[commands.utility.heal.enabled].if_null[true]>
     debug: false
     description: Replenishes your health, hunger, saturation, and optionally removes potion effects and fire.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_utility_heal_command].proc[command_manager_generate_usage]>
     data:
         args:
             player: template=player
             remove_fire: template=boolean_default_true
             remove_effects: template=boolean_default_false
-            s: template=silent
+            s: template=boolean_default_false
     permission: tick_essentials.command.utility.heal
     tab complete:
     - inject command_manager.tab_complete_engine
@@ -691,21 +980,21 @@ tick_essentials_utility_heal_command:
         - foreach <player.effects_data> as:effect:
             - cast <[effect.type]> remove
     - if <[arg.remove_fire]>:
-        - adjust <[arg.player]> fire_time:0
+        - burn <[arg.player]> 0
     - if <[arg.s]>:
         - stop
-    - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Healed '<[arg.player].name>'!"
+    - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Healed '<[arg.player].name>', <[arg.remove_effects].if_true[].if_false[without ]>removing effects, <[arg.remove_fire].if_true[].if_false[without ]>extinguishing!"
 tick_essentials_utility_feed_command:
     type: command
     name: feed
     enabled: <script[tick_essentials_data].parsed_key[commands.utility.feed.enabled].if_null[true]>
     debug: false
     description: Restores your hunger and saturation.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_utility_feed_command].proc[command_manager_generate_usage]>
     data:
         args:
             player: template=player
-            s: template=silent
+            s: template=boolean_default_false
     permission: tick_essentials.command.utility.feed
     tab complete:
     - inject command_manager.tab_complete_engine
@@ -726,14 +1015,12 @@ tick_essentials_utility_back_command:
     enabled: <script[tick_essentials_data].parsed_key[commands.utility.back.enabled].if_null[true]>
     name: back
     description: Go to your previous location (before teleporting).
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_essentials_utility_back_command].proc[command_manager_generate_usage]>
     permission: tick_essentials.command.utility.back
     data:
         args:
-            player:
-                template: player
-            s:
-                template: silent
+            player: template=player
+            s: template=boolean_default_false
     tab complete:
     - inject command_manager.tab_complete_engine
     script:

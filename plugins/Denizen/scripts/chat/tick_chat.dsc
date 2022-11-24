@@ -1,16 +1,12 @@
 tick_chat_custom_tabcomplete:
     type: world
     debug: false
-    data:
-        tab completions:
-        - (i)
-        - (l)
-        - (/command)
-        - (!/command)
     events:
         on delta time minutely:
+        - if !<script[tick_chat_configuration].data_key[chat tab completions.enabled].if_null[true]>:
+            - stop
         - foreach <server.online_players> as:__player:
-            - adjust <player> add_tab_completions:<script.data_key[data.tab completions]>
+            - adjust <player> add_tab_completions:<script[tick_chat_configuration].data_key[chat tab completions.tab completions]>
 tick_chat_world:
     type: world
     enabled: true
@@ -43,23 +39,26 @@ tick_chat_world:
         on player chats:
         - determine passively cancelled
         - define message <context.message>
-        - foreach <script.data_key[data.chat replacements.on send message].values> as:map:
+        - foreach <script[tick_chat_configuration].data_key[chat replacements.on send message].values> as:map:
             - define message <[message].replace[<[map.to_replace].parsed>].with[<[map.with].parsed>]>
-        - if <script.data_key[data.ping]>:
+        - if <script[tick_chat_configuration].data_key[ping]>:
             - foreach <server.online_players.filter_tag[<[message].contains[@<[filter_value].name>]>]> as:pinged:
                 - playsound <[pinged]> sound:block_note_block_bell
                 - define message <[message].replace[@<[pinged].name>].with[<element[@<[pinged].name>].custom_color[emphasis]>]>
-                - define toast_map <script.parsed_key[data.ping toast]>
+                - define toast_map <script[tick_chat_configuration].parsed_key[ping toast]>
                 - toast <[toast_map.text].if_null[Please configure some text!]> frame:<[toast_map.frame].if_null[goal]> icon:<[toast_map.icon].if_null[stone]>
-        - customevent id:tick_chat_player_sends_message context:[message=<[message]>;formatted_message=<script.parsed_key[data.chat format]>] save:event
+        - define formatted_message <script[tick_chat_configuration].parsed_key[chat format]>
+        - customevent id:tick_chat_player_sends_message context:[message=<[message]>;formatted_message=<[formatted_message]>] save:event
         - if <entry[event].was_cancelled>:
             - stop
-        - announce <script.parsed_key[data.chat format]>
-        - run tick_logging_log_info def.source:Chat "def.message:<player.proc[tick_logging_util_proc.script.format_player]>: <[message]>"
+        - announce <[formatted_message]>
+        - define log_message "<player.proc[tick_logging_util_proc.script.format_player]>: <[message]>"
+        - log file:plugins/Denizen/logs/chat.log <[log_message]>
+        - run tick_logging_log_info def.source:Chat def.message:<[log_message]>
         on player receives message:
         - define message <context.message>
-        - foreach <script.data_key[data.chat replacements.on receive message].keys> as:path:
-            - inject tick_chat_world "path:data.chat replacements.on receive message.<[path]>"
+        - foreach <script[tick_chat_configuration].data_key[chat replacements.on receive message].keys> as:path:
+            - inject tick_chat_configuration "path:chat replacements.on receive message.<[path]>"
         - determine message:<[message]>
 
 tick_chat_format_player_name:

@@ -14,7 +14,7 @@ tick_discord_error_logger_world:
         - if <context.queue.exists>:
             - definemap embed_map.fields.2:
                     title: Additional error information
-                    value: Definitions:<n><context.queue.definition_map.parse_value_tag[<[parse_value].as[element].length.is_more_than[50].if_true[<[parse_value].substring[1,50]>...].if_false[<[parse_value]>]>].to_yaml><n>Linked player: <context.queue.player.if_null[none]><n>Linked npc: <context.queue.npc.if_null[none]>
+                    value: Definitions:<n>```yaml<n><context.queue.definition_map.parse_value_tag[<[parse_value].as[element].length.is_more_than[50].if_true[<[parse_value].substring[1,50]>...].if_false[<[parse_value]>]>].to_yaml><n>```Linked player: <context.queue.player.if_null[none]><n>Linked npc: <context.queue.npc.if_null[none]>
         - if <context.script.exists>:
             - define embed_map.footer "See below for the full script!"
             - define script_text <context.script.to_yaml>

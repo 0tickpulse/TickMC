@@ -14,7 +14,7 @@ tickcore_impl_event_util:
     - if <entry[event].was_cancelled> && <[tickcore_impl_event_util_data.cancellable]>:
         - stop
     - define args <[tickcore_impl_event_util_data.determination_args]>
-    - inject command_manager.generate_args
+    - inject command_manager.generate_arg_maps
     - foreach <entry[event].determination_list> as:determination:
         - define determination_unfiltered.<[tickcore_impl_event_util_data.determination].before[:]> <[determination].after[:]>
 
@@ -135,7 +135,8 @@ tickcore_run_slash:
             source: <[determinations.source].if_null[<[damage_data.source]>]>
             cause: <[determinations.cause].if_null[<[damage_data.cause]>]>
 
-    - playsound <[entity].location> sound:entity_player_attack_sweep
+    - if <[element_map].keys> !contains physical:
+        - playsound <[entity].location> sound:entity_player_attack_sweep
     - run tickcore_impl_do_damage_task defmap:<[new_damage_data]>
 
 tickcore_custom_attack:

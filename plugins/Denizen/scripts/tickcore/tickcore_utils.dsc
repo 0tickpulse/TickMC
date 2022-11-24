@@ -10,7 +10,7 @@ tickcore_util_item_shortcut_command:
     debug: false
     name: item
     description: A shortcut command to obtain an item for yourself.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tickcore_util_item_shortcut_command].proc[command_manager_generate_usage]>
     aliases:
     - i
     data:
@@ -24,11 +24,9 @@ tickcore_util_item_shortcut_command:
             properties:
                 type: prefixed
                 required: false
-                accepted: <[value].as[map].exists>
+                template: maptag
                 default: <map>
-                result: <[value].as[map]>
-                explanation: Properties as a MapTag.
-                usage text: <&lt>map<&gt>
+                explanation: Properties of the item.
             player:
                 template: player
     tab complete:

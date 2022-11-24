@@ -40,12 +40,12 @@ tick_world_manager_helper_command:
 tick_world_manager_createworld_command:
     type: command
     name: createworld
-    description: A TickWorld command that creates a world.
+    description: A TickWorld command that creates or loads a world.
     debug: false
     aliases:
     - twcw
     - cw
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_world_manager_createworld_command].proc[command_manager_generate_usage]>
     permission: tickworld.command.createworld
     data:
         args:
@@ -59,7 +59,13 @@ tick_world_manager_createworld_command:
                 default: normal
                 explanation: The type of the world.
                 accepted: <server.world_types.contains[<[value]>]>
-                usage text: <&lc>normal<&rc>/flat/large_biomes/amplified
+                usage text:
+                    auto format: true
+                    list:
+                    - <&lc>normal<&rc>
+                    - flat
+                    - large_biomes
+                    - amplified
                 tab completes: <server.world_types>
             generator:
                 type: prefixed
@@ -71,16 +77,19 @@ tick_world_manager_createworld_command:
                 required: false
                 explanation: The environment of the world.
                 accepted: <list[normal|nether|the_end|custom].contains[<[value]>]>
-                usage text: <&lc>normal<&rc>/nether/the_end/custom
+                usage text:
+                    auto format: true
+                    list:
+                    - <&lc>normal<&rc>
+                    - nether
+                    - the_end
+                    - custom
                 tab completes: normal|nether|the_end|custom
                 default: normal
             settings:
                 type: prefixed
                 required: false
-                explanation: Settings, as a Denizen MapTag.
-                accepted: <[value].as[map].exists>
-                result: <[value].as[map]>
-                usage text: <&lt>map<&gt>
+                template: maptag
                 default: <map>
             generate_structures:
                 template: boolean_default_false
@@ -90,7 +99,7 @@ tick_world_manager_createworld_command:
                 default: null
                 explanation: The seed of the world.
             s:
-                template: silent
+                template: boolean_default_false
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
@@ -111,7 +120,7 @@ tick_world_manager_teleportworld_command:
     type: command
     name: teleportworld
     description: A TickWorld command that teleports you to the spawn location of another world.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_world_manager_teleportworld_command].proc[command_manager_generate_usage]>
     permission: tickworld.command.teleportworld
     aliases:
     - twtp
@@ -122,7 +131,7 @@ tick_world_manager_teleportworld_command:
         args:
             world: template=world
             player: template=player
-            s: template=silent
+            s: template=boolean_default_false
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
@@ -136,7 +145,7 @@ tick_world_manager_unloadworld_command:
     type: command
     name: unloadworld
     description: A TickWorld command that unloads a world.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_world_manager_unloadworld_command].proc[command_manager_generate_usage]>
     permission: tickworld.command.unloadworld
     aliases:
     - twdw
@@ -151,7 +160,7 @@ tick_world_manager_unloadworld_command:
                 default: unload
                 accepted: <list[unload|force_unload|destroy].contains[<[value]>]>
                 tab completes: unload|force_unload|destroy
-            s: template=silent
+            s: template=boolean_default_false
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
@@ -175,7 +184,7 @@ tick_world_manager_worldgamerule_command:
     type: command
     name: worldgamerule
     description: A TickWorld command that gets or sets a world's gamerule.
-    usage: <script.proc[command_manager_generate_usage]>
+    usage: <script[tick_world_manager_worldgamerule_command].proc[command_manager_generate_usage]>
     permission: tickworld.command.worldgamerule
     aliases:
     - twgr
@@ -190,7 +199,7 @@ tick_world_manager_worldgamerule_command:
                 accepted: <server.gamerules.contains[<[value]>]>
                 tab completes: <server.gamerules>
             value: template=any_value;type=linear;required=false
-            s: template=silent
+            s: template=boolean_default_false
     debug: false
     tab complete:
     - inject command_manager.tab_complete_engine

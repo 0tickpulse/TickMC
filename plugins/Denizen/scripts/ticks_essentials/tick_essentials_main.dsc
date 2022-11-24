@@ -17,7 +17,7 @@ tick_essentials_proc:
         online_players:
         - determine <server.online_players>
 
-back_command_logger_world:
+tick_essentials_back_command_logger_world:
     type: world
     debug: false
     enabled: <script[tick_essentials_data].data_key[commands.world.back].if_null[true]>
@@ -25,3 +25,10 @@ back_command_logger_world:
         on player teleports:
         - flag <player> tick_essentials.back_location:<context.origin>
 
+tick_essentials_gamemode_fake_op_world:
+    type: world
+    debug: false
+    enabled: <script[tick_essentials_data].data_key[commands.staff.gamemode.fake op].if_null[false]>
+    events:
+        after player joins permission:tick_essentials.command.staff.gamemode:
+        - adjust <player> fake_op_level:4
