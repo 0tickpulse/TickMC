@@ -57,11 +57,11 @@ tickcore_ability_lights_beam:
         - foreach <[ring_locations]> as:point:
             - run particle_generator def.locations:<[point]> def.element:light def.velocity:<[point].sub[<[beam_ring_location]>]> def.offset:0,0,0
         - playeffect effect:flash at:<[beam_ring_location]> visibility:50
-        - playeffect effect:explosion_large at:<[beam_ring_location]> velocity:5,5,5 visibility:50
+        - playeffect effect:sonic_boom at:<[beam_ring_location]> visibility:50
 
     - define points <[beam_target].points_between[<[loc]>].distance[0.25]>
     - run particle_generator def.locations:<[points]> def.element:light def.offset:1,1,1
-    - run particle_generator def.locations:<[points]> def.element:thunder def.offset:1,1,1 def.quantity:5
+    #- run particle_generator def.locations:<[points]> def.element:thunder def.offset:1,1,1 def.quantity:5
 
     - define entities <[points].parse[find.living_entities.within[5]].combine.deduplicate.exclude[<[entity]>]>
     - definemap damage_context:

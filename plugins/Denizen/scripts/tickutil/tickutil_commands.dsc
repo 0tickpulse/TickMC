@@ -5,8 +5,6 @@
 # Author: 0TickPulse
 # @ ----------------------------------------------------------
 
-command_error_registry:
-    type: data
 command_manager_data:
     type: data
     # If set to true, when receiving a fatal error, the script will instantly print the error and stop.
@@ -71,7 +69,7 @@ command_manager_data:
             type: linear
             # Dynamic requre - if a player running it, it is required, otherwise it is not.
             required: <player.exists.not>
-            accepted: <server.worlds.parse[name].contains[<[value]>]>
+            accepted: <server.worlds.parse[name].contains_single[<[value]>]>
             explanation: The name of any loaded world. Defaults to the player's world.
             # Tab completes for the argument.
             tab completes: <server.worlds.parse[name]>
@@ -81,21 +79,21 @@ command_manager_data:
         world:
             type: linear
             required: true
-            accepted: <server.worlds.parse[name].contains[<[value]>]>
+            accepted: <server.worlds.parse[name].contains_single[<[value]>]>
             tab completes: <server.worlds.parse[name]>
             result: <[value].as[world]>
             explanation: The name of any loaded world.
         player_strict:
             type: linear
             required: true
-            accepted: <server.online_players.parse[name].contains[<[value]>]>
+            accepted: <server.online_players.parse[name].contains_single[<[value]>]>
             tab completes: <server.online_players.parse[name]>
             result: <server.match_player[<[value]>]>
             explanation: The name of any online player.
         player:
             type: linear
             required: <player.exists.not>
-            accepted: <server.online_players.parse[name].contains[<[value]>]>
+            accepted: <server.online_players.parse[name].contains_single[<[value]>]>
             tab completes: <server.online_players.parse[name]>
             explanation: The name of any online player.
             default: <player>
@@ -103,14 +101,14 @@ command_manager_data:
         player_include_offline_strict:
             type: linear
             required: true
-            accepted: <server.players.parse[name].contains[<[value]>]>
+            accepted: <server.players.parse[name].contains_single[<[value]>]>
             tab completes: <server.players.parse[name]>
             explanation: Any player who has ever joined the server.
             result: <server.match_offline_player[<[value]>]>
         player_include_offline:
             type: linear
             required: <player.exists.not>
-            accepted: <server.players.parse[name].contains[<[value]>]>
+            accepted: <server.players.parse[name].contains_single[<[value]>]>
             tab completes: <server.players.parse[name]>
             explanation: Any player who has ever joined the server.
             default: <player>
@@ -177,12 +175,30 @@ command_manager_data:
                 auto format: true
                 list:
                 - <&lt>#<&gt>
+        decimal:
+            type: linear
+            accepted: <[value].is_decimal>
+            explanation: Any decimal.
+            usage text:
+                auto format: true
+                list:
+                - <&lt>#.#<&gt>
 command_manager_generate_usage:
     type: procedure
     debug: false
     definitions: script
     script:
+    - define colors <static[<script[command_manager_data].parsed_key[formatting.colors]>]>
+    - define symbols <static[<script[command_manager_data].parsed_key[formatting.symbols]>]>
     - define output /<[script].data_key[name]>
+    - if <[script].data_key[data.enable_subcommands].if_null[false]>:
+        - define subcommand_strings <list>
+        - foreach <[script].data_key[data.subcommands].if_null[<map>]> key:key as:args:
+            - inject command_manager.generate_arg_maps
+            - define "subcommand_strings:->:<[colors.literal_arg_text]><[key]> <[args].parse_value_tag[<[parse_key].proc[command_manager_generate_singular_usage_proc].context[<[parse_value]>]>].values.separated_by[ ]>"
+        - define output "<[output]> <[symbols.required_arg_prefix]><[subcommand_strings].separated_by[/]><[symbols.required_arg_suffix]>"
+        # Also include global args
+        - define args <[script].data_key[data.args].if_null[<map>]>
     - inject command_manager.generate_arg_maps
     - define output "<[output]> <[args].parse_value_tag[<[parse_key].proc[command_manager_generate_singular_usage_proc].context[<[parse_value]>]>].values.separated_by[ ]>"
     - determine <[output]>
@@ -240,6 +256,7 @@ command_manager_generate_singular_usage_proc:
     - else:
         - define output <[output]><[symbols.optional_arg_prefix]>
 
+    # Usage text
     - define usage_text <[arg.usage text.auto format].if_null[false].if_true[<[arg.usage text.list].proc[command_manager_generate_choices_colored_proc].context[<[arg.type].if_null[prefixed]>]>].if_false[<[arg.usage text.text].parsed.if_null[<[symbols.nonliteral_arg_prefix]><[colors.nonliteral_arg_text]><[name]><[symbols.nonliteral_arg_suffix]>]>]>
     - if <[arg.type].if_null[null]> == linear:
         - define output <[output]><[arg.spread].if_null[false].if_true[<script[command_manager_data].parsed_key[formatting.symbols.spread]>].if_false[]><[usage_text]>
@@ -292,16 +309,32 @@ command_manager:
     generate_arg_maps:
     - if !<[script].exists>:
         - define script <queue.script>
+    - define subcommands_enabled <[script].data_key[data.enable_subcommands].if_null[false]>
     - if !<queue.definitions.contains[args]>:
-        - define args <[script].data_key[data.args].if_null[null]>
+        - define subcommands_data <[script].data_key[data.subcommands].if_null[<map>]>
+        - define subcommand_arg_map <map.with[_subcommand].as[<map.with[type].as[linear].with[required].as[true].with[accepted].as[true].with[explanation].as[Internally generated arg].with[tab completes].as[<[subcommands_data].keys>]>].include[<[script].data_key[data.args].if_null[<map>]>]>
+        - if <[subcommands_enabled]>:
+            - define subcommand <[flag_args.linear_args].if_null[<list>].first.if_null[null]>
+            - if <[subcommand]> == null:
+                - define args <[subcommand_arg_map]>
+            - else:
+                - define subcommands_data <[script].data_key[data.subcommands].if_null[<map>]>
+                - if <[subcommands_data].keys> !contains <[subcommand]>:
+                    - define tickutil_commands.args_manager.panic true
+                    - define "tickutil_commands.args_manager.error_messages:->:Unknown subcommand '<[subcommand]>'!"
+                    - goto fatal_error
+                - define args <[subcommand_arg_map].include[<[subcommands_data.<[subcommand]>]>]>
+        - else:
+            - define args <[script].data_key[data.args].if_null[null]>
         - if <[args]> == null:
             - stop
-        - define args <[args].parse_value_tag[<[parse_key].proc[command_generator_arg_map_proc].context[<[parse_value].as[map]>]>].values.merge_maps>
+    - define args <[args].parse_value_tag[<[parse_key].proc[command_generator_arg_map_proc].context[<[parse_value].as[map]>]>].values.merge_maps>
     tab_complete_engine:
-    - inject command_manager.generate_arg_maps
     - inject command_manager.flag_args
+    - inject command_manager.generate_arg_maps
 
     - define completions <list>
+    - define unfiltered_completions <list>
 
     - define current_arg <[flag_args.linear_args].if_null[<list>].size.max[1]>
     - if <[flag_args.linear_args].if_null[<list>].size> >= 1 && <context.raw_args.ends_with[ ]>:
@@ -313,22 +346,71 @@ command_manager:
     - else if <[linear_args].values.last.get[spread].if_null[false]>:
         - define current_linear_arg <[linear_args].to_pair_lists.last>
     - if <[current_linear_arg].exists>:
-        - define completions:|:<[current_linear_arg].get[2].get[tab completes].parsed.if_null[<[current_linear_arg].get[1].proc[command_manager_generate_singular_usage_proc].context[<[current_linear_arg].get[2]>]>].strip_color.if_null[]>
+        - define will_complete_with <[current_linear_arg].get[2].get[tab completes].parsed.if_null[<[current_linear_arg].get[1].proc[command_manager_generate_singular_usage_proc].context[<[current_linear_arg].get[2]>].strip_color>].as[list]>
+        - define usage <[current_linear_arg].get[1].proc[command_manager_generate_singular_usage_proc].context[<[current_linear_arg].get[2]>].strip_color>
+        - if <[flag_args.linear_args].exists>:
+            - define value <[flag_args.linear_args].get[<[current_arg]>].if_null[]>
+            - if <[current_linear_arg].get[2].keys> contains "tab completes" && <[current_linear_arg].get[2].get[tab completes].parsed.as[list].filter[starts_with[<[value].before[:]>]].any>:
+                - define completions:|:<[current_linear_arg].get[2].get[tab completes].parsed>
+            - else if <[current_linear_arg].get[2].get[accepted].parsed.if_null[true]>:
+                - define completions:|:<[usage]>
+            # Make sure that the user isn't trying to input a prefixed arg
+            - else if <context.args.get[<[current_arg]>].exists> && !<context.args.get[<[current_arg]>].if_null[null].starts_with[-]>:
+                - definemap err_completion:
+                    expected: <[usage]>
+                    actual: <[value]>
+                    possible_values: <[will_complete_with].exclude[<[usage]>]>
+                - if <[current_linear_arg].get[2].keys> contains explanation:
+                    - define err_completion.explanation <[current_linear_arg].get[2].get[explanation]>
+            - else:
+                - define completions:<[will_complete_with]>
+        - else if <[current_linear_arg].get[2].keys.contains[tab completes]>:
+            - define completions:<[will_complete_with]>
 
     - define prefixed_args <[args].filter_tag[<[filter_value.type].equals[prefixed].if_null[false]>]>
     - define prefixed <[prefixed_args].filter_tag[<context.raw_args.ends_with[ ].if_true[<[flag_args.prefixed_args].if_null[<map>]>].if_false[<[flag_args.prefixed_args].if_null[<map>].exclude[<context.args.last.after[-].before[:].if_null[]>]>].contains[<[filter_key]>].not>]>
     - foreach <[prefixed]> key:argname as:map:
+        - define will_complete_with <[map.tab completes].parsed.as[list].parse_tag[-<[argname]>:<[parse_value]>].if_null[-<[argname]>:].as[list]>
         - if <context.args.last.starts_with[-<[argname]>:].if_null[false]>:
-            - define completions:|:<[map.tab completes].parsed.as[list].parse_tag[-<[argname]>:<[parse_value]>].if_null[-<[argname]>:]>
+            - if <[flag_args.prefixed_args].exists>:
+                - if <[flag_args.prefixed_args].contains[<[argname]>]>:
+                    - define value <[flag_args.prefixed_args.<[argname]>].if_null[]>
+                    - if <[will_complete_with].filter[starts_with[-<[argname]>:<[value]>]].any>:
+                        - define completions:|:<[will_complete_with]>
+                    - else if <[map.accepted].parsed.if_null[true]>:
+                        - define completions:|:<[argname].proc[command_manager_generate_singular_usage_proc].context[<[map]>].strip_color>
+                    - else:
+                        - definemap err_completion:
+                            expected: <[argname].proc[command_manager_generate_singular_usage_proc].context[<[map]>].strip_color>
+                            actual: -<[argname]>:<[value]>
+                            possible_values: <[will_complete_with].exclude[-<[argname]>:]>
+                        - if <[map].keys> contains explanation:
+                            - define err_completion.explanation <[map.explanation]>
+            - else:
+                - define completions:|:<[will_complete_with]>
         - else if <context.args.last.if_null[null]> == -<[argname]>:
             - define completions:|:-<[argname]><&co>
         - else:
             - define completions:|:<[map.boolean style tab complete].if_null[false].if_true[-<[argname]>].if_false[-<[argname]>:]>
 
+    # Process errors
+    - if <[err_completion].exists>:
+        - define error_message "<&[error]>Invalid <&[base]><[err_completion.expected]> <&[error]>value!"
+        - if <[err_completions.explanation].exists>:
+            - define erro_message "<[error_message]> <&[error]>Expected: <white><[err_completion]>"
+        - if <[err_completion.possible_values].any>:
+            - define closest <[err_completion.possible_values].closest_to[<[err_completion.actual]>]>
+            - if <[closest].to_lowercase.difference[<[err_completion.actual].to_lowercase>]> <= 3 && <[closest]> != <empty>:
+                - define error_message "<[error_message]> <&[error]>Close match: <white><[closest]>"
+        - define unfiltered_completions:|:<[error_message]>
+
     # Filter the completions
     - if !<context.raw_args.ends_with[ ]> && <context.args.size> > 0:
-        - determine <[completions].filter[starts_with[<context.args.last.before[:]>]]>
-    - determine <[completions]>
+        - determine <[completions].filter[starts_with[<context.args.last.before[:]>]].include[<[unfiltered_completions]>]>
+    - determine <[completions].include[<[unfiltered_completions]>]>
+
+    - mark fatal_error
+    - determine <[tickutil_commands.args_manager.error_messages].if_null[<list>]>
     args_manager:
     - define arg <map>
     - inject command_manager.flag_args
@@ -337,6 +419,11 @@ command_manager:
 
     - define tickutil_commands.args_manager.error_messages <list>
 
+    - if <[subcommands_enabled]> && <[subcommand]> == null:
+        - define "tickutil_commands.args_manager.error_messages:|:No subcommand was specified!"
+        - define tickutil_commands.args_manager.panic true
+        - goto fatal_error
+
     - foreach <[flag_args.linear_args].if_null[<list>]> as:value:
         - define tickutil_commands.args_manager.linear <[tickutil_commands.args_manager.linear_args].values.get[<[loop_index]>].if_null[null]>
         - if <[tickutil_commands.args_manager.linear]> == null:
@@ -344,18 +431,19 @@ command_manager:
             - foreach next
         - if <[tickutil_commands.args_manager.linear_args].values.get[<[loop_index]>].get[spread].if_null[false]>:
             - define value <[flag_args.linear_args].get[<[loop_index]>].to[last].separated_by[ ]>
+        - if <[tickutil_commands.args_manager.linear].permissions.filter_tag[<player.has_permission[<[filter_value]>].not>].any.if_null[false]>:
+            - define "tickutil_commands.args_manager.error_messages:|:You do not have permission to use the '<[tickutil_commands.args_manager.linear].name>' argument."
+            - foreach next
         - if <[tickutil_commands.args_manager.linear.accepted].parsed.if_null[true]>:
             - define arg.<[tickutil_commands.args_manager.linear_args].keys.get[<[loop_index]>]> <[value]>
         - else:
             # Generate a suggestion "(Did you mean '...'?)"
-            - define tickutil_commands.args_manager.suggestion <[tickutil_commands.args_manager.linear.suggestions].if_null[<[tickutil_commands.args_manager.linear.tab completes]>].parsed.as[list].closest_to[<[value]>].if_null[null]>
-            - if <[tickutil_commands.args_manager.suggestion]> == null:
-                - foreach next
-            - if <[tickutil_commands.args_manager.suggestion].to_lowercase.difference[<[value].to_lowercase>]> < 3:
+            - define tickutil_commands.args_manager.suggestion <[tickutil_commands.args_manager.linear.suggestions].if_null[<[tickutil_commands.args_manager.linear.tab completes]>].parsed.as[list].closest_to[<[value]>]>
+            - if <[tickutil_commands.args_manager.suggestion].to_lowercase.difference[<[value].to_lowercase>]> <= 3 && <[tickutil_commands.args_manager.suggestion]> != <empty>:
                 - define tickutil_commands.args_manager.suggestion_message " <&[base]>(Did you mean '<[tickutil_commands.args_manager.suggestion].custom_color[emphasis]>'?)"
 
-            - define "tickutil_commands.args_manager.error_messages:|:'<[value].custom_color[emphasis]>' is not a valid value for the <[tickutil_commands.args_manager.linear.required].if_null[false].if_true[required ].if_false[].custom_color[emphasis]>arg '<[tickutil_commands.args_manager.linear_args].keys.get[<[loop_index]>].proc[command_manager_generate_singular_usage_proc].context[<[tickutil_commands.args_manager.linear_args].values.get[<[loop_index]>]>].custom_color[emphasis]>'!<[tickutil_commands.args_manager.suggestion_message].if_null[]>"
-            - if <[tickutil_commands.args_manager.linear.required].if_null[false]>:
+            - define "tickutil_commands.args_manager.error_messages:|:'<[value].custom_color[emphasis]>' is not a valid value for the <[tickutil_commands.args_manager.linear.required].parsed.if_null[false].if_true[required ].if_false[].custom_color[emphasis]>arg '<[tickutil_commands.args_manager.linear_args].keys.get[<[loop_index]>].proc[command_manager_generate_singular_usage_proc].context[<[tickutil_commands.args_manager.linear_args].values.get[<[loop_index]>]>].custom_color[emphasis]>'!<[tickutil_commands.args_manager.suggestion_message].if_null[]>"
+            - if <[tickutil_commands.args_manager.linear.required].parsed.if_null[false]>:
                 - define tickutil_commands.args_manager.panic true
                 - if <script[command_manager_data].parsed_key[instantly terminate command execution on fatal error]>:
                     - goto fatal_error
@@ -368,13 +456,16 @@ command_manager:
     - foreach <[tickutil_commands.args_manager.prefixed_args]> key:argname as:map:
         - foreach <[flag_args.prefixed_args].if_null[<map>]> key:flag as:value:
             - if <[flag]> == <[argname]>:
+                - if <[map.permissions].filter_tag[<player.has_permission[<[filter_value]>].not>].any.if_null[false]>:
+                    - define "tickutil_commands.args_manager.error_messages:|:You do not have permission to use the '<[map].name>' argument."
+                    - foreach next
                 - if <[map.accepted].parsed.if_null[true]>:
                     - define arg.<[argname]> <[value]>
                     - define flag_args.prefixed_args <[flag_args.prefixed_args].exclude[<[argname]>]>
                 - else:
                     - if <[map].keys.contains_any[suggestions|tab completes]>:
                         - define tickutil_commands.args_manager.suggestion <[map.suggestions].if_null[<[map.tab completes]>].parsed.as[list].closest_to[<[value]>]>
-                        - if <[tickutil_commands.args_manager.suggestion].difference[<[value]>]> < 3:
+                        - if <[tickutil_commands.args_manager.suggestion].difference[<[value]>]> <= 3 && <[tickutil_commands.args_manager.suggestion]> != <empty>:
                             - define tickutil_commands.args_manager.suggestion_message " <&[base]>(Did you mean '<[tickutil_commands.args_manager.suggestion].custom_color[emphasis]>'?)"
                     - define "tickutil_commands.args_manager.error_messages:->:Invalid prefixed argument '<element[-<[argname]>:<[value]>].custom_color[emphasis]>' for arg '<[argname].proc[command_manager_generate_singular_usage_proc].context[<[map]>].custom_color[emphasis]>'!<[map.explanation].exists.if_true[ Expected: '<[map.explanation].parsed.custom_color[emphasis]>'].if_false[]><[tickutil_commands.args_manager.suggestion_message].if_null[]>"
 
@@ -383,7 +474,7 @@ command_manager:
         - if <[tickutil_commands.args_manager.prefixed_args].keys> contains <[argname]>:
             - foreach next
         - define tickutil_commands.args_manager.suggestion <[tickutil_commands.args_manager.prefixed_args].keys.closest_to[<[argname]>]>
-        - if <[tickutil_commands.args_manager.suggestion].difference[<[argname]>]> < 3:
+        - if <[tickutil_commands.args_manager.suggestion].difference[<[argname]>]> <= 3 && <[tickutil_commands.args_manager.suggestion]> != <empty>:
             - define tickutil_commands.args_manager.suggestion_message " <&[base]>(Did you mean '<[tickutil_commands.args_manager.suggestion].proc[command_manager_generate_singular_usage_proc].context[<[tickutil_commands.args_manager.prefixed_args.<[tickutil_commands.args_manager.suggestion]>]>].custom_color[emphasis]>'?)"
         - define "tickutil_commands.args_manager.error_messages:->:Unknown prefixed argument '<element[-<[argname]>].custom_color[emphasis]>'!<[tickutil_commands.args_manager.suggestion_message].if_null[]>"
 
@@ -399,19 +490,23 @@ command_manager:
 
     # If the arg is required, but not present, throw an error. Otherwise, set the arg to the default value.
     - foreach <[args]> key:argname as:map:
-        - if <[arg].keys> !contains <[argname]>:
-            - if <[map.required].parsed.if_null[false]>:
-                - define "tickutil_commands.args_manager.error_messages:->:Missing required <[map.type].if_null[null].equals[prefixed].if_true[prefixed ].if_false[]>argument '<[argname].proc[command_manager_generate_singular_usage_proc].context[<[map]>].custom_color[emphasis]>'!"
-                - define tickutil_commands.args_manager.panic true
-                - if <script[command_manager_data].parsed_key[instantly terminate command execution on fatal error]>:
-                    - goto fatal_error
+        - if <[arg].keys> contains <[argname]>:
+            - foreach next
+        - if <[map.required].parsed.if_null[false]>:
+            - define "tickutil_commands.args_manager.error_messages:->:Missing required <[map.type].if_null[null].equals[prefixed].if_true[prefixed ].if_false[]>argument '<[argname].proc[command_manager_generate_singular_usage_proc].context[<[map]>].custom_color[emphasis]>'!"
+            - define tickutil_commands.args_manager.panic true
+            - if <script[command_manager_data].parsed_key[instantly terminate command execution on fatal error]>:
                 - goto fatal_error
-                - foreach next
-            - if <[map.default].exists>:
-                - define arg.<[argname]> <[map.default].parsed>
+            - goto fatal_error
+            - foreach next
+        - if <[map.default].exists>:
+            - define arg.<[argname]> <[map.default].parsed>
 
     - mark fatal_error
     - if !<[tickutil_commands.args_manager.error_messages].is_empty>:
-        - narrate "<script[command_manager_data].parsed_key[formatting.lang.hline]><n><&[error]>There <[tickutil_commands.args_manager.error_messages].size.is_more_than[1].if_true[were].if_false[was]> <[tickutil_commands.args_manager.error_messages].size.color[white]> error message<[tickutil_commands.args_manager.error_messages].size.is_more_than[1].if_true[s].if_false[]> when parsing the arguments!<n.repeat[2]><[tickutil_commands.args_manager.error_messages].parse_tag[<white><[parse_value]>].separated_by[<n.repeat[2]>].color[white]><n.repeat[2]><white>Usage: <&[base]><queue.script.proc[command_manager_generate_usage]><n><white>Attempted: <&[base]>/<context.alias> <context.raw_args><n.repeat[2]><[tickutil_commands.args_manager.panic].if_null[false].if_true[<&[warning]>Was fatal! Aborting command execution!].if_false[<&[warning]>Was not fatal, continuing execution...]><n><script[command_manager_data].parsed_key[formatting.lang.hline]>"
+        - narrate "<script[command_manager_data].parsed_key[formatting.lang.hline]><n><&[error]>There <[tickutil_commands.args_manager.error_messages].size.is_more_than[1].if_true[were].if_false[was]> <[tickutil_commands.args_manager.error_messages].size.color[white]> error message<[tickutil_commands.args_manager.error_messages].size.is_more_than[1].if_true[s].if_false[]> when parsing the arguments for command <white>/<context.alias><&[error]>!<n.repeat[2]><[tickutil_commands.args_manager.error_messages].parse_tag[<white><[parse_value]>].separated_by[<n.repeat[2]>].color[white]><n.repeat[2]><white>Usage: <&[base]><queue.script.proc[command_manager_generate_usage]><n><white>Attempted: <&[base]>/<context.alias> <context.raw_args><n.repeat[2]><[tickutil_commands.args_manager.panic].if_null[false].if_true[<&[warning]>Was fatal! Aborting command execution!].if_false[<&[warning]>Was not fatal, continuing execution...]><n><script[command_manager_data].parsed_key[formatting.lang.hline]>"
         - if <[tickutil_commands.args_manager.panic].if_null[false]>:
             - stop
+
+    - define tickutil_commands.args_manager:!
+

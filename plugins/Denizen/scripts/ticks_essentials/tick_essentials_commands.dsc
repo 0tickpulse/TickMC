@@ -47,7 +47,7 @@ tick_essentials_developer_commandlist_command:
                 type: linear
                 required: false
                 explanation: The name of any command.
-                accepted: <server.commands.include[<server.plugins.parse[commands.values.parse[get[aliases].if_null[<list>].combine]]>].contains[<[value]>]>
+                accepted: <server.commands.include[<server.plugins.parse[commands.values.parse[get[aliases].if_null[<list>].combine]]>].contains_single[<[value]>]>
                 tab completes: <server.commands.include[<server.plugins.parse[commands.values.parse[get[aliases].if_null[<list>].combine]]>]>
             #player: template=player
     tab complete:
@@ -102,15 +102,21 @@ tick_essentials_developer_enchant_command:
             enchantment:
                 type: linear
                 required: true
-                accepted: <server.enchantments.parse[name].contains[<[value]>]>
+                accepted: <server.enchantments.parse[name].contains_single[<[value]>]>
                 tab completes: <server.enchantments.parse[name]>
                 result: <[value].as[enchantment]>
             level:
                 type: linear
-                required: true
+                required: false
                 accepted: <[value].is_integer.or[<[value].equals[remove]>]>
                 tab completes: remove
-                usage text: <&lt>level<&gt>/remove
+                default: 1
+                usage text:
+                    auto format: true
+                    list:
+                    - <&lt>level<&gt>
+                    - <&lc>1<&rc>
+                    - remove
             bypass: template=boolean_default_false
             player: template=player
             s: template=boolean_default_false
@@ -132,8 +138,8 @@ tick_essentials_developer_enchant_command:
         - if !<[arg.enchantment].can_enchant[<[item]>]> && !<[arg.bypass]>:
             - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You cannot enchant this item with <[arg.enchantment].name>!"
             - stop
-        - if <[arg.level]> > <enchantment[<[arg.enchantment]>].max_level> && !<[arg.bypass]>:
-            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>The maximum level for <[arg.enchantment].name> is <enchantment[<[arg.enchantment]>].max_level>!"
+        - if <[arg.level]> > <[arg.enchantment].max_level> && !<[arg.bypass]>:
+            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>The maximum level for <[arg.enchantment].name> is <[arg.enchantment].max_level>!"
             - stop
         - inventory adjust d:<[arg.player].inventory> slot:hand enchantments:<[item].enchantment_map.include[<map.with[<[arg.enchantment].name>].as[<[arg.level]>]>]>
         - define message "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Successfully enchanted <[arg.player].name>'s <[item].display.if_null[<[item].material.translated_name>]> <&[success]>with <[arg.enchantment].name> <[arg.level]>!"
@@ -217,20 +223,26 @@ tick_essentials_staff_sudo_command:
     data:
         args:
             player: template=player_strict
-            command: required=true;type=linear;spread=true
+            command:
+                required: true
+                type: linear
             s: template=boolean_default_false
+            op: template=boolean_default_false
     permission: tick_essentials.command.staff.sudo
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
-    - if <[arg.player].has_permission[tick_essentials.command.staff.sudo.exempt]>:
+    - if <[arg.player].has_permission[tick_essentials.command.staff.sudo.exempt]> && !<player.has_permission[tick_essentials.command.staff.sudo.bypass_exempt].if_null[true]>:
         - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You cannot execute commands as <[arg.player].name>!"
         - stop
-    - execute as_player <[arg.command]> player:<[arg.player]>
+    - if <[arg.op]>:
+        - execute as_op <[arg.command]> player:<[arg.player]>
+    - else:
+        - execute as_player <[arg.command]> player:<[arg.player]>
     - if <[arg.s]>:
         - stop
-    - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Running command '<[arg.command]>' as '<[arg.player].name>'"
+    - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Running command '/<[arg.command]>' as player '<[arg.player].name>'..."
 tick_essentials_staff_invsee_command:
     type: command
     debug: false
@@ -250,7 +262,7 @@ tick_essentials_staff_invsee_command:
     - if !<player.exists>:
         - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You must be a player to use this command!"
         - stop
-    - if <[arg.player].has_permission[tick_essentials.command.staff.invsee.exempt]>:
+    - if <[arg.player].has_permission[tick_essentials.command.staff.invsee.exempt]> && !<player.has_permission[tick_essentials.command.staff.invsee.bypass_exempt].if_null[true]>:
         - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You cannot view this player's inventory!"
         - stop
     - inventory open d:<[arg.player].inventory>
@@ -283,22 +295,24 @@ tick_essentials_staff_vanish_command:
     usage: /vanish (player)
     permission: tick_essentials.command.staff.vanish
     data:
-        require_player:
-        - 1
+        args:
+            player: template=player
+    tab complete:
+    - inject command_manager.tab_complete_engine
     script:
-    - inject command_manager.require_player
-    - flag <player> tick_essentials.vanished:<player.flag[tick_essentials.vanished].if_null[false].not>
-    - if <player.flag[tick_essentials.vanished].if_null[false]>:
-        - foreach <player.location.find_entities.within[40].filter[target.equals[<player>]]> as:entity:
+    - inject command_manager.args_manager
+    - flag <[arg.player]> tick_essentials.vanished:<[arg.player].flag[tick_essentials.vanished].if_null[false].not>
+    - if <[arg.player].flag[tick_essentials.vanished].if_null[false]>:
+        - foreach <[arg.player].location.find_entities.within[40].filter[target.equals[<[arg.player]>]]> as:entity:
             - attack <[entity]> cancel
-        - adjust <player> invulnerable:true
-        - adjust <player> visible:false
-        - adjust <player> affects_monster_spawning:false
+        - adjust <[arg.player]> invulnerable:true
+        - adjust <[arg.player]> visible:false
+        - adjust <[arg.player]> affects_monster_spawning:false
     - else:
-        - adjust <player> invulnerable:false
-        - adjust <player> visible:true
-        - adjust <player> affects_monster_spawning:true
-    - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>'<player.name>' is <player.flag[tick_essentials.vanished].if_true[now vanished].if_false[no longer vanished]>!"
+        - adjust <[arg.player]> invulnerable:false
+        - adjust <[arg.player]> visible:true
+        - adjust <[arg.player]> affects_monster_spawning:true
+    - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>'<[arg.player].name>' is <[arg.player].flag[tick_essentials.vanished].if_true[now vanished].if_false[no longer vanished]>!"
 #   | Gamemode commands
 tick_essentials_staff_gamemode_shortcut:
     type: command
@@ -315,7 +329,7 @@ tick_essentials_staff_gamemode_shortcut:
             gamemode:
                 type: linear
                 required: true
-                accepted: <queue.script.parsed_key[data.gamemode_aliases].parse_value_tag[<[parse_value].include[<[parse_key]>]>].values.combine.contains[<[value]>]>
+                accepted: <queue.script.parsed_key[data.gamemode_aliases].parse_value_tag[<[parse_value].include[<[parse_key]>]>].values.combine.contains_single[<[value]>]>
                 tab completes: <queue.script.parsed_key[data.gamemode_aliases].keys>
                 explanation: The gamemode to set the player to.
             player: template=player
@@ -503,6 +517,7 @@ tick_essentials_staff_ban_command:
                 required: false
                 spread: true
                 default: Banned by <player.name.if_null[console]>.
+            ip: template=boolean_default_false;explanation=Whether to ban the player's IP address instead of just the player.
             s: template=boolean_default_false
     permission: tick_essentials.command.staff.ban
     tab complete:
@@ -510,12 +525,17 @@ tick_essentials_staff_ban_command:
     script:
     - inject command_manager.args_manager
     - if <[arg.duration].as[duration].exists>:
-        - ban <[arg.player]> reason:<[arg.reason]> soucre:<player.name.if_null[console]> expire:<[arg.duration]>
+        - if <[arg.ip]>:
+            - ban addresses:<[arg.player].ip> reason:<[arg.reason]> source:<player.name.if_null[console]> expire:<[arg.duration]>
+        - else:
+            - ban <[arg.player]> reason:<[arg.reason]> source:<player.name.if_null[console]> expire:<[arg.duration]>
+    - else if <[arg.ip]>:
+            - ban addresses:<[arg.player].ip> reason:<[arg.reason]> source:<player.name.if_null[console]>
     - else:
-        - ban <[arg.player]> reason:<[arg.reason]> source:<player.name.if_null[console]>
+        - ban <[arg.player]> reason:<[arg.reason]> source:<player.name.if_null[console]> expire:<[arg.duration]>
     - if <[arg.s]>:
         - stop
-    - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Banned <[arg.player].name><[arg.duration].as[duration].exists.if_true[ for <[arg.duration].as[duration].formatted>].if_false[ permanently]> for: '<[arg.reason]>'"
+    - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Banned <[arg.player].name><[arg.ip].if_true['s address].if_false[]><[arg.duration].as[duration].exists.if_true[ for <[arg.duration].as[duration].formatted>].if_false[ permanently]> for: '<[arg.reason]>'"
 
 tick_essentials_staff_unban_command:
     type: command
@@ -527,19 +547,23 @@ tick_essentials_staff_unban_command:
     data:
         args:
             player: template=player_include_offline_strict
+            ip: template=boolean_default_false;explanation=Whether to unban the player's IP address instead of just the player.
             s: template=boolean_default_false
     permission: tick_essentials.command.staff.unban
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
-    - if !<[arg.player].is_banned>:
-        - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>That player is not banned!"
+    - if !<[arg.ip].if_true[<server.is_banned[<[arg.player].ip>]>].if_false[<[arg.player].is_banned>]>:
+        - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>That player<[arg.ip].if_true['s address].if_false[]> is not banned!"
         - stop
-    - ban remove <[arg.player]>
+    - if <[arg.ip]>:
+        - ban remove addresses:<[arg.player].ip>
+    - else:
+        - ban remove <[arg.player]>
     - if <[arg.s]>:
         - stop
-    - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Unbanned <[arg.player].name>!"
+    - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Unbanned <[arg.player].name><[arg.ip].if_true['s address].if_false[]>!"
 # @ WORLD COMMANDS
 tick_essentials_world_speed_command:
     type: command
@@ -584,7 +608,7 @@ tick_essentials_world_fly_command:
     permission: tick_essentials.command.world.fly
     data:
         args:
-            player: templat=player
+            player: template=player
             mode: template=boolean_null
             s: template=boolean_default_false
     tab complete:
@@ -592,7 +616,7 @@ tick_essentials_world_fly_command:
     script:
     - inject command_manager.args_manager
     - define player <[arg.player]>
-    - define mode <[arg.mode]>
+    - define mode <[arg.mode].if_null[null]>
     - if <[mode]> == null:
         - define mode <[player].can_fly.not>
     - adjust <[player]> can_fly:<[mode]>
@@ -636,7 +660,7 @@ tick_essentials_world_weather_shortcut:
                 type: linear
                 required: true
                 tab completes: <list[sunny|storm|thunder|reset]>
-                accepted: <list[sunny|storm|thunder|reset].contains[<[value]>]>
+                accepted: <list[sunny|storm|thunder|reset].contains_single[<[value]>]>
                 usage text:
                     auto format: true
                     list:
@@ -1038,3 +1062,4 @@ tick_essentials_utility_back_command:
     - if <[arg.s]>:
         - stop
     - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Teleported '<[player].name>' to their previous location!"
+

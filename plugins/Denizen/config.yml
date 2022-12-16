@@ -341,3 +341,5 @@ Colors:
     #
     admin: <&color[#ff5555]>
     console: <white>
+
+    lccblue: <&color[#0080FF]>

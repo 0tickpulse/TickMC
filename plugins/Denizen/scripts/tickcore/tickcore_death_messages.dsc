@@ -14,6 +14,9 @@ tickcore_death_messages_world:
         - define victim <context.entity>
         - define cause <context.cause>
 
+        - if <[entity]> == null:
+            - stop
+
         - if <[entity].proc[tickcore_proc.script.entities.is_tickentity].if_null[false]> && !<[entity].is_player>:
             - if <[entity].script.list_deep_keys> contains data.tickcore.death_messages:
                 - define death_messages <[entity].script.parsed_key[data.tickcore.death_messages]>

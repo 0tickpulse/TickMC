@@ -32,3 +32,5 @@ tick_essentials_gamemode_fake_op_world:
     events:
         after player joins permission:tick_essentials.command.staff.gamemode:
         - adjust <player> fake_op_level:4
+        after player changes world permission:tick_essentials.command.staff.gamemode:
+        - adjust <player> fake_op_level:4

@@ -7,6 +7,8 @@
 
 tick_motd_data:
     type: data
+    server_icons:
+    - plugins/Denizen/icons/tickmc-64x64.png
     line_1:
     - <&c><&gradient[from=red;to=orange]>TickMC Official <&7>|<&r> <&gradient[from=orange;to=red]><context.version_name.replace[Paper ]>+
     line_2:
@@ -23,8 +25,7 @@ tick_motd_data:
     - <&c><&l>Our Staff<&co>
     - <&7>Owner <&8>- <&c>0TickPulse
     - <empty>
-    - <&c>Accept resource packs, or
-    - <&c>accept your death.
+    - <&c>Please accept resourcepacks!
 tick_motd_world:
     type: world
     debug: false
@@ -36,4 +37,5 @@ tick_motd_world:
         - define line1 <script[tick_motd_data].data_key[line_1].random.parsed>
         - define line2 <script[tick_motd_data].data_key[line_2].random.parsed>
         - determine passively <[line1]><n><[line2]>
+        - determine passively icon:<script[tick_motd_data].data_key[server_icons].random.parsed>
         - determine alternate_player_text:<script[tick_motd_data].data_key[player_text].parse[parsed]>

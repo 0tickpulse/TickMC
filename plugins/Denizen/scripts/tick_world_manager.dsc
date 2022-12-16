@@ -33,6 +33,7 @@ tick_world_manager_helper_command:
     permission: tickworld.command.tickworld
     aliases:
     - tw
+    debug: false
     script:
     - narrate "<&[emphasis]>TickWorld commands:"
     - inject command_manager.formatted_help_same_file
@@ -58,7 +59,7 @@ tick_world_manager_createworld_command:
                 required: false
                 default: normal
                 explanation: The type of the world.
-                accepted: <server.world_types.contains[<[value]>]>
+                accepted: <server.world_types.contains_single[<[value]>]>
                 usage text:
                     auto format: true
                     list:
@@ -76,7 +77,7 @@ tick_world_manager_createworld_command:
                 type: prefixed
                 required: false
                 explanation: The environment of the world.
-                accepted: <list[normal|nether|the_end|custom].contains[<[value]>]>
+                accepted: <list[normal|nether|the_end|custom].contains_single[<[value]>]>
                 usage text:
                     auto format: true
                     list:
@@ -158,7 +159,7 @@ tick_world_manager_unloadworld_command:
                 type: prefixed
                 required: false
                 default: unload
-                accepted: <list[unload|force_unload|destroy].contains[<[value]>]>
+                accepted: <list[unload|force_unload|destroy].contains_single[<[value]>]>
                 tab completes: unload|force_unload|destroy
             s: template=boolean_default_false
     tab complete:
@@ -196,7 +197,7 @@ tick_world_manager_worldgamerule_command:
                 type: linear
                 required: true
                 explanation: The gamerule to set.
-                accepted: <server.gamerules.contains[<[value]>]>
+                accepted: <server.gamerules.contains_single[<[value]>]>
                 tab completes: <server.gamerules>
             value: template=any_value;type=linear;required=false
             s: template=boolean_default_false

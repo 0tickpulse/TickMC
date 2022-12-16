@@ -53,6 +53,7 @@ tickcore_task:
     script:
         entities:
             apply_stats:
+            # Interesting
             - define entity <[1]>
             - define stats <[2]>
             spawnmob:

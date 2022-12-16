@@ -37,16 +37,18 @@ tick_essentials_data:
         staff:
             # @ The /sudo command
             # Permission: tick_essentials.command.staff.sudo,
-            #             tick_essentials.command.staff.sudo.exempt
+            #             tick_essentials.command.staff.sudo.exempt,
+            #             tick_essentials.command.staff.sudo.bypass_exempt
             # This command allows you to run a command as another player.
-            # If the target player has permission 'tick_essentials.command.staff.sudo.exempt', it fails.
+            # If the target player has permission "tick_essentials.command.staff.sudo.exempt" and the runner doesn't have the permission "tick_essentials.command.staff.sudo.bypass_exempt", it fails.
             sudo:
                 enabled: true
             # @ The /invsee command
             # Permission: tick_essentials.command.staff.invsee,
-            #             tick_essentials.command.staff.invsee.exempt
+            #             tick_essentials.command.staff.invsee.exempt,
+            #             tick_essentials.command.staff.invsee.bypass_exempt
             # This command allows you to view the inventory of a player.
-            # If the target player has permission 'tick_essentials.command.staff.invsee.exempt', it fails.
+            # If the target player has permission "tick_essentials.command.staff.invsee.exempt" and the runner doesn't have the permission "tick_essentials.command.staff.invsee.bypass_exempt", it fails.
             invsee:
                 enabled: true
             # @ The /uploadlogs command

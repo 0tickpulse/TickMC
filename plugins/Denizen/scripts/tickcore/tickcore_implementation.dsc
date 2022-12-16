@@ -74,11 +74,26 @@ tickcore_prevent_place_gear:
         - if <context.item_in_hand.proc[tickcore_proc.script.items.is_tickitem]>:
             - if <context.item_in_hand.proc[tickcore_proc.script.items.get_stat].context[implementations].contains_any[weapon_melee]>:
                 - determine cancelled
+        on player breaks block:
+        - if <player.item_in_hand.proc[tickcore_proc.script.items.is_tickitem]>:
+            - if <player.item_in_hand.proc[tickcore_proc.script.items.get_stat].context[implementations].contains_any[weapon_melee]>:
+                - determine cancelled
 
-tickcore_run_slash:
+tickcore_run_stab:
     type: task
     debug: false
     definitions: data|element_map|entity
+    script:
+    - define hand <[entity].main_hand.if_null[right]>
+    - if <[hand]> == right:
+        - define origin <[entity].eye_location.with_pitch[0].left[0.5].below[0.2]>
+    - else:
+        - define origin <[entity].eye_location.with_pitch[0].right[0.5].below[0.2]>
+    - define target <>
+tickcore_run_slash:
+    type: task
+    debug: false
+    definitions: data|element_map|entity|random_offsets
     data:
         determination args:
             slash_data:
@@ -104,7 +119,7 @@ tickcore_run_slash:
             cause:
                 type: prefixed
                 required: false
-                accepted: <server.damage_causes.contains[<[value]>]>
+                accepted: <server.damage_causes.contains_single[<[value]>]>
                 result: <[value]>
     script:
     - define locations <[data].proc[slash_get_locations_proc].parse[points_between[<[entity].location>].distance[0.15].get[1].to[3]].combine>
@@ -143,9 +158,14 @@ tickcore_custom_attack:
     type: world
     debug: false
     events:
+        after player animates arm_swing:
+        - flag <player> tickimpl.cursor_is_on_block:<player.cursor_on[4].exists> expire:2t
         after player left clicks block:
         - if !<[entity].exists>:
             - define entity <player>
+        - if <[entity].flag[tickimpl.cursor_is_on_block].if_null[false]> && <[entity].cursor_on[4].exists>:
+            - stop
+        - flag <[entity]> tickimpl.cursor_is_on_block:<[entity].cursor_on[4].exists> expire:2t
         - if <[entity].item_in_hand> matches air || !<[entity].item_in_hand.proc[tickcore_proc.script.items.is_tickitem]>:
             - stop
         - if <player.item_in_hand.proc[tickcore_proc.script.items.get_stat].context[implementations]> !contains weapon_melee:
@@ -162,32 +182,32 @@ tickcore_custom_attack:
                 - foreach next
             - define element_map.<[stat_id].after[damage_]> <[entity].proc[tickcore_proc.script.entities.get_stat].context[<[stat_id]>]>
         - definemap data:
-                location: <[entity].eye_location>
+                location: <[entity].eye_location.random_offset[0.5,0.5,0.5]>
                 radius: <[entity].proc[tickcore_proc.script.entities.get_stat].context[reach_distance].if_null[3]>
                 rotation: <util.random.decimal[0].to[180]>
                 points: 30
                 arc: 180
-        - run tickcore_run_slash def.data:<[data]> def.element_map:<[element_map]> def.entity:<[entity]>
+        - run tickcore_run_slash def.data:<[data]> def.element_map:<[element_map]> def.entity:<[entity]> def.random_offsets:0.5,0.5,0.5
         on player damages entity ignorecancelled:true:
         - if <context.cause> != entity_attack:
             - stop
-        - if !<player.location.facing[<context.entity.location>]>:
+        - if !<player.location.precise_target_list[4]> contains <context.entity>:
             - stop
         - if <context.entity.entity_type> in <script[tickcore_impl_data].data_key[damage indicator blacklist]>:
             - stop
         - determine passively cancelled
         - define entity <player>
         - inject tickcore_custom_attack "path:events.after player left clicks block"
-        on entity damages entity:
-        - if <context.cause> != entity_attack:
-            - stop
-        - define entity <context.damager>
-        - determine passively cancelled
-        - foreach <proc[tickcore_proc.script.core.get_all_stat_ids]> as:stat_id:
-            - if !<[stat_id].starts_with[damage_]>:
-                - foreach next
-            - define element_map.<[stat_id].after[damage_]> <[entity].proc[tickcore_proc.script.entities.get_stat].context[<[stat_id]>]>
-        - run tickcore_impl_do_damage_task def.targets:<context.entity> def.element_map:<[element_map]> def.source:<[entity]> def.crit_chance:<[entity].proc[tickcore_proc.script.entities.get_stat].context[crit_chance]>
+        #on entity damages entity:
+        #- if <context.cause> != entity_attack:
+        #    - stop
+        #- define entity <context.damager>
+        #- determine passively cancelled
+        #- foreach <proc[tickcore_proc.script.core.get_all_stat_ids]> as:stat_id:
+        #    - if !<[stat_id].starts_with[damage_]>:
+        #        - foreach next
+        #    - define element_map.<[stat_id].after[damage_]> <[entity].proc[tickcore_proc.script.entities.get_stat].context[<[stat_id]>]>
+        #- run tickcore_impl_do_damage_task def.targets:<context.entity> def.element_map:<[element_map]> def.source:<[entity]> def.crit_chance:<[entity].proc[tickcore_proc.script.entities.get_stat].context[crit_chance]>
 
 
 tickcore_impl_do_damage_task:
@@ -491,3 +511,5 @@ tickcore_ability_triggers:
                 message: <context.message.if_null[null]>
         - define entity <player>
         - inject <script> path:run_script
+
+

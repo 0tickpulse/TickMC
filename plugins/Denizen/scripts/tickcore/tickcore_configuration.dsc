@@ -152,7 +152,7 @@ tickcore_effect_data:
         earth:
         - define sound_locations <[entity].location>
         - inject <script> path:sound.earth
-        - run particle_generator def.element:earth def.locations:<[locations]>
+        - run particle_generator def.element:earth def.locations:<[locations]> def.offset:0.1,0.1,0.1
         ender:
         - define sound_locations <[entity].location>
         - inject <script> path:sound.ender
@@ -179,7 +179,7 @@ tickcore_effect_data:
         physical:
         - define sound_locations <[entity].location>
         - inject <script> path:sound.physical
-        - run particle_generator def.element:physical def.locations:<[locations]>
+        - run particle_generator def.element:physical def.locations:<[locations]> def.offset:0.1,0.1,0.1
         shadow:
         - define sound_locations <[entity].location>
         - inject <script> path:sound.shadow
@@ -191,7 +191,7 @@ tickcore_effect_data:
         water:
         - define sound_locations <[entity].location>
         - inject <script> path:sound.water
-        - run particle_generator def.element:water def.locations:<[locations]>
+        - run particle_generator def.element:water def.locations:<[locations]> def.offset:0.1,0.1,0.1
         - define fire_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
         - define lava_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
         - playsound sound:block_fire_extinguish <[fire_blocks]>
