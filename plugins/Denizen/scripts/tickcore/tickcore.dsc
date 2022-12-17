@@ -282,120 +282,201 @@ tickcore_main_command:
     aliases:
     - ti
     description: tickcore main command.
-    usage: /tickcore [getitem [item]/getstat [stat] (player)/giveitem [player] [item]/statmap (player)/modifyitemstat [stat] [value]]
+    usage: <script[tickcore_main_command].proc[command_manager_generate_usage]>
     data:
-        tab_complete:
-            2:
-                getitem: <proc[tickcore_proc.script.items.get_all_ids]>
-                giveitem: <server.online_players.parse[name]>
-                getstat: <proc[tickcore_proc.script.core.get_all_stat_ids]>
-                statmap: <server.online_players.parse[name]>
-                modifyitemstat: <proc[tickcore_proc.script.core.get_all_stat_ids]>
-                spawnmob: <proc[tickcore_proc.script.entities.get_all_ids]>
-    tab completions:
-        1: getitem|giveitem|getstat|statmap|updateitems|modifyitemstat|spawnmob
-        2: <script.parsed_key[data.tab_complete.2.<context.args.get[1]>].if_null[]>
-        3: <context.args.get[1].is_in[giveitem|getstat].if_true[<proc[tickcore_proc.script.items.get_all_ids]>].if_false[]>
-    permission: tickcore.command.main
+        enable_subcommands: true
+        subcommand_permissions:
+            getitem:
+            - tickcore.command.main.getitem
+            getstat:
+            - tickcore.command.main.getstat
+            giveitem:
+            - tickcore.command.main.giveitem
+            statmap:
+            - tickcore.command.main.statmap
+            modifyitemstat:
+            - tickcore.command.main.modifyitemstat
+        subcommands:
+            getitem:
+                item:
+                    type: linear
+                    accepted: <proc[tickcore_proc.script.items.get_all_ids].contains[<[value]>]>
+                    tab completes: <proc[tickcore_proc.script.items.get_all_ids]>
+                    required: true
+                    result: <[value].proc[tickcore_proc.script.items.generate]>
+            getstat:
+                stat:
+                    type: linear
+                    accepted: <proc[tickcore_proc.script.core.get_all_stat_ids].contains[<[value]>]>
+                    tab completes: <proc[tickcore_proc.script.core.get_all_stat_ids]>
+                    required: true
+                player:
+                    template: player
+            giveitem:
+                item:
+                    type: linear
+                    accepted: <proc[tickcore_proc.script.items.get_all_ids].contains[<[value]>]>
+                    tab completes: <proc[tickcore_proc.script.items.get_all_ids]>
+                    required: true
+                player:
+                    template: player
+            statmap:
+                player:
+                    template: player
+                raw:
+                    template: boolean_default_false
+            modifyitemstat:
+                stat:
+                    type: linear
+                    accepted: <proc[tickcore_proc.script.core.get_all_stat_ids].contains[<[value]>]>
+                    tab completes: <proc[tickcore_proc.script.core.get_all_stat_ids]>
+                    required: true
+                value:
+                    type: linear
+                    required: true
+    tab complete:
+    - inject command_manager.tab_complete_engine
     script:
-    - if <context.args.size> < 1:
-        - narrate <&[error]><script.data_key[usage]>
-        - stop
-    - choose <context.args.get[1]>:
-
+    - inject command_manager.args_manager
+    - choose <[subcommand]>:
         - case getitem:
-            - if <context.args.size> < 2:
-                - narrate <&[error]><script.data_key[usage]>
-                - stop
-            - define id <context.args.get[2]>
-            - if <proc[tickcore_proc.script.items.get_all_ids]> !contains <[id]>:
-                - narrate "<&[error]>Invalid item ID!"
-                - stop
-            - give <[id].proc[tickcore_proc.script.items.generate]>
-
-        - case giveitem:
-            - if <context.args.size> < 3:
-                - narrate <&[error]><script.data_key[usage]>
-                - stop
-            - define player <server.match_player[<context.args.get[2]>].if_null[null]>
-            - if <[player]> == null:
-                - narrate "<&[error]>Invalid player name!"
-                - stop
-            - adjust <queue> linked_player:<[player]>
-            - define id <context.args.get[3]>
-            - if <proc[tickcore_proc.script.items.get_all_ids]> !contains <[id]>:
-                - narrate "<&[error]>Invalid item ID!"
-                - stop
-            - give <[id].proc[tickcore_proc.script.items.generate]>
-
+            - give <[arg.item]>
         - case getstat:
-            - if <context.args.size> < 2:
-                - narrate <&[error]><script.data_key[usage]>
-                - stop
-            - define stat <context.args.get[2]>
-            - if <context.args.size> >= 3 || !<player.exists>:
-                - if <proc[tickcore_proc.script.core.get_all_stat_ids]> !contains <[stat]>:
-                    - narrate "<&[error]>Invalid stat ID!"
-                    - stop
-                - define player <server.match_player[<context.args.get[3]>].if_null[null]>
-                - if <[player]> == null:
-                    - narrate "<&[error]>Invalid player name!"
-                    - stop
-                - adjust <queue> linked_player:<[player]>
-            - narrate <player.proc[tickcore_proc.script.players.get_stat].context[<[stat]>]>
-
+            - narrate <[arg.player].proc[tickcore_proc.script.players.get_stat].context[<[arg.stat]>]>
+        - case giveitem:
+            - give <[arg.item]> player:<[arg.player]>
         - case statmap:
-            - if <context.args.size> > 1 || !<player.exists>:
-                - define player <server.match_player[<context.args.get[2]>].if_null[null]>
-                - if <[player]> == null:
-                    - narrate "<&[error]>Invalid player name!"
-                    - stop
-                - adjust <queue> linked_player:<[player]>
-            - narrate <player.proc[tickcore_proc.script.players.get_stat_map_raw].to_yaml>
-
-        - case updateitems:
-            - foreach <server.players.parse[inventory]> as:inventory:
-                - run tickcore_update_items_task def:<[inventory]>
-            - narrate "<&[success]>Updated items!"
-
+            - narrate <[arg.player].proc[tickcore_proc.script.players.get_stat_map<[arg.raw].if_true[_raw].if_false[]>].to_yaml>
         - case modifyitemstat:
-            - if !<player.exists>:
-                    - narrate "<&[error]>Only a player can run this."
-                    - stop
-            - define item <player.item_in_hand>
+            - define item <[arg.player].item_in_hand>
             - if !<[item].proc[tickcore_proc.script.items.is_tickitem]>:
-                - narrate "<&[error]>This is not a TickCore item."
+                - narrate "You must be holding a tick item to modify its stats."
                 - stop
-            - if <context.args.size> < 3:
-                - narrate <&[error]><script.data_key[usage]>
-            - define stat_id <context.args.get[2]>
-            - if <proc[tickcore_proc.script.core.get_all_stat_ids]> !contains <[stat_id]>:
-                - narrate "<&[error]>Invalid stat ID!"
-                - stop
-            - define stat_value <context.args.get[3]>
-
             - define original_flag_map <[item].proc[tickcore_proc.script.items.get_stat_map]>
-            - define original_flag_map.<[stat_id]>.MODIFYITEMSTAT_COMMAND <[stat_value]>
+            - define original_flag_map.<[arg.stat]>.MODIFYITEMSTAT_COMMAND <[arg.value]>
             - define item <[item].proc[tickcore_proc.script.items.override_stats].context[<[original_flag_map]>]>
             - inventory set slot:hand o:<[item]>
+# tickcore_main_command:
+#     type: command
+#     debug: false
+#     name: tickcore
+#     aliases:
+#     - ti
+#     description: tickcore main command.
+#     usage: /tickcore [getitem [item]/getstat [stat] (player)/giveitem [player] [item]/statmap (player)/modifyitemstat [stat] [value]]
+#     data:
+#         tab_complete:
+#             2:
+#                 getitem: <proc[tickcore_proc.script.items.get_all_ids]>
+#                 giveitem: <server.online_players.parse[name]>
+#                 getstat: <proc[tickcore_proc.script.core.get_all_stat_ids]>
+#                 statmap: <server.online_players.parse[name]>
+#                 modifyitemstat: <proc[tickcore_proc.script.core.get_all_stat_ids]>
+#                 spawnmob: <proc[tickcore_proc.script.entities.get_all_ids]>
+#     tab completions:
+#         1: getitem|giveitem|getstat|statmap|updateitems|modifyitemstat|spawnmob
+#         2: <script.parsed_key[data.tab_complete.2.<context.args.get[1]>].if_null[]>
+#         3: <context.args.get[1].is_in[giveitem|getstat].if_true[<proc[tickcore_proc.script.items.get_all_ids]>].if_false[]>
+#     permission: tickcore.command.main
+#     script:
+#     - if <context.args.size> < 1:
+#         - narrate <&[error]><script.data_key[usage]>
+#         - stop
+#     - choose <context.args.get[1]>:
 
-        - case spawnmob:
-            - define location <context.args.get[3].to[last].separated_by[,].as[location].if_null[null]>
-            - if <[location]> == null:
-                - if <player.exists>:
-                    - define location <player.location>
-                - else:
-                    - narrate "<&[error]>Please specify a location."
-                    - stop
-            - define id <context.args.get[2]>
-            - if <proc[tickcore_proc.script.entities.get_all_ids]> !contains <[id]>:
-                - narrate "<&[error]>Invalid entity ID!"
-                - stop
+#         - case getitem:
+#             - if <context.args.size> < 2:
+#                 - narrate <&[error]><script.data_key[usage]>
+#                 - stop
+#             - define id <context.args.get[2]>
+#             - if <proc[tickcore_proc.script.items.get_all_ids]> !contains <[id]>:
+#                 - narrate "<&[error]>Invalid item ID!"
+#                 - stop
+#             - give <[id].proc[tickcore_proc.script.items.generate]>
 
-            - define level <context.args.get[3].if_null[0]>
+#         - case giveitem:
+#             - if <context.args.size> < 3:
+#                 - narrate <&[error]><script.data_key[usage]>
+#                 - stop
+#             - define player <server.match_player[<context.args.get[2]>].if_null[null]>
+#             - if <[player]> == null:
+#                 - narrate "<&[error]>Invalid player name!"
+#                 - stop
+#             - adjust <queue> linked_player:<[player]>
+#             - define id <context.args.get[3]>
+#             - if <proc[tickcore_proc.script.items.get_all_ids]> !contains <[id]>:
+#                 - narrate "<&[error]>Invalid item ID!"
+#                 - stop
+#             - give <[id].proc[tickcore_proc.script.items.generate]>
 
-            - run tickcore_task path:script.entities.spawnmob def:<[id]>|<[level]>
+#         - case getstat:
+#             - if <context.args.size> < 2:
+#                 - narrate <&[error]><script.data_key[usage]>
+#                 - stop
+#             - define stat <context.args.get[2]>
+#             - if <context.args.size> >= 3 || !<player.exists>:
+#                 - if <proc[tickcore_proc.script.core.get_all_stat_ids]> !contains <[stat]>:
+#                     - narrate "<&[error]>Invalid stat ID!"
+#                     - stop
+#                 - define player <server.match_player[<context.args.get[3]>].if_null[null]>
+#                 - if <[player]> == null:
+#                     - narrate "<&[error]>Invalid player name!"
+#                     - stop
+#                 - adjust <queue> linked_player:<[player]>
+#             - narrate <player.proc[tickcore_proc.script.players.get_stat].context[<[stat]>]>
 
-        - default:
-            - narrate <&[error]><script.data_key[usage]>
-            - stop
+#         - case statmap:
+#             - if <context.args.size> > 1 || !<player.exists>:
+#                 - define player <server.match_player[<context.args.get[2]>].if_null[null]>
+#                 - if <[player]> == null:
+#                     - narrate "<&[error]>Invalid player name!"
+#                     - stop
+#                 - adjust <queue> linked_player:<[player]>
+#             - narrate <player.proc[tickcore_proc.script.players.get_stat_map_raw].to_yaml>
+
+#         - case updateitems:
+#             - foreach <server.players.parse[inventory]> as:inventory:
+#                 - run tickcore_update_items_task def:<[inventory]>
+#             - narrate "<&[success]>Updated items!"
+
+#         - case modifyitemstat:
+#             - if !<player.exists>:
+#                     - narrate "<&[error]>Only a player can run this."
+#                     - stop
+#             - define item <player.item_in_hand>
+#             - if !<[item].proc[tickcore_proc.script.items.is_tickitem]>:
+#                 - narrate "<&[error]>This is not a TickCore item."
+#                 - stop
+#             - if <context.args.size> < 3:
+#                 - narrate <&[error]><script.data_key[usage]>
+#             - define stat_id <context.args.get[2]>
+#             - if <proc[tickcore_proc.script.core.get_all_stat_ids]> !contains <[stat_id]>:
+#                 - narrate "<&[error]>Invalid stat ID!"
+#                 - stop
+#             - define stat_value <context.args.get[3]>
+
+#             - define original_flag_map <[item].proc[tickcore_proc.script.items.get_stat_map]>
+#             - define original_flag_map.<[stat_id]>.MODIFYITEMSTAT_COMMAND <[stat_value]>
+#             - define item <[item].proc[tickcore_proc.script.items.override_stats].context[<[original_flag_map]>]>
+#             - inventory set slot:hand o:<[item]>
+
+#         - case spawnmob:
+#             - define location <context.args.get[3].to[last].separated_by[,].as[location].if_null[null]>
+#             - if <[location]> == null:
+#                 - if <player.exists>:
+#                     - define location <player.location>
+#                 - else:
+#                     - narrate "<&[error]>Please specify a location."
+#                     - stop
+#             - define id <context.args.get[2]>
+#             - if <proc[tickcore_proc.script.entities.get_all_ids]> !contains <[id]>:
+#                 - narrate "<&[error]>Invalid entity ID!"
+#                 - stop
+
+#             - define level <context.args.get[3].if_null[0]>
+
+#             - run tickcore_task path:script.entities.spawnmob def:<[id]>|<[level]>
+
+#         - default:
+#             - narrate <&[error]><script.data_key[usage]>
+#             - stop

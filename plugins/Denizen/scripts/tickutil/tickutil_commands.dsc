@@ -183,6 +183,25 @@ command_manager_data:
                 auto format: true
                 list:
                 - <&lt>#.#<&gt>
+
+command_manager_get_subcommand_data_proc:
+    type: procedure
+    debug: false
+    definitions: script
+    script:
+    - define subcommand_permissions_data <[script].data_key[data.subcommand_permissions].if_null[<map>]>
+    - define subcommands_data_unfiltered <[script].data_key[data.subcommands].if_null[<map>]>
+    - define subcommands_data <map>
+    - if !<player.exists>:
+        - define subcommands_data <[subcommands_data_unfiltered]>
+    - else:
+        - foreach <[subcommands_data_unfiltered]> key:subcommand_data_key as:data:
+            - if <[subcommand_permissions_data].keys> !contains <[subcommand_data_key]>:
+                - foreach next
+            - if <[subcommand_permissions_data.<[subcommand_data_key]>].filter_tag[<player.has_permission[<[filter_value]>].not>].any>:
+                - foreach next
+            - define subcommands_data.<[subcommand_data_key]> <[data]>
+    - determine <[subcommands_data]>
 command_manager_generate_usage:
     type: procedure
     debug: false
@@ -193,7 +212,7 @@ command_manager_generate_usage:
     - define output /<[script].data_key[name]>
     - if <[script].data_key[data.enable_subcommands].if_null[false]>:
         - define subcommand_strings <list>
-        - foreach <[script].data_key[data.subcommands].if_null[<map>]> key:key as:args:
+        - foreach <[script].proc[command_manager_get_subcommand_data_proc]> key:key as:args:
             - inject command_manager.generate_arg_maps
             - define "subcommand_strings:->:<[colors.literal_arg_text]><[key]> <[args].parse_value_tag[<[parse_key].proc[command_manager_generate_singular_usage_proc].context[<[parse_value]>]>].values.separated_by[ ]>"
         - define output "<[output]> <[symbols.required_arg_prefix]><[subcommand_strings].separated_by[/]><[symbols.required_arg_suffix]>"
@@ -307,29 +326,35 @@ command_manager:
             - foreach next
         - define flag_args.prefixed_args.<[arg].after[-]> <[arg].contains_text[:].if_true[<[arg].after_last[:]>].if_false[true]>
     generate_arg_maps:
+    - define is_tabcompleting <[is_tabcompleting].if_null[false]>
     - if !<[script].exists>:
         - define script <queue.script>
     - define subcommands_enabled <[script].data_key[data.enable_subcommands].if_null[false]>
     - if !<queue.definitions.contains[args]>:
-        - define subcommands_data <[script].data_key[data.subcommands].if_null[<map>]>
+        - define subcommands_data <[script].proc[command_manager_get_subcommand_data_proc]>
         - define subcommand_arg_map <map.with[_subcommand].as[<map.with[type].as[linear].with[required].as[true].with[accepted].as[true].with[explanation].as[Internally generated arg].with[tab completes].as[<[subcommands_data].keys>]>].include[<[script].data_key[data.args].if_null[<map>]>]>
         - if <[subcommands_enabled]>:
             - define subcommand <[flag_args.linear_args].if_null[<list>].first.if_null[null]>
             - if <[subcommand]> == null:
                 - define args <[subcommand_arg_map]>
             - else:
-                - define subcommands_data <[script].data_key[data.subcommands].if_null[<map>]>
                 - if <[subcommands_data].keys> !contains <[subcommand]>:
+                    - if <[subcommands_data].keys.filter[starts_with[<[subcommand]>]].any> && <[is_tabcompleting]>:
+                        - determine <[subcommands_data].keys.filter[starts_with[<[subcommand]>]]>
                     - define tickutil_commands.args_manager.panic true
-                    - define "tickutil_commands.args_manager.error_messages:->:Unknown subcommand '<[subcommand]>'!"
+                    - define tickutil_commands.args_manager.close_match <[subcommands_data].keys.closest_to[<[subcommand]>]>
+                    - if <[tickutil_commands.args_manager.close_match].to_lowercase.difference[<[subcommand].to_lowercase>]> <= 3 && <[tickutil_commands.args_manager.close_match]> != <empty>:
+                        - define tickutil_commands.args_manager.close_match_text " Did you mean '<white><[tickutil_commands.args_manager.close_match]>?<&[error]>"
+                    - define "tickutil_commands.args_manager.error_messages:->:<&[error]>Unknown subcommand '<white><[subcommand]><&[error]>'!<[tickutil_commands.args_manager.close_match_text].if_null[]>"
                     - goto fatal_error
                 - define args <[subcommand_arg_map].include[<[subcommands_data.<[subcommand]>]>]>
         - else:
             - define args <[script].data_key[data.args].if_null[null]>
         - if <[args]> == null:
             - stop
-    - define args <[args].parse_value_tag[<[parse_key].proc[command_generator_arg_map_proc].context[<[parse_value].as[map]>]>].values.merge_maps>
+    - define args <[args].parse_value_tag[<[parse_key].proc[command_generator_arg_map_proc].context[<[parse_value].as[map]>]>].values.merge_maps.exclude[_permission]>
     tab_complete_engine:
+    - define is_tabcompleting true
     - inject command_manager.flag_args
     - inject command_manager.generate_arg_maps
 
@@ -371,6 +396,9 @@ command_manager:
     - define prefixed <[prefixed_args].filter_tag[<context.raw_args.ends_with[ ].if_true[<[flag_args.prefixed_args].if_null[<map>]>].if_false[<[flag_args.prefixed_args].if_null[<map>].exclude[<context.args.last.after[-].before[:].if_null[]>]>].contains[<[filter_key]>].not>]>
     - foreach <[prefixed]> key:argname as:map:
         - define will_complete_with <[map.tab completes].parsed.as[list].parse_tag[-<[argname]>:<[parse_value]>].if_null[-<[argname]>:].as[list]>
+        - if <[map].keys> contains permissions:
+            - if <[map.permissions].filter_tag[<player.has_permission[<[filter_value]>].not>].any>:
+                - foreach next
         - if <context.args.last.starts_with[-<[argname]>:].if_null[false]>:
             - if <[flag_args.prefixed_args].exists>:
                 - if <[flag_args.prefixed_args].contains[<[argname]>]>:
@@ -431,9 +459,6 @@ command_manager:
             - foreach next
         - if <[tickutil_commands.args_manager.linear_args].values.get[<[loop_index]>].get[spread].if_null[false]>:
             - define value <[flag_args.linear_args].get[<[loop_index]>].to[last].separated_by[ ]>
-        - if <[tickutil_commands.args_manager.linear].permissions.filter_tag[<player.has_permission[<[filter_value]>].not>].any.if_null[false]>:
-            - define "tickutil_commands.args_manager.error_messages:|:You do not have permission to use the '<[tickutil_commands.args_manager.linear].name>' argument."
-            - foreach next
         - if <[tickutil_commands.args_manager.linear.accepted].parsed.if_null[true]>:
             - define arg.<[tickutil_commands.args_manager.linear_args].keys.get[<[loop_index]>]> <[value]>
         - else:
@@ -456,9 +481,6 @@ command_manager:
     - foreach <[tickutil_commands.args_manager.prefixed_args]> key:argname as:map:
         - foreach <[flag_args.prefixed_args].if_null[<map>]> key:flag as:value:
             - if <[flag]> == <[argname]>:
-                - if <[map.permissions].filter_tag[<player.has_permission[<[filter_value]>].not>].any.if_null[false]>:
-                    - define "tickutil_commands.args_manager.error_messages:|:You do not have permission to use the '<[map].name>' argument."
-                    - foreach next
                 - if <[map.accepted].parsed.if_null[true]>:
                     - define arg.<[argname]> <[value]>
                     - define flag_args.prefixed_args <[flag_args.prefixed_args].exclude[<[argname]>]>
@@ -487,6 +509,17 @@ command_manager:
     - foreach <[arg]> key:argname as:map:
         - define value <[arg.<[argname]>]>
         - define arg.<[argname]> <[args.<[argname]>.result].parsed.if_null[<[value]>]>
+
+    # Check for permissions
+    - if <player.exists>:
+        - foreach <[args]> key:argname as:map:
+            - if <[map].keys> !contains permissions:
+                - foreach next
+            - if <[arg].keys> !contains <[argname]>:
+                - foreach next
+            - if <[map.permissions].filter_tag[<player.has_permission[<[filter_value]>].not>].any>:
+                - define "tickutil_commands.args_manager.error_messages:->:You do not have permission to use the argument '<[argname].proc[command_manager_generate_singular_usage_proc].context[<[map]>].custom_color[emphasis]>'!"
+                - define arg.<[argname]>:!
 
     # If the arg is required, but not present, throw an error. Otherwise, set the arg to the default value.
     - foreach <[args]> key:argname as:map:
