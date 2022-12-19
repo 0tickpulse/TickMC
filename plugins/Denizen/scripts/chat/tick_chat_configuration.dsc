@@ -2,6 +2,12 @@ tick_chat_configuration:
     type: data
     debug: false
 
+    commands:
+        # Permission: tick_chat.command.msg
+        msg:
+            enabled: true
+            format: <n><&[emphasis]><bold>DM <player.null_if[exists].if_null[<element[REPLY].custom_color[success].underline.bold.on_hover[Click to reply to <[sender].proc[tick_chat_format_player_name]>!].on_click[/msg <[sender].name> ].type[suggest_command]>]> <[sender].proc[tick_chat_format_player_name].if_null[console]> <dark_gray>-<&gt> <[receiver].proc[tick_chat_format_player_name]> <gray>» <white><[message]><n>
+
     chat tab completions:
         enabled: true
         tab completions:

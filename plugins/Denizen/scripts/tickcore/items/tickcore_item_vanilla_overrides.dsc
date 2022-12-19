@@ -156,7 +156,15 @@ vanilla_override_netherite_hoe:
 # vanilla_override_diamond_leggings
 # vanilla_override_diamond_boots
 # vanilla_override_netherite_helmet
-# vanilla_override_netherite_chestplate
+vanilla_override_netherite_chestplate:
+    type: item
+    material: netherite_chestplate
+    data:
+        tickcore:
+            stats:
+                implementations:
+                - armor_chestplate
+                defense_physical: 40
 # vanilla_override_netherite_leggings
 # vanilla_override_netherite_boots
 #

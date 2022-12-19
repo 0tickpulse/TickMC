@@ -280,7 +280,7 @@ tickcore_main_command:
     debug: false
     name: tickcore
     aliases:
-    - ti
+    - tc
     description: tickcore main command.
     usage: <script[tickcore_main_command].proc[command_manager_generate_usage]>
     data:
@@ -296,6 +296,8 @@ tickcore_main_command:
             - tickcore.command.main.statmap
             modifyitemstat:
             - tickcore.command.main.modifyitemstat
+            updateitems:
+            - tickcore.command.main.updateitem
         subcommands:
             getitem:
                 item:
@@ -326,6 +328,7 @@ tickcore_main_command:
                 raw:
                     template: boolean_default_false
             modifyitemstat:
+                player: template=visible_player
                 stat:
                     type: linear
                     accepted: <proc[tickcore_proc.script.core.get_all_stat_ids].contains[<[value]>]>
@@ -334,6 +337,8 @@ tickcore_main_command:
                 value:
                     type: linear
                     required: true
+            updateitems:
+                player: template=visible_player
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
@@ -356,6 +361,8 @@ tickcore_main_command:
             - define original_flag_map.<[arg.stat]>.MODIFYITEMSTAT_COMMAND <[arg.value]>
             - define item <[item].proc[tickcore_proc.script.items.override_stats].context[<[original_flag_map]>]>
             - inventory set slot:hand o:<[item]>
+        - case updateitems:
+            - run tickcore_update_items_task def:<[arg.player].inventory>
 # tickcore_main_command:
 #     type: command
 #     debug: false

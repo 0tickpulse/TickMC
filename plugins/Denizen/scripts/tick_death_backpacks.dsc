@@ -128,7 +128,7 @@ tick_death_backpacks_spawn_backpacks_task:
         - define despawn_duration <[despawn_time].from_now>
     - define fake_entity_duration <[despawn_duration].if_null[0s]>
 
-    - announce <[configuration.visibility].equals[global].if_true[<server.online_players>].if_false[<player>]>
+    #- announce <[configuration.visibility].equals[global].if_true[<server.online_players>].if_false[<player>]>
 
     - define lines <[configuration.lang.hologram_lines].parse[parsed].reverse>
     - define spawned_stands <list>
@@ -196,7 +196,7 @@ tick_death_backpacks_world:
             - stop
         - inventory open d:<[inventory]>
         after player closes inventory:
-        - if <context.inventory> !in <player.flag[tick_death_backpacks.backpack_inventories]> || !<context.inventory.is_empty>:
+        - if <context.inventory> !in <player.flag[tick_death_backpacks.backpack_inventories].if_null[<list>]> || !<context.inventory.is_empty>:
             - stop
         - define backpack_entity <context.inventory.flag[tick_death_backpacks.backpack_entity]>
         - run tick_death_backpacks_clean_backpack_task def.entities:<[backpack_entity]>

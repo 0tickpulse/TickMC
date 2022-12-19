@@ -268,6 +268,11 @@ tickcore_data:
                 aliases:
                     gemstone_crystal: Crystal gem stone
                     weapon_melee: Melee weapon
+                    armor: Armor
+                    armor_helmet: Helmet
+                    armor_chestplate: Chestplate
+                    armor_leggings: Leggings
+                    armor_boots: Boots
             item stat calculation: <[map].values.combine>
             player stat calculation: null
         gemstones:

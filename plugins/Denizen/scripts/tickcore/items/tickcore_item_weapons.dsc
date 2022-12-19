@@ -126,6 +126,12 @@ lights_splendor:
                         data:
                             damage: 150
 
+my_script:
+    type: data
+    subscripts:
+        one:
+        - narrate hi
+
 ability_test:
     type: item
     material: iron_hoe

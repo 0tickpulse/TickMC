@@ -10,7 +10,7 @@ tick_motd_data:
     server_icons:
     - plugins/Denizen/icons/tickmc-64x64.png
     line_1:
-    - <&c><&gradient[from=red;to=orange]>TickMC Official <&7>|<&r> <&gradient[from=orange;to=red]><context.version_name.replace[Paper ]>+
+    - <&[emphasis]><&gradient[from=red;to=orange]>TickMC Official <&7>|<&r> <&gradient[from=orange;to=red]><context.version_name.replace_text[Paper ]>+
     line_2:
     - <&8>»<&r><&6> ʙᴇsᴛ sᴇʀᴠᴇʀ ᴇᴠᴇʀ.
     - <&8>»<&r><&6><&l> Join or Die.
@@ -21,11 +21,13 @@ tick_motd_data:
     - <&8>»<&r><&c><&l> Look behind.
     - <&8>»<&4> Can connect to server
     player_text:
-    - <&c>Welcome to TickMC!
-    - <&c><&l>Our Staff<&co>
-    - <&7>Owner <&8>- <&c>0TickPulse
+    - <red><&l>Welcome to TickMC!
+    - <&8><strikethrough><&sp.repeat[40]>
+    - <red>Our Staff<&8><&co>
+    - <&7>  Owner<&8>: <red>0TickPulse
     - <empty>
-    - <&c>Please accept resourcepacks!
+    - <red>Please accept resourcepacks!
+    - <&8><strikethrough><&sp.repeat[40]>
 tick_motd_world:
     type: world
     debug: false

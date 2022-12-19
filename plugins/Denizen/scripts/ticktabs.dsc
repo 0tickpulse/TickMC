@@ -86,10 +86,8 @@ ticktab_bossbar_task:
     - define interval <element[1].div[<[per_second]>]>
     - repeat <[per_second]>:
         - if <script[ticktab_config].data_key[bossbar.enabled]>:
-            - if <server.current_bossbars> !contains ticktab_bossbar:
-                - bossbar create ticktab_bossbar players:<server.online_players>
             - foreach <server.online_players> as:__player:
-                - bossbar update ticktab_bossbar players:<player> progress:<script[ticktab_config].parsed_key[bossbar.bossbar.progress].if_null[1]> style:<script[ticktab_config].parsed_key[bossbar.bossbar.style].if_null[solid]> color:<script[ticktab_config].parsed_key[bossbar.bossbar.color].if_null[red]> title:<script[ticktab_config].parsed_key[bossbar.bossbar.text]>
+                - bossbar auto ticktab_bossbar players:<player> progress:<script[ticktab_config].parsed_key[bossbar.bossbar.progress].if_null[1]> style:<script[ticktab_config].parsed_key[bossbar.bossbar.style].if_null[solid]> color:<script[ticktab_config].parsed_key[bossbar.bossbar.color].if_null[red]> title:<script[ticktab_config].parsed_key[bossbar.bossbar.text]>
             - stop
         - if <server.current_bossbars> contains ticktab_bossbar:
             - bossbar remove ticktab_bossbar

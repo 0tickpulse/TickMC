@@ -98,6 +98,36 @@ command_manager_data:
             explanation: The name of any online player.
             default: <player>
             result: <server.match_player[<[value]>]>
+        visible_player_include_offline_strict:
+            type: linear
+            required: true
+            accepted: <proc[tick_essentials_get_all_visible_players_proc].parse[name].contains_single[<[value]>]>
+            tab completes: <proc[tick_essentials_get_all_visible_players_proc].parse[name]>
+            explanation: The name of any online player.
+            result: <server.match_player[<[value]>]>
+        visible_player_include_offline:
+            type: linear
+            required: <player.exists.not>
+            accepted: <proc[tick_essentials_get_all_visible_players_proc].parse[name].contains_single[<[value]>]>
+            tab completes: <proc[tick_essentials_get_all_visible_players_proc].parse[name]>
+            explanation: The name of any online player.
+            default: <player>
+            result: <server.match_player[<[value]>]>
+        visible_player_strict:
+            type: linear
+            required: true
+            accepted: <proc[tick_essentials_get_visible_players_proc].parse[name].contains_single[<[value]>]>
+            tab completes: <proc[tick_essentials_get_visible_players_proc].parse[name]>
+            explanation: The name of any online player.
+            result: <server.match_player[<[value]>]>
+        visible_player:
+            type: linear
+            required: <player.exists.not>
+            accepted: <proc[tick_essentials_get_visible_players_proc].parse[name].contains_single[<[value]>]>
+            tab completes: <proc[tick_essentials_get_visible_players_proc].parse[name]>
+            explanation: The name of any online player.
+            default: <player>
+            result: <server.match_player[<[value]>]>
         player_include_offline_strict:
             type: linear
             required: true
@@ -196,10 +226,9 @@ command_manager_get_subcommand_data_proc:
         - define subcommands_data <[subcommands_data_unfiltered]>
     - else:
         - foreach <[subcommands_data_unfiltered]> key:subcommand_data_key as:data:
-            - if <[subcommand_permissions_data].keys> !contains <[subcommand_data_key]>:
-                - foreach next
-            - if <[subcommand_permissions_data.<[subcommand_data_key]>].filter_tag[<player.has_permission[<[filter_value]>].not>].any>:
-                - foreach next
+            - if <[subcommand_permissions_data].keys> contains <[subcommand_data_key]>:
+                - if <[subcommand_permissions_data.<[subcommand_data_key]>].filter_tag[<player.has_permission[<[filter_value]>].not>].any>:
+                    - foreach next
             - define subcommands_data.<[subcommand_data_key]> <[data]>
     - determine <[subcommands_data]>
 command_manager_generate_usage:
@@ -310,6 +339,13 @@ command_manager_formatted_help_same_file_task:
         - define right_arrow <script[command_manager_data].parsed_key[formatting.lang.formatted_help_same_file.right_arrow].on_click[<entry[next_page].command>]>
     - define page_message <script[command_manager_data].parsed_key[formatting.lang.formatted_help_same_file.page_text]>
     - narrate <[hline]><[title].if_null[]><n><[page_content].separated_by[<n>]><n.repeat[2]><[page_message]><n><[hline]>
+
+command_manager_tab_complete_arg_proc:
+    type: procedure
+    debug: false
+    definitions: map|input_arg
+    script:
+    - determine null
 command_manager:
     type: task
     debug: false
@@ -370,6 +406,7 @@ command_manager:
         - define current_linear_arg <[linear_args].to_pair_lists.get[<[current_arg]>]>
     - else if <[linear_args].values.last.get[spread].if_null[false]>:
         - define current_linear_arg <[linear_args].to_pair_lists.last>
+
     - if <[current_linear_arg].exists>:
         - define will_complete_with <[current_linear_arg].get[2].get[tab completes].parsed.if_null[<[current_linear_arg].get[1].proc[command_manager_generate_singular_usage_proc].context[<[current_linear_arg].get[2]>].strip_color>].as[list]>
         - define usage <[current_linear_arg].get[1].proc[command_manager_generate_singular_usage_proc].context[<[current_linear_arg].get[2]>].strip_color>
@@ -517,7 +554,7 @@ command_manager:
                 - foreach next
             - if <[arg].keys> !contains <[argname]>:
                 - foreach next
-            - if <[map.permissions].filter_tag[<player.has_permission[<[filter_value]>].not>].any>:
+            - if <[map.permissions].parsed.as[list].filter_tag[<player.has_permission[<[filter_value]>].not>].any>:
                 - define "tickutil_commands.args_manager.error_messages:->:You do not have permission to use the argument '<[argname].proc[command_manager_generate_singular_usage_proc].context[<[map]>].custom_color[emphasis]>'!"
                 - define arg.<[argname]>:!
 

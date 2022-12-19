@@ -7,6 +7,7 @@
 tickcore_archery_world:
     type: world
     debug: false
+    enabled: false
     events:
         on player shoots bow:
         - determine passively cancelled
@@ -63,6 +64,7 @@ tickcore_archery_custom_shoot_task:
 tickcore_archery_custom_shoot_world:
     type: world
     debug: false
+    
     events:
         on arrow hits entity:
         - if <context.projectile.has_flag[tickcore_archery]>:

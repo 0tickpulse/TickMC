@@ -36,11 +36,8 @@ tick_essentials_data:
         # These commands make it easier as server staff.
         staff:
             # @ The /sudo command
-            # Permission: tick_essentials.command.staff.sudo,
-            #             tick_essentials.command.staff.sudo.exempt,
-            #             tick_essentials.command.staff.sudo.bypass_exempt
+            # Permission: tick_essentials.command.staff.sudo
             # This command allows you to run a command as another player.
-            # If the target player has permission "tick_essentials.command.staff.sudo.exempt" and the runner doesn't have the permission "tick_essentials.command.staff.sudo.bypass_exempt", it fails.
             sudo:
                 enabled: true
             # @ The /invsee command
@@ -75,6 +72,7 @@ tick_essentials_data:
                 enabled: true
             # @ The /gamemode, /gmc, /gms, /gma, /gmsp commands
             # Permission: tick_essentials.command.staff.gamemode,
+            # Permission: tick_essentials.command.staff.gamemode.other,
             #             tick_essentials.command.staff.gamemode.creative,
             #             tick_essentials.command.staff.gamemode.survival,
             #             tick_essentials.command.staff.gamemode.adventure,
@@ -140,12 +138,20 @@ tick_essentials_data:
             help:
                 enabled: true
             # @ The /heal command
-            # Permission: tick_essentials.command.utility.heal
+            # Permission: tick_essentials.command.utility.heal,
+            #             tick_essentials.command.utility.heal.other
             # This command allows you to heal yourself.
             heal:
                 enabled: true
+            # @ The /feed command
+            # Permission: tick_essentials.command.utility.feed,
+            #             tick_essentials.command.utility.feed.other
+            # This command allows you to feed yourself.
+            feed:
+                enabled: true
             # @ The /back command
-            # Permission: tick_essentials.command.world.back
+            # Permission: tick_essentials.command.world.back,
+            #             tick_essentials.command.world.back.other
             # This command allows you to teleport back to your last location.
             # @ WARNING
             # Enabling this will use a player flag (tick_essentials.last_location)

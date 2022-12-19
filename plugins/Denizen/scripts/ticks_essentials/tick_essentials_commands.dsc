@@ -117,19 +117,13 @@ tick_essentials_developer_enchant_command:
                     - <&lt>level<&gt>
                     - <&lc>1<&rc>
                     - remove
-            bypass: template=boolean_default_false
-            player: template=player
+            bypass: template=boolean_default_false;permissions=tick_essentials.command.developer.enchant.bypass
+            player: template=player;permissions=tick_essentials.command.developer.enchant.other
             s: template=boolean_default_false
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
-    - if <player.exists>:
-        - if !<player.has_permission[tick_essentials.command.developer.enchant.bypass]>:
-            - define <[arg.bypass]> false
-        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.developer.enchant.other]>:
-            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to do this to other players!"
-            - stop
     - define item <[arg.player].item_in_hand>
     - if <[item]> matches air:
         - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You must be holding an item to enchant it!"
@@ -233,9 +227,6 @@ tick_essentials_staff_sudo_command:
     - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
-    - if <[arg.player].has_permission[tick_essentials.command.staff.sudo.exempt]> && !<player.has_permission[tick_essentials.command.staff.sudo.bypass_exempt].if_null[true]>:
-        - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You cannot execute commands as <[arg.player].name>!"
-        - stop
     - if <[arg.op]>:
         - execute as_op <[arg.command]> player:<[arg.player]>
     - else:
@@ -332,7 +323,7 @@ tick_essentials_staff_gamemode_shortcut:
                 accepted: <queue.script.parsed_key[data.gamemode_aliases].parse_value_tag[<[parse_value].include[<[parse_key]>]>].values.combine.contains_single[<[value]>]>
                 tab completes: <queue.script.parsed_key[data.gamemode_aliases].keys>
                 explanation: The gamemode to set the player to.
-            player: template=player
+            player: template=visible_player;permissions=tick_essentials.command.staff.gamemode.other
             s: template=boolean_default_false
         gamemode_aliases:
             survival:
@@ -358,9 +349,6 @@ tick_essentials_staff_gamemode_shortcut:
         - if !<player.has_permission[tick_essentials.command.staff.gamemode.<[to_set]>]>:
             - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to use this gamemode!"
             - stop
-        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.staff.gamemode.other]>:
-            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to do this to other players!"
-            - stop
     - adjust <[arg.player]> gamemode:<[to_set]>
     - if <[flag_args.prefixed_args.silent].if_null[false]>:
         - stop
@@ -377,17 +365,13 @@ tick_essentials_staff_gmc_command:
     usage: <script[tick_essentials_staff_gmc_command].proc[command_manager_generate_usage]>
     data:
         args:
-            player: template=player
+            player: template=visible_player;permissions=tick_essentials.command.staff.gamemode.other
             s: template=boolean_default_false
     permission: tick_essentials.command.staff.gamemode.creative
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
-    - if <player.exists>:
-        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.staff.gamemode.other]>:
-            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to do this to other players!"
-            - stop
     - adjust <[arg.player]> gamemode:creative
     - if <[arg.s]>:
         - stop
@@ -401,17 +385,13 @@ tick_essentials_staff_gms_command:
     usage: <script[tick_essentials_staff_gms_command].proc[command_manager_generate_usage]>
     data:
         args:
-            player: template=player
+            player: template=visible_player;permissions=tick_essentials.command.staff.gamemode.other
             s: template=boolean_default_false
     permission: tick_essentials.command.staff.gamemode.survival
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
-    - if <player.exists>:
-        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.staff.gamemode.other]>:
-            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to do this to other players!"
-            - stop
     - adjust <[arg.player]> gamemode:survival
     - if <[arg.s]>:
         - stop
@@ -425,17 +405,13 @@ tick_essentials_staff_gma_command:
     usage: <script[tick_essentials_staff_gma_command].proc[command_manager_generate_usage]>
     data:
         args:
-            player: template=player
+            player: template=visible_player;permissions=tick_essentials.command.staff.gamemode.other
             s: template=boolean_default_false
     permission: tick_essentials.command.staff.gamemode.adventure
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
-    - if <player.exists>:
-        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.staff.gamemode.other]>:
-            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to do this to other players!"
-            - stop
     - adjust <[arg.player]> gamemode:adventure
     - if <[arg.s]>:
         - stop
@@ -449,17 +425,13 @@ tick_essentials_staff_gmsp_command:
     usage: <script[tick_essentials_staff_gmsp_command].proc[command_manager_generate_usage]>
     data:
         args:
-            player: template=player
+            player: template=visible_player;permissions=tick_essentials.command.staff.gamemode.other
             s: template=boolean_default_false
     permission: tick_essentials.command.staff.gamemode.spectator
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
-    - if <player.exists>:
-        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.staff.gamemode.other]>:
-            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to do this to other players!"
-            - stop
     - adjust <[arg.player]> gamemode:spectator
     - if <[arg.s]>:
         - stop
@@ -846,7 +818,7 @@ tick_essentials_economy_pay_command:
     permission: tick_essentials.command.economy.pay
     data:
         args:
-            player: template=player_include_offline_strict
+            player: template=visible_player_include_offline_strict
             amount:
                 type: linear
                 required: true
@@ -881,7 +853,7 @@ tick_essentials_economy_balance_shortcut:
     - bal
     data:
         args:
-            player: template=player_include_offline
+            player: template=visible_player_include_offline
     permission: tick_essentials.command.economy.balance
     tab complete:
     - inject command_manager.tab_complete_engine
@@ -900,7 +872,9 @@ tick_essentials_utility_help_command:
     usage: <script[tick_essentials_utility_help_command].proc[command_manager_generate_usage]>
     data:
         args:
-            player: template=player
+            player:
+                template: player
+                permission: tick_essentials.command.utility.help.other
     permission: tick_essentials.command.utility.help
     tab complete:
     - inject command_manager.tab_complete_engine
@@ -919,17 +893,13 @@ tick_essentials_utility_trash_command:
     usage: <script[tick_essentials_utility_trash_command].proc[command_manager_generate_usage]>
     data:
         args:
-            player: template=player
+            player: template=visible_player;permissions=tick_essentials.command.utility.trash.other
             s: template=boolean_default_false
     permission: tick_essentials.command.utility.trash
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
-    - if <player.exists>:
-        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.utility.trash.other]>:
-            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to open the trash GUI for other players!"
-            - stop
     - adjust <queue> linked_player:<[arg.player]>
     - inventory open d:generic[holder=chest;title=Trash;size=54]
     - if <[arg.s]>:
@@ -948,7 +918,7 @@ tick_essentials_utility_nickname_command:
                 type: linear
                 required: <[arg.reset].exists.not>
                 explanation: The nickname to set.
-            player: template=player
+            player: template=visible_player
             s: template=boolean_default_false
             reset: template=boolean_default_false
     permission: tick_essentials.command.utility.nickname
@@ -984,7 +954,7 @@ tick_essentials_utility_heal_command:
     usage: <script[tick_essentials_utility_heal_command].proc[command_manager_generate_usage]>
     data:
         args:
-            player: template=player
+            player: template=visible_player;permissions=tick_essentials.command.utility.heal.other
             remove_fire: template=boolean_default_true
             remove_effects: template=boolean_default_false
             s: template=boolean_default_false
@@ -993,10 +963,6 @@ tick_essentials_utility_heal_command:
     - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
-    - if <player.exists>:
-        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.utility.heal.other]>:
-            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to do this to other players!"
-            - stop
     - heal <[arg.player]>
     - feed <[arg.player]>
     - adjust <[arg.player]> saturation:20
@@ -1017,17 +983,13 @@ tick_essentials_utility_feed_command:
     usage: <script[tick_essentials_utility_feed_command].proc[command_manager_generate_usage]>
     data:
         args:
-            player: template=player
+            player: template=visible_player;permissions=tick_essentials.command.utility.feed.other
             s: template=boolean_default_false
     permission: tick_essentials.command.utility.feed
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
     - inject command_manager.args_manager
-    - if <player.exists>:
-        - if <player> != <[arg.player]> && !<player.has_permission[tick_essentials.command.utility.feed.other]>:
-            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to do this to other players!"
-            - stop
     - feed <[arg.player]>
     - adjust <[arg.player]> saturation:20
     - if <[arg.s]>:
@@ -1043,7 +1005,7 @@ tick_essentials_utility_back_command:
     permission: tick_essentials.command.utility.back
     data:
         args:
-            player: template=player
+            player: template=visible_player;permissions=tick_essentials.command.utility.back.other
             s: template=boolean_default_false
     tab complete:
     - inject command_manager.tab_complete_engine
@@ -1054,12 +1016,7 @@ tick_essentials_utility_back_command:
     - if <[location]> == null:
         - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>The player '<[player].name>' does not have a previous location logged!"
         - stop
-    - if <player.exists>:
-        - if <[player]> != <player> && !<player.has_permission[tick_essentials.command.utility.back.other]>:
-            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You do not have permission to do this to other players!"
-            - stop
     - teleport <[player]> <[location]>
     - if <[arg.s]>:
         - stop
     - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Teleported '<[player].name>' to their previous location!"
-
