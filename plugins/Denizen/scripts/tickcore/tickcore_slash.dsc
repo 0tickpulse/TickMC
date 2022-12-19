@@ -38,7 +38,7 @@ slash_get_locations_proc:
             - debug error "Data '<[def]>' cannot be negative! (Given: <[<[def]>]>)"
             - stop
     - if <[rotation]> < 0:
-        - define <[rotation]> <element[180].add[<[rotation]>]>
+        - define rotation:+:180
     - define list <list>
     # The starting angle
     - define i <[arc].div[-2].add[90]>
