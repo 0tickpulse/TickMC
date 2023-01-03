@@ -148,59 +148,81 @@ tickcore_effect_data:
         thunder: <reset><script[icons].parsed_key[elements.thunder]><&[thunder]><bold>
         water: <reset><script[icons].parsed_key[elements.water]><&[water]><bold>
         wind: <reset><script[icons].parsed_key[elements.wind]><&[wind]><bold>
-    slash_effects:
-        earth:
-        - define sound_locations <[entity].location>
-        - inject <script> path:sound.earth
-        - run particle_generator def.element:earth def.locations:<[locations]> def.offset:0.1,0.1,0.1
-        ender:
-        - define sound_locations <[entity].location>
-        - inject <script> path:sound.ender
-        - run particle_generator def.element:ender def.locations:<[locations]>
-        fire:
-        - define sound_locations <[entity].location>
-        - inject <script> path:sound.fire
-        - run particle_generator def.element:fire def.locations:<[locations]>
-        ice:
-        - define sound_locations <[entity].location>
-        - inject <script> path:sound.ice
-        - run particle_generator def.element:ice def.locations:<[locations]>
-        - define fire_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
-        - define lava_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
-        - define water_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter_tag[<[filter_value].block.material.name.equals[water].or[<[filter_value].material.waterlogged.if_null[false]>]>].deduplicate>
-        - modifyblock <[fire_blocks]> air
-        - playsound sound:block_fire_extinguish <[fire_blocks]>
-        - showfake obsidian <[lava_blocks]> d:3s players:<server.online_players>
-        - showfake frosted_ice <[water_blocks]> d:3s players:<server.online_players>
-        light:
-        - define sound_locations <[entity].location>
-        - inject <script> path:sound.light
-        - run particle_generator def.element:light def.locations:<[locations]>
-        physical:
-        - define sound_locations <[entity].location>
-        - inject <script> path:sound.physical
-        - run particle_generator def.element:physical def.locations:<[locations]> def.offset:0.1,0.1,0.1
-        shadow:
-        - define sound_locations <[entity].location>
-        - inject <script> path:sound.shadow
-        - run particle_generator def.element:shadow def.locations:<[locations]>
-        thunder:
-        - define sound_locations <[entity].location>
-        - inject <script> path:sound.thunder
-        - run particle_generator def.element:thunder def.locations:<[locations]>
-        water:
-        - define sound_locations <[entity].location>
-        - inject <script> path:sound.water
-        - run particle_generator def.element:water def.locations:<[locations]> def.offset:0.1,0.1,0.1
-        - define fire_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
-        - define lava_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
-        - playsound sound:block_fire_extinguish <[fire_blocks]>
-        - modifyblock <[fire_blocks]> air
-        - showfake obsidian <[lava_blocks]> d:3s players:<server.online_players>
-        wind:
-        - define sound_locations <[entity].location>
-        - inject <script> path:sound.wind
-        - run particle_generator def.element:wind def.locations:<[locations]>
+tickcore_specialized_sounds_task:
+    type: task
+    debug: false
+    definitions: locations|element
+    script:
+    - choose <[element]>:
+        - case earth:
+            - playsound sound:block.grass.break at:<[locations]> custom
+        - case ender:
+            - playsound sound:entity.enderman.hurt at:<[locations]> custom
+        - case fire:
+            - playsound sound:entity.blaze.hurt at:<[locations]> custom
+        - case ice:
+            - playsound sound:block.glass.break at:<[locations]> custom
+        - case light:
+            - playsound sound:block.beacon.deactivate at:<[locations]> custom
+        - case physical:
+            - playsound sound:entity.player.attack.sweep at:<[locations]> custom
+        - case shadow:
+            - playsound sound:entity.wither.shoot at:<[locations]> custom
+        - case thunder:
+            - playsound sound:block.beacon.deactivate at:<[locations]> custom
+        - case water:
+            - playsound sound:entity.generic.splash at:<[locations]> custom
+        - case wind:
+            - playsound sound:entity.arrow.shoot at:<[locations]> custom
+tickcore_specialized_effects_task:
+    type: task
+    debug: false
+    definitions: entity|locations|element
+    script:
+    - define sound_locations <[entity].location>
+    - choose <[element]>:
+        - case earth:
+            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:earth
+            - run particle_generator def.element:earth def.locations:<[locations]> def.offset:0.1,0.1,0.1
+        - case ender:
+            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:ender
+            - run particle_generator def.element:ender def.locations:<[locations]>
+        - case fire:
+            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:fire
+            - run particle_generator def.element:fire def.locations:<[locations]>
+        - case ice:
+            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:ice
+            - run particle_generator def.element:ice def.locations:<[locations]>
+            - define fire_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
+            - define lava_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
+            - define water_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter_tag[<[filter_value].block.material.name.equals[water].or[<[filter_value].material.waterlogged.if_null[false]>]>].deduplicate>
+            - modifyblock <[fire_blocks]> air
+            - playsound sound:block_fire_extinguish <[fire_blocks]>
+            - showfake obsidian <[lava_blocks]> d:3s players:<server.online_players>
+            - showfake frosted_ice <[water_blocks]> d:3s players:<server.online_players>
+        - case light:
+            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:light
+            - run particle_generator def.element:light def.locations:<[locations]>
+        - case physical:
+            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:physical
+            - run particle_generator def.element:physical def.locations:<[locations]> def.offset:0.1,0.1,0.1
+        - case shadow:
+            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:shadow
+            - run particle_generator def.element:shadow def.locations:<[locations]>
+        - case thunder:
+            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:thunder
+            - run particle_generator def.element:thunder def.locations:<[locations]>
+        - case water:
+            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:water
+            - run particle_generator def.element:water def.locations:<[locations]> def.offset:0.1,0.1,0.1
+            - define fire_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
+            - define lava_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
+            - playsound sound:block_fire_extinguish <[fire_blocks]>
+            - modifyblock <[fire_blocks]> air
+            - showfake obsidian <[lava_blocks]> d:3s players:<server.online_players>
+        - case wind:
+            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:wind
+            - run particle_generator def.element:wind def.locations:<[locations]>
 tickcore_data:
     type: data
     item updating:

@@ -207,6 +207,30 @@ tick_essentials_developer_pluginversions_command:
     script:
     - narrate <server.plugins.parse_tag[<&[base]><[parse_value].name.custom_color[emphasis]> - Version <[parse_value].version.custom_color[emphasis]>].separated_by[<n>]>
 # @ STAFF COMMANDS
+tick_essentials_staff_broadcast_command:
+    type: command
+    debug: false
+    enabled: <script[tick_essentials_data].parsed_key[commands.staff.broadcast.enabled].if_null[true]>
+    name: broadcast
+    description: Broadcasts a message to the server. Supports MiniMessage.
+    usage: <script[tick_essentials_staff_broadcast_command].proc[command_manager_generate_usage]>
+    data:
+        args:
+            message:
+                template: minimessage
+                required: true
+                type: linear
+                spread: true
+    permission: tick_essentials.command.staff.broadcast
+    aliases:
+    - bc
+    - bcast
+    - announce
+    tab complete:
+    - inject command_manager.tab_complete_engine
+    script:
+    - inject command_manager.args_manager
+    - announce <[arg.message]>
 tick_essentials_staff_sudo_command:
     type: command
     debug: false
@@ -271,7 +295,7 @@ tick_essentials_staff_uploadlogs_command:
     - define hastebin_link <script[tick_essentials_data].parsed_key[commands.staff.uploadlogs.hastebin link]>
     - ~fileread path:<[log_path]> save:logs
     - define log_contents <entry[logs].data.utf8_decode>
-    - ~webget <[hastebin_link]>/documents method:post data:<[log_contents]> save:link
+    - ~webget <[hastebin_link]>/documents method:post data:<[log_contents]> save:link hide_failure
     - define key <entry[link].result.parse_yaml.get[key].if_null[null]>
     - if <[key]> == null:
         - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>An unexpected error occurred while uploading logs! Perhaps an invalid link was specified in the configuration?"

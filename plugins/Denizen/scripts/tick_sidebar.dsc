@@ -95,6 +95,26 @@ tick_sidebar_data:
                     - <red>tick-mc.net
                     animation interval: 0.5s
                     has animation: true
+
+tick_sidebar_toggle_command:
+    type: command
+    name: sidebar
+    description: Toggles the sidebar
+    usage: /sidebar
+    permission: tick_sidebar.command.sidebar
+    debug: false
+    script:
+    - if !<player.exists>:
+        - narrate "<&[error]>You must be a player to use this command!"
+        - stop
+    - if <player.has_flag[tick_sidebar.enabled]>:
+        - flag <player> tick_sidebar.enabled:<player.flag[tick_sidebar.enabled].not>
+        - narrate "<&[success]>Sidebar <player.flag[tick_sidebar.enabled].if_true[enabled].if_false[disabled]>!"
+        - sidebar remove
+    - else:
+        - flag <player> tick_sidebar.enabled:true
+        - narrate "<&[success]>Sidebar enabled!"
+
 tick_sidebar_change_preset_command:
     type: command
     name: sidebarpreset
@@ -141,6 +161,8 @@ tick_sidebar_process_sidebar_task:
     type: task
     debug: false
     script:
+    - if !<player.has_flag[tick_sidebar.enabled]> || !<player.flag[tick_sidebar.enabled]>:
+        - stop
     - define sidebar_preset <player.flag[tick_sidebar.preset].if_null[<player.proc[tick_sidebar_get_available_presets_proc].first.if_null[__null]>]>
     - if <[sidebar_preset]> == __null:
         - stop

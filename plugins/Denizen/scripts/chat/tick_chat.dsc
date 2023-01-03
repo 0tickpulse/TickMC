@@ -43,6 +43,8 @@ tick_chat_world:
         - define message <context.message>
         - foreach <script[tick_chat_configuration].data_key[chat replacements.on receive message].keys> as:path:
             - inject tick_chat_configuration "path:chat replacements.on receive message.<[path]>"
+        - if <[message]> == <context.message>:
+            - stop
         - determine message:<[message]>
 
 tick_chat_format_player_name:

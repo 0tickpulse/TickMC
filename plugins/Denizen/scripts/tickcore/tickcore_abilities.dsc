@@ -26,9 +26,8 @@ tickcore_ability_lights_burst:
         - foreach <[random_locations]> as:location:
             - run particle_generator def.locations:<[origin]> def.element:light def.velocity:<[origin].sub[<[location]>]>
 
-        - define sound_locations <[origin]>
         - playeffect flash at:<[origin]>
-        - inject tickcore_effect_data path:sound.light
+        - run tickcore_specialized_sounds_task def.locations:<[origin]> def.element:light
         - definemap damage_context:
                 targets: <[origin].find.living_entities.within[10].exclude[<[entity]>]>
                 element_map: <map[light=<[data.damage]>]>

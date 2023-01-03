@@ -21,6 +21,11 @@ tick_essentials_data:
             # Lists all commands in the server.
             commandlist:
                 enabled: true
+            # @ The /enchant command
+            # Permission: tick_essentials.command.developers.enchant
+            # This command allows you to enchant an item in your hand.
+            enchant:
+                enabled: true
             # @ The /enum command
             # Permission: tick_essentials.command.developers.enum
             # This command allows you to get a list of all the enum values of a specified enum.
@@ -35,6 +40,11 @@ tick_essentials_data:
         # @ Staff commands
         # These commands make it easier as server staff.
         staff:
+            # @ The /broadcast command
+            # Permission: tick_essentials.command.staff.broadcast
+            # This command allows you to broadcast a message to the server.
+            broadcast:
+                enabled: true
             # @ The /sudo command
             # Permission: tick_essentials.command.staff.sudo
             # This command allows you to run a command as another player.

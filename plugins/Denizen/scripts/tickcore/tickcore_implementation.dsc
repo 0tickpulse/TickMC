@@ -79,17 +79,17 @@ tickcore_prevent_place_gear:
             - if <player.item_in_hand.proc[tickcore_proc.script.items.get_stat].context[implementations].contains_any[weapon_melee]>:
                 - determine cancelled
 
-tickcore_run_stab:
-    type: task
-    debug: false
-    definitions: data|element_map|entity
-    script:
-    - define hand <[entity].main_hand.if_null[right]>
-    - if <[hand]> == right:
-        - define origin <[entity].eye_location.with_pitch[0].left[0.5].below[0.2]>
-    - else:
-        - define origin <[entity].eye_location.with_pitch[0].right[0.5].below[0.2]>
-    - define target <>
+# tickcore_run_stab:
+    # type: task
+    # debug: false
+    # definitions: data|element_map|entity
+    # script:
+    # - define hand <[entity].main_hand.if_null[right]>
+    # - if <[hand]> == right:
+        # - define origin <[entity].eye_location.with_pitch[0].left[0.5].below[0.2]>
+    # - else:
+        # - define origin <[entity].eye_location.with_pitch[0].right[0.5].below[0.2]>
+    # - define target <>
 tickcore_run_slash:
     type: task
     debug: false
@@ -126,7 +126,7 @@ tickcore_run_slash:
     - foreach <[element_map]> key:element as:value:
         - if <[value]> <= 0:
             - foreach next
-        - inject tickcore_effect_data path:slash_effects.<[element]>
+        - run tickcore_specialized_effects_task def.element:<[element]> def.locations:<[locations]> def.entity:<[entity]>
     - definemap damage_data:
             slash_data: <[data]>
             targets: <[data].proc[slash_get_entities_in_locations_proc].exclude[<[entity]>]>

@@ -47,31 +47,25 @@ tickcore_apply_stats_to_players_world:
         after player joins:
         - run tickcore_recalculate_stats_task
 
-tickcore_task:
+tickcore_spawn_mob_task:
     type: task
     debug: false
+    definitions: id|level
     script:
-        entities:
-            apply_stats:
-            # Interesting
-            - define entity <[1]>
-            - define stats <[2]>
-            spawnmob:
-            - define id <[1]>
-            - define level <[2].if_null[0]>
-            - customevent id:tickcore_entity_prespawns context:[id=<[id]>] save:prespawn_event
-            - if <entry[prespawn_event].was_cancelled>:
-                - stop
-            - spawn <[id].proc[tickcore_proc.script.entities.generate]> save:entity
-            - define entity <entry[entity].spawned_entity>
-            - define stats <script[<[id]>].parsed_key[data.tickcore.stats].parse_value_tag[<map[base=<[parse_value]>]>]>
-            # Add level modifiers
-            - foreach <script[<[id]>].parsed_key[data.tickcore.level_modifiers]> key:modifier_stat as:modifier_stat_value:
-                - define stats.<[modifier_stat]>.LEVEL <[modifier_stat_value].mul[<[level]>]>
-            - flag <[entity]> tickcore.id:<[id]>
-            - flag <[entity]> tickcore.level:<[level]>
-            - flag <[entity]> tickcore.stats:<[stats]>
-            - customevent id:tickcore_entity_spawns context:[id=<[id]>;entity=<[entity]>;stats=<[stats]>] save:spawn_event
+    - define level <[level].if_null[0]>
+    - customevent id:tickcore_entity_prespawns context:[id=<[id]>] save:prespawn_event
+    - if <entry[prespawn_event].was_cancelled>:
+        - stop
+    - spawn <[id].proc[tickcore_proc.script.entities.generate]> save:entity
+    - define entity <entry[entity].spawned_entity>
+    - define stats <script[<[id]>].parsed_key[data.tickcore.stats].parse_value_tag[<map[base=<[parse_value]>]>]>
+    # Add level modifiers
+    - foreach <script[<[id]>].parsed_key[data.tickcore.level_modifiers]> key:modifier_stat as:modifier_stat_value:
+        - define stats.<[modifier_stat]>.LEVEL <[modifier_stat_value].mul[<[level]>]>
+    - flag <[entity]> tickcore.id:<[id]>
+    - flag <[entity]> tickcore.level:<[level]>
+    - flag <[entity]> tickcore.stats:<[stats]>
+    - customevent id:tickcore_entity_spawns context:[id=<[id]>;entity=<[entity]>;stats=<[stats]>] save:spawn_event
 tickcore_proc:
     type: procedure
     debug: false
@@ -298,6 +292,8 @@ tickcore_main_command:
             - tickcore.command.main.modifyitemstat
             updateitems:
             - tickcore.command.main.updateitem
+            spawnmob:
+            - tickcore.command.main.spawnmob
         subcommands:
             getitem:
                 item:
@@ -339,6 +335,16 @@ tickcore_main_command:
                     required: true
             updateitems:
                 player: template=visible_player
+            spawnmob:
+                mob:
+                    type: linear
+                    accepted: <proc[tickcore_proc.script.entities.get_all_ids].contains[<[value]>]>
+                    tab completes: <proc[tickcore_proc.script.entities.get_all_ids]>
+                    required: true
+                level:
+                    template: integer
+                    required: false
+                    default: 0
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
@@ -363,6 +369,8 @@ tickcore_main_command:
             - inventory set slot:hand o:<[item]>
         - case updateitems:
             - run tickcore_update_items_task def:<[arg.player].inventory>
+        - case spawnmob:
+            - run tickcore_spawn_mob_task def.id:<[arg.mob]> def.level:<[arg.level]>
 # tickcore_main_command:
 #     type: command
 #     debug: false
