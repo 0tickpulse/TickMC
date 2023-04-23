@@ -64,7 +64,7 @@ tickcore_archery_custom_shoot_task:
 tickcore_archery_custom_shoot_world:
     type: world
     debug: false
-    
+
     events:
         on arrow hits entity:
         - if <context.projectile.has_flag[tickcore_archery]>:

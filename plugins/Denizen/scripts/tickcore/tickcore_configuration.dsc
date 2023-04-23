@@ -235,6 +235,10 @@ tickcore_data:
     - [name=FEET;item=<player.inventory.slot[FEET]>]
     - [name=HAND;item=<player.inventory.slot[HAND]>]
     - [name=OFFHAND;item=<player.inventory.slot[OFFHAND]>]
+
+    - [name=ACCESSORY_BAG_ARTIFACT_1;item=<inventory[tickcore_accessory_bag_<player.uuid>].slot[11]>]
+    - [name=ACCESSORY_BAG_ARTIFACT_2;item=<inventory[tickcore_accessory_bag_<player.uuid>].slot[20]>]
+    - [name=ACCESSORY_BAG_ARTIFACT_3;item=<inventory[tickcore_accessory_bag_<player.uuid>].slot[29]>]
     default item properties:
         hides: ALL
         attribute_modifiers:

@@ -316,6 +316,7 @@ tickcore_main_command:
                     accepted: <proc[tickcore_proc.script.items.get_all_ids].contains[<[value]>]>
                     tab completes: <proc[tickcore_proc.script.items.get_all_ids]>
                     required: true
+                    result: <[value].proc[tickcore_proc.script.items.generate]>
                 player:
                     template: player
             statmap:

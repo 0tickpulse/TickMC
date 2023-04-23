@@ -143,6 +143,7 @@ tickcore_run_slash:
 
     - inject tickcore_impl_event_util
 
+    # TODO Can simplify this
     - definemap new_damage_data:
             slash_data: <[determinations.slash_data].if_null[<[damage_data.slash_data]>]>
             targets: <[determinations.targets].if_null[<[damage_data.targets]>]>
@@ -270,7 +271,7 @@ tickcore_impl_damage_indicators:
         - random:
             - define location <context.entity.location.left[1.2].random_offset[0.2,0.5,0.2]>
             - define location <context.entity.location.right[1.2].random_offset[0.2,0.5,0.2]>
-        - if <[last_damage_amount]> == 0:
+        - if <[last_damage_amount]> == 0:5
             - stop
         - define new_element_map <map>
 
