@@ -8,6 +8,9 @@ tick_chat_configuration:
             enabled: true
             format: <n><&[emphasis]><bold>DM <player.null_if[exists].if_null[<element[REPLY].custom_color[success].underline.bold.on_hover[Click to reply to <[sender].proc[tick_chat_format_player_name]>!].on_click[/msg <[sender].name> ].type[suggest_command]>]> <[sender].proc[tick_chat_format_player_name].if_null[console]> <dark_gray>-<&gt> <[receiver].proc[tick_chat_format_player_name]> <gray>» <white><[message]><n>
 
+    emojis:
+        enabled: true
+
     chat tab completions:
         enabled: true
         tab completions:
@@ -21,9 +24,12 @@ tick_chat_configuration:
     chat replacements:
         on receive message:
             suggest command on click:
-            - define message <[message].replace[regex:\(/([^\]<&rb>+)\)].with[<element[/$1].bold.custom_color[suggest].on_hover[<&[suggest]>Click to paste into chat!].on_click[/$1].type[suggest_command]>]>
+            - define message <[message].replace_text[regex:\(/([^\]<&rb>+)\)].with[<element[/$1].bold.custom_color[suggest].on_hover[<&[suggest]>Click to paste into chat!].on_click[/$1].type[suggest_command]>]>
             command on click:
-            - define message <[message].replace[regex:\(!/([^\]<&rb>+)\)].with[<element[/$1].bold.custom_color[success].on_hover[<&[success]>Click to run command!].on_click[/$1]>]>
+            - define message <[message].replace_text[regex:\(!/([^\]<&rb>+)\)].with[<element[/$1].bold.custom_color[success].on_hover[<&[success]>Click to run command!].on_click[/$1]>]>
+            emojis:
+            - foreach <script[tick_chat_emojis].data_key[emojis]> key:name as:emoji:
+                - define message <[message].replace_text[:<[name]>:].with[<[emoji]>]>
             #hover player info:
             #- foreach <server.online_players> as:__player:
             #    - define message <[message].replace[<player.name>].with[<[player].name.on_hover[Player: <player.name>]>]>

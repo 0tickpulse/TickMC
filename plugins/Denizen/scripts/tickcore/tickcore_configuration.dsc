@@ -12,9 +12,9 @@ particle_generator:
         - define particle_datas <script[tickcore_effect_data].parsed_key[particle_data.<[element]>].values>
         - foreach <[particle_datas]> as:particle_data:
             - if <[particle_data.special_data].exists>:
-                - playeffect effect:<[particle_data.effect]> at:<[locations]> quantity:<[quantity].if_null[1]> velocity:<[velocity].if_null[0,0,0]> offset:<[offset].if_null[<[particle_data.offset].if_null[0.5,0.5,0.5]>]> special_data:<[particle_data.special_data].if_null[]> data:<[particle_data.data].if_null[0]> visibility:<[particle_data.visibility].if_null[30]>
+                - playeffect effect:<[particle_data.effect]> at:<[locations]> quantity:<[quantity].if_null[1]> velocity:<[velocity].if_null[0,0,0]> offset:<[offset].if_null[<[particle_data.offset].if_null[0.5,0.5,0.5]>]> special_data:<[particle_data.special_data].if_null[]> data:<[particle_data.data].if_null[0]> visibility:<[particle_data.visibility].if_null[100]>
             - else:
-                - playeffect effect:<[particle_data.effect]> at:<[locations]> quantity:<[quantity].if_null[1]> velocity:<[velocity].if_null[0,0,0]> offset:<[offset].if_null[<[particle_data.offset].if_null[0.5,0.5,0.5]>]> data:<[particle_data.data].if_null[0]> visibility:<[particle_data.visibility].if_null[30]>
+                - playeffect effect:<[particle_data.effect]> at:<[locations]> quantity:<[quantity].if_null[1]> velocity:<[velocity].if_null[0,0,0]> offset:<[offset].if_null[<[particle_data.offset].if_null[0.5,0.5,0.5]>]> data:<[particle_data.data].if_null[0]> visibility:<[particle_data.visibility].if_null[100]>
 tickcore_impl_data:
     type: data
     damage indicator blacklist:
@@ -39,6 +39,7 @@ tickcore_ability_data:
         break_block: Break block
         join: Join
         quit: Quit
+        custom_arrow_hit: Arrow hit
 tickcore_effect_data:
     type: data
     debug: false
@@ -55,87 +56,87 @@ tickcore_effect_data:
         wind: <color[#FFFFFF]>
     sound:
         earth:
-        - playsound sound:block.grass.break at:<[sound_locations]> custom
+        - playsound sound:block.grass.break at:<[sound_locations]> custom volume:2
         ender:
-        - playsound sound:entity.enderman.hurt at:<[sound_locations]> custom
+        - playsound sound:entity.enderman.hurt at:<[sound_locations]> custom volume:2
         fire:
-        - playsound sound:entity.blaze.hurt at:<[sound_locations]> custom
+        - playsound sound:entity.blaze.hurt at:<[sound_locations]> custom volume:2
         ice:
-        - playsound sound:block.glass.break at:<[sound_locations]> custom
+        - playsound sound:block.glass.break at:<[sound_locations]> custom volume:2
         light:
-        - playsound sound:block.beacon.deactivate at:<[sound_locations]> custom
+        - playsound sound:block.beacon.deactivate at:<[sound_locations]> custom volume:2
         physical:
-        - playsound sound:entity.player.attack.sweep at:<[sound_locations]> custom
+        - playsound sound:entity.player.attack.sweep at:<[sound_locations]> custom volume:2
         shadow:
-        - playsound sound:entity.wither.shoot at:<[sound_locations]> custom
+        - playsound sound:entity.wither.shoot at:<[sound_locations]> custom volume:2
         thunder:
-        - playsound sound:block.beacon.deactivate at:<[sound_locations]> custom
+        - playsound sound:block.beacon.deactivate at:<[sound_locations]> custom volume:2
         water:
-        - playsound sound:entity.generic.splash at:<[sound_locations]> custom
+        - playsound sound:entity.generic.splash at:<[sound_locations]> custom volume:2
         wind:
-        - playsound sound:entity.arrow.shoot at:<[sound_locations]> custom
+        - playsound sound:entity.arrow.shoot at:<[sound_locations]> custom volume:2
     particle_data:
         earth:
             1:
                 effect: block_crack
                 special_data: dirt
-                visibility: 50
+                visibility: 100
             2:
                 effect: redstone
                 special_data: 1|<script[tickcore_effect_data].parsed_key[color.earth]>
-                visibility: 50
+                visibility: 100
         ender:
             1:
                 effect: reverse_portal
-                visibility: 50
+                visibility: 100
         fire:
             1:
                 effect: flame
-                visibility: 50
+                visibility: 100
             2:
                 effect: redstone
                 special_data: 1|<script[tickcore_effect_data].parsed_key[color.fire]>
-                visibility: 50
+                visibility: 100
         ice:
             1:
                 effect: block_crack
                 special_data: ice
-                visibility: 50
+                visibility: 100
             2:
                 effect: redstone
                 special_data: 1|<script[tickcore_effect_data].parsed_key[color.ice]>
-                visibility: 50
+                visibility: 100
         light:
             1:
                 effect: end_rod
-                visibility: 50
+                visibility: 100
         physical:
             1:
                 effect: crit
-                visibility: 50
+                visibility: 100
         shadow:
             1:
                 effect: dust_color_transition
                 special_data: 1|<script[tickcore_effect_data].parsed_key[color.shadow]>|black
-                visibility: 50
+                visibility: 100
         thunder:
             1:
                 effect: redstone
                 special_data: 1|<script[tickcore_effect_data].parsed_key[color.thunder]>
-                visibility: 50
+                visibility: 100
         water:
             1:
                 effect: redstone
                 special_data: 1|<script[tickcore_effect_data].parsed_key[color.water]>
-                visibility: 50
+                visibility: 100
             2:
                 effect: block_crack
                 special_data: water
-                visibility: 50
+                visibility: 100
         wind:
             1:
                 effect: snowball
-                visibility: 50
+                visibility: 100
 
     symbol:
         earth: <reset><script[icons].parsed_key[elements.earth]><&[earth]><bold>
@@ -177,22 +178,28 @@ tickcore_specialized_sounds_task:
 tickcore_specialized_effects_task:
     type: task
     debug: false
-    definitions: entity|locations|element
+    definitions: entity|locations|element|sound|offset
     script:
+    - if !<queue.definitions.contains[sound]>:
+        - define sound true
     - define sound_locations <[entity].location>
     - choose <[element]>:
         - case earth:
-            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:earth
+            - if <[sound]>:
+                - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:earth
             - run particle_generator def.element:earth def.locations:<[locations]> def.offset:0.1,0.1,0.1
         - case ender:
-            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:ender
-            - run particle_generator def.element:ender def.locations:<[locations]>
+            - if <[sound]>:
+                - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:ender
+            - run particle_generator def.element:ender def.locations:<[locations]> def.offset:<[offset].if_null[0.5,0.5,0.5]>
         - case fire:
-            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:fire
-            - run particle_generator def.element:fire def.locations:<[locations]>
+            - if <[sound]>:
+                - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:fire
+            - run particle_generator def.element:fire def.locations:<[locations]> def.offset:<[offset].if_null[0.5,0.5,0.5]>
         - case ice:
-            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:ice
-            - run particle_generator def.element:ice def.locations:<[locations]>
+            - if <[sound]>:
+                - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:ice
+            - run particle_generator def.element:ice def.locations:<[locations]> def.offset:<[offset].if_null[0.5,0.5,0.5]>
             - define fire_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
             - define lava_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
             - define water_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter_tag[<[filter_value].block.material.name.equals[water].or[<[filter_value].material.waterlogged.if_null[false]>]>].deduplicate>
@@ -201,30 +208,47 @@ tickcore_specialized_effects_task:
             - showfake obsidian <[lava_blocks]> d:3s players:<server.online_players>
             - showfake frosted_ice <[water_blocks]> d:3s players:<server.online_players>
         - case light:
-            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:light
-            - run particle_generator def.element:light def.locations:<[locations]>
+            - if <[sound]>:
+                - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:light
+            - run particle_generator def.element:light def.locations:<[locations]> def.offset:<[offset].if_null[0.5,0.5,0.5]>
         - case physical:
-            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:physical
-            - run particle_generator def.element:physical def.locations:<[locations]> def.offset:0.1,0.1,0.1
+            - if <[sound]>:
+                - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:physical
+            - run particle_generator def.element:physical def.locations:<[locations]> def.offset:0.1,0.1,0.1 def.offset:<[offset].if_null[0.5,0.5,0.5]>
         - case shadow:
-            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:shadow
-            - run particle_generator def.element:shadow def.locations:<[locations]>
+            - if <[sound]>:
+                - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:shadow
+            - run particle_generator def.element:shadow def.locations:<[locations]> def.offset:<[offset].if_null[0.5,0.5,0.5]>
         - case thunder:
-            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:thunder
-            - run particle_generator def.element:thunder def.locations:<[locations]>
+            - if <[sound]>:
+                - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:thunder
+            - run particle_generator def.element:thunder def.locations:<[locations]> def.offset:<[offset].if_null[0.5,0.5,0.5]>
         - case water:
-            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:water
-            - run particle_generator def.element:water def.locations:<[locations]> def.offset:0.1,0.1,0.1
+            - if <[sound]>:
+                - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:water
+            - run particle_generator def.element:water def.locations:<[locations]> def.offset:0.1,0.1,0.1 def.offset:<[offset].if_null[0.5,0.5,0.5]>
             - define fire_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
             - define lava_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
             - playsound sound:block_fire_extinguish <[fire_blocks]>
             - modifyblock <[fire_blocks]> air
             - showfake obsidian <[lava_blocks]> d:3s players:<server.online_players>
         - case wind:
-            - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:wind
-            - run particle_generator def.element:wind def.locations:<[locations]>
+            - if <[sound]>:
+                - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:wind
+            - run particle_generator def.element:wind def.locations:<[locations]> def.offset:<[offset].if_null[0.5,0.5,0.5]>
 tickcore_data:
     type: data
+    elements:
+    - earth
+    - ender
+    - fire
+    - ice
+    - light
+    - physical
+    - shadow
+    - thunder
+    - water
+    - wind
     item updating:
         container open: true
         item pickup: true
@@ -236,9 +260,9 @@ tickcore_data:
     - [name=HAND;item=<player.inventory.slot[HAND]>]
     - [name=OFFHAND;item=<player.inventory.slot[OFFHAND]>]
 
-    - [name=ACCESSORY_BAG_ARTIFACT_1;item=<inventory[tickcore_accessory_bag_<player.uuid>].slot[11]>]
-    - [name=ACCESSORY_BAG_ARTIFACT_2;item=<inventory[tickcore_accessory_bag_<player.uuid>].slot[20]>]
-    - [name=ACCESSORY_BAG_ARTIFACT_3;item=<inventory[tickcore_accessory_bag_<player.uuid>].slot[29]>]
+    - [name=ACCESSORY_BAG_ARTIFACT_1;item=<inventory[tickcore_accessory_bag_<player.uuid>].slot[11].if_null[<item[air]>]>]
+    - [name=ACCESSORY_BAG_ARTIFACT_2;item=<inventory[tickcore_accessory_bag_<player.uuid>].slot[20].if_null[<item[air]>]>]
+    - [name=ACCESSORY_BAG_ARTIFACT_3;item=<inventory[tickcore_accessory_bag_<player.uuid>].slot[29].if_null[<item[air]>]>]
     default item properties:
         hides: ALL
         attribute_modifiers:
@@ -249,6 +273,7 @@ tickcore_data:
                     slot: any
     lore order:
     - <&sp.repeat[50].color[dark_gray].strikethrough>
+    - implementations
     - damage_earth
     - damage_ender
     - damage_fire
@@ -263,6 +288,8 @@ tickcore_data:
     - attack_speed
     - crit_chance
     - crit_damage
+    - arrow_speed
+    - arrow_range
     - max_health
     - defense
     - defense_earth
@@ -279,21 +306,38 @@ tickcore_data:
     - abilities
     - gemstones
     - gemstone_slots
-    - implementations
     - description
     - <&sp.repeat[50].color[dark_gray].strikethrough>
+    implementation slots:
+        weapon_melee:
+        - hand
+        weapon_bow:
+        - hand
+        armor:
+        - head
+        - chest
+        - legs
+        - feet
+        armor_helmet:
+        - head
+        armor_chestplate:
+        - chest
+        armor_leggings:
+        - legs
+        armor_boots:
+        - feet
     stats:
         implementations:
             item default: <list>
             entity default: <list>
             lore format:
+            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Item type(s)<&co> <[value].parse_tag[<script[tickcore_data].parsed_key[stats.implementations.data.aliases.<[parse_value]>].if_null[<[parse_value]>]>].comma_separated>
             - <empty>
-            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>This item is a<&co>
-            - <[value].parse_tag[<script[tickcore_data].parsed_key[stats.implementations.data.aliases.<[parse_value]>].if_null[<[parse_value]>]>].separated_by[<n>].proc[tickutil_text.script.lore_section_no_icon]>
             data:
                 aliases:
                     gemstone_crystal: Crystal gem stone
                     weapon_melee: Melee weapon
+                    weapon_bow: Bow
                     armor: Armor
                     armor_helmet: Helmet
                     armor_chestplate: Chestplate
@@ -469,11 +513,27 @@ tickcore_data:
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
 
+        arrow_speed:
+            item default: 0
+            entity default: 100
+            lore format:
+            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Arrow speed <dark_gray>- <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>%
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
+
+        arrow_range:
+            item default: 0
+            entity default: 500
+            lore format:
+            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Arrow range <dark_gray>- <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
+
         knockback_resistance:
             item default: 0
             entity default: 0
             lore format:
-            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Knockback resistance <dark_gray>- <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
+            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Knockback resistance <dark_gray>- <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>%
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
 

@@ -7,6 +7,8 @@ tick_chat_custom_tabcomplete:
             - stop
         - foreach <server.online_players> as:__player:
             - adjust <player> add_tab_completions:<script[tick_chat_configuration].data_key[chat tab completions.tab completions]>
+            - foreach <script[tick_chat_emojis].data_key[emojis]> key:name:
+                - adjust <player> add_tab_completions:<&co><[name]><&co>
 
 tick_chat_format_chat_injection:
     type: task

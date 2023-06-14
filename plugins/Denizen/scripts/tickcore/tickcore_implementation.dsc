@@ -61,7 +61,12 @@ tickcore_stat_link:
     debug: false
     events:
         on custom event id:tickcore_entity_spawns:
-        - adjust <context.entity> max_health:<context.stats.get[max_health].if_null[<context.entity.health_max>]>
+        - define map <context.stats.get[max_health].if_null[null]>
+        - if <[map]> == null:
+            - stop
+        - adjust <context.entity> max_health:<script[tickcore_data].parsed_key[stats.max_health.item stat calculation].if_null[<context.entity.health_max>]>
+        # heal
+        - heal <context.entity>
         on delta time secondly:
         - foreach <server.online_players> as:__player:
             - adjust <player> max_health:<player.proc[tickcore_proc.script.players.get_stat].context[max_health]>
@@ -72,11 +77,11 @@ tickcore_prevent_place_gear:
     events:
         on player places block:
         - if <context.item_in_hand.proc[tickcore_proc.script.items.is_tickitem]>:
-            - if <context.item_in_hand.proc[tickcore_proc.script.items.get_stat].context[implementations].contains_any[weapon_melee]>:
+            - if <context.item_in_hand.proc[tickcore_proc.script.items.get_stat].context[implementations].contains_any[weapon_melee|weapon_staff]>:
                 - determine cancelled
         on player breaks block:
         - if <player.item_in_hand.proc[tickcore_proc.script.items.is_tickitem]>:
-            - if <player.item_in_hand.proc[tickcore_proc.script.items.get_stat].context[implementations].contains_any[weapon_melee]>:
+            - if <player.item_in_hand.proc[tickcore_proc.script.items.get_stat].context[implementations].contains_any[weapon_melee|weapon_staff]>:
                 - determine cancelled
 
 # tickcore_run_stab:
@@ -121,18 +126,21 @@ tickcore_run_slash:
                 required: false
                 accepted: <server.damage_causes.contains_single[<[value]>]>
                 result: <[value]>
+            crit_chance:
+                type: prefixed
+                required: false
+                accepted: <[value].is_decimal>
+                result: <[value]>
     script:
     - define locations <[data].proc[slash_get_locations_proc].parse[points_between[<[entity].location>].distance[0.15].get[1].to[3]].combine>
-    - foreach <[element_map]> key:element as:value:
-        - if <[value]> <= 0:
-            - foreach next
-        - run tickcore_specialized_effects_task def.element:<[element]> def.locations:<[locations]> def.entity:<[entity]>
+
     - definemap damage_data:
             slash_data: <[data]>
             targets: <[data].proc[slash_get_entities_in_locations_proc].exclude[<[entity]>]>
             element_map: <[element_map]>
             source: <[entity]>
             cause: magic
+            crit_chance: <[entity].proc[tickcore_proc.script.entities.get_stat].context[crit_chance]>
 
     #event|cancellable|context|determination_args
     - definemap tickcore_impl_event_util_data:
@@ -150,10 +158,17 @@ tickcore_run_slash:
             element_map: <[determinations.element_map].if_null[<[damage_data.element_map]>]>
             source: <[determinations.source].if_null[<[damage_data.source]>]>
             cause: <[determinations.cause].if_null[<[damage_data.cause]>]>
+            crit_chance: <[determinations.crit_chance].if_null[<[damage_data.crit_chance]>]>
 
     - if <[element_map].keys> !contains physical:
         - playsound <[entity].location> sound:entity_player_attack_sweep
     - run tickcore_impl_do_damage_task defmap:<[new_damage_data]>
+
+    # Particles and sounds
+    - foreach <[element_map]> key:element as:value:
+        - if <[value]> <= 0:
+            - foreach next
+        - run tickcore_specialized_effects_task def.element:<[element]> def.locations:<[locations]> def.entity:<[entity]>
 
 tickcore_custom_attack:
     type: world
@@ -214,7 +229,7 @@ tickcore_custom_attack:
 tickcore_impl_do_damage_task:
     type: task
     debug: false
-    definitions: targets|element_map|source|cause|knockback|crit_chance|trigger_event
+    definitions: targets|element_map|source|cause|knockback|crit_chance[not required]|trigger_event[boolean]
     script:
     - foreach <[targets]> as:target:
         - define amount 0
@@ -224,25 +239,26 @@ tickcore_impl_do_damage_task:
                 - define target_defense <[target].proc[tickcore_proc.script.entities.get_stat].context[defense_<[element]>].if_null[null]>
                 - if <[target_defense]> == null:
                     - define target_defense 0
-                - define to_add <[element_damage].mul[<element[1].sub[<[target_defense].div[<[target_defense].add[100]>]>]>]>
+                - define to_add <[element_damage].mul[<element[1].sub[<[target_defense].div[<[target_defense].abs.add[100]>]>]>]>
             - else:
                 - define to_add <[element_damage]>
             - define new_element_map.<[element]>:<[to_add]>
             - if !<[crit_chance].exists>:
                 - define crit_chance <[source].proc[tickcore_proc.script.entities.get_stat].context[crit_chance]>
-            - define has_crit <util.random_chance[<[crit_chance]>].if_null[false]>
+            - define has_crit <util.random_chance[<[crit_chance].mul[100]>].if_null[false]>
             - if <[has_crit]>:
                 - define amount:+:<[to_add].mul[<[source].proc[tickcore_proc.script.entities.get_stat].context[crit_damage].add[1]>]>
             - else:
                 - define amount:+:<[to_add]>
 
         - define defense <[target].proc[tickcore_proc.script.entities.get_stat].context[defense].if_null[0]>
-        - define amount <[amount].mul[<element[1].sub[<[defense].div[<[defense].add[100]>]>]>]>
+        - define amount <[amount].mul[<element[1].sub[<[defense].div[<[defense].abs.add[100]>]>]>]>
 
         - definemap damage_data:
                 element_map: <[new_element_map]>
                 knockback: <[knockback].if_null[1]>
                 trigger_event: <[trigger_event].if_null[true]>
+                crit: <[has_crit].if_null[false]>
         - flag <[source]> tickcore_impl.last_damage_data:<[damage_data]> expire:2t
         - if <[amount]> == 0:
             - foreach next
@@ -269,9 +285,9 @@ tickcore_impl_damage_indicators:
 
         - define last_damage_amount <context.final_damage>
         - random:
-            - define location <context.entity.location.left[1.2].random_offset[0.2,0.5,0.2]>
-            - define location <context.entity.location.right[1.2].random_offset[0.2,0.5,0.2]>
-        - if <[last_damage_amount]> == 0:5
+            - define location <context.entity.location.above[1.5].left[1.2].random_offset[0.2,0.5,0.2]>
+            - define location <context.entity.location.above[1.5].right[1.2].random_offset[0.2,0.5,0.2]>
+        - if <[last_damage_amount]> == 0:
             - stop
         - define new_element_map <map>
 
@@ -306,9 +322,20 @@ tickcore_impl_damage_indicators:
         - define element_displays <list>
         - foreach <[new_element_map]> key:element as:element_damage:
             - if <[element_damage]> != 0:
-                - define element_displays:->:<script[icons].parsed_key[damage_indicators.<[element]>].if_null[<[element]>]><&sp.repeat[2]><[element_damage].round.to_list.parse_tag[<[parse_value]><&sp.repeat[2]>].unseparated.custom_color[<[element]>].font[tickmc:damage_indicators]>
-        - define hologram <entity[armor_stand[visible=false;is_small=true;custom_name=<[element_displays].separated_by[  ]>;custom_name_visible=true]]>
-        - fakespawn <[hologram]> <[location]> players:<[players]> duration:2s
+                - define element_displays:->:<script[icons].parsed_key[damage_indicators.<[element]>].if_null[<[element]>]><&sp><[element_damage].round.custom_color[<[element]>]>
+        #- define hologram <entity[armor_stand[visible=false;is_small=true;custom_name=<[element_displays].separated_by[  ]>;custom_name_visible=true]]>
+        #- fakespawn <[hologram]> <[location]> players:<[players]> duration:2s
+        # use display entites
+        - fakespawn text_display[text=<[element_displays].separated_by[ ]>;interpolation_duration=0.2s;scale=0,0,0;pivot=center;see_through=true;background_color=0,0,0,0;opacity=255] <[location]> players:<[players]> duration:10s save:display
+        # interpolate the scale
+        - define display <entry[display].faked_entity>
+        - if <[damage_data.crit].if_null[false]>:
+            - adjust <[display]> scale:3.5,3.5,3.5
+        - else:
+            - adjust <[display]> scale:2,2,2
+        - wait 0.7s
+        - adjust <[display]> interpolation_duration:1s
+        - adjust <[display]> scale:0,0,0
 
 tickcore_trigger_abilities:
     type: task
@@ -513,4 +540,12 @@ tickcore_ability_triggers:
         - define entity <player>
         - inject <script> path:run_script
 
-
+        on custom event id:custom_arrow_hit:
+        - define trigger custom_arrow_hit
+        - definemap context:
+                point: <context.point>
+                collide_result: <context.collide_result>
+                element_map: <context.element_map>
+                entity: <context.entity>
+        - define entity <context.entity>
+        - inject <script> path:run_script

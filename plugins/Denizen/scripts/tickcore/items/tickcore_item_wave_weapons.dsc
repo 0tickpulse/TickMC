@@ -37,7 +37,6 @@ tickcore_ability_spear_of_waves_cycle_of_life:
 
     - run tickcore_specialized_sounds_task def.locations:<[location]> def.element:water
 
-
     - define damage <[data.damage_multiplier].mul[<[entity].proc[tickcore_proc.script.entities.get_stat].context[damage_water]>]>
     - definemap defmap:
             targets: <[location].find.living_entities.within[<[data.radius]>].exclude[<[entity]>]>
@@ -48,4 +47,49 @@ tickcore_ability_spear_of_waves_cycle_of_life:
         - adjust <[entity]> no_damage_duration:0
     - run tickcore_impl_do_damage_task defmap:<[defmap]>
 
+bow_of_waves:
+    type: item
+    material: bow
+    display name: <&[item]>Bow of Waves
+    mechanisms:
+        custom_model_data: 1
+    data:
+        tickcore:
+            stats:
+                implementations:
+                - weapon_bow
+                damage_water: 6.5
+                abilities:
+                    1:
+                        #something different than the spear
+                        name: Bubble
+                        trigger: custom_arrow_hit
+                        description: Creates an exploding bubble around the target's location, dealing damage to nearby enemies.
+                        cooldown: 2s
+                        cooldown message: false
+                        script: tickcore_ability_bow_of_waves_bubble
+                        data:
+                            damage_multiplier: 1
+                            radius: 5
 
+tickcore_ability_bow_of_waves_bubble:
+    type: task
+    debug: false
+    definitions: entity|data|context
+    script:
+    - wait 5t
+    - define origin <[context.point]>
+    - define radius <[data.radius]>
+
+    - run tickcore_specialized_sounds_task def.locations:<[origin]> def.element:water
+
+    # Do damage
+    - define entities <[origin].find.living_entities.within[<[radius]>].exclude[<[entity]>]>
+    - define new_element_map <[context.element_map].parse_value_tag[<[parse_value].mul[<[data.damage_multiplier]>]>]>
+    - run tickcore_impl_do_damage_task def.source:<[entity]> def.element_map:<[new_element_map]> def.targets:<[entities]>
+
+    - repeat <[radius]> as:radius:
+        - define random_locations <[origin].repeat_as_list[<[radius].mul[50]>].parse[with_yaw[<util.random.int[-180].to[180]>].with_pitch[<util.random.int[-180].to[180]>].forward[<[radius]>]]>
+        # - run particle_generator def.locations:<[location]> def.element:water def.offset:0
+        - run tickcore_specialized_effects_task def.element:water def.locations:<[random_locations]> def.offset:0 def.entity:<[entity]>
+        - wait 1t

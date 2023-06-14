@@ -7,9 +7,10 @@
 
 cool_mob:
     type: entity
-    entity_type: zombie
+    entity_type: iron_golem
 
     mechanisms:
+        has_ai: false
         custom_name: Really cool mob
         equipment:
             helmet: diamond_helmet
@@ -18,16 +19,9 @@ cool_mob:
             boots: diamond_boots
     data:
         tickcore:
-            level_modifiers:
-                damage_physical: 2
-                attack_speed: 0.2
-                defense_physical: 1
-                health: 10
             stats:
-                damage_physical: 15
-                attack_speed: 15
-                defense_physical: 90
-                health: 10
+                defense_thunder: -40
+                max_health: 10
             drops:
                 remove_vanilla: true
                 exp: 5

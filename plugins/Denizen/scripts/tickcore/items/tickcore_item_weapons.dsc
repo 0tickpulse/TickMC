@@ -98,6 +98,8 @@ lights_splendor:
     type: item
     material: netherite_sword
     display name: <&[item]>Light's Splendor
+    mechanisms:
+        custom_model_data: 2
     data:
         tickcore:
             stats:

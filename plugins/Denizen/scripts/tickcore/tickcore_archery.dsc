@@ -7,71 +7,94 @@
 tickcore_archery_world:
     type: world
     debug: false
-    enabled: false
     events:
-        on player shoots bow:
+        on entity shoots bow:
+        - if !<context.bow.proc[tickcore_proc.script.items.is_tickitem].if_null[false]>:
+            - stop
+
+        - if !<context.bow.proc[tickcore_proc.script.items.get_stat].context[implementations].contains_any[weapon_bow]>:
+            - stop
+
         - determine passively cancelled
-        - run tickcore_archery_custom_shoot_task def.element_map:[physical=1] def.force:<context.force> def.end_script:explosion_1 def.hit_script:explosion_1 def.shooter:<player>
-        - narrate "test cancel"
 
-explosion_1:
-    type: task
-    definitions: location|force|element_map
+        - define element_map <map>
+        - foreach <proc[tickcore_proc.script.core.get_all_stat_ids]> as:stat_id:
+            - if !<[stat_id].starts_with[damage_]>:
+                - foreach next
+            - define element_map.<[stat_id].after[damage_]> <context.entity.proc[tickcore_proc.script.entities.get_stat].context[<[stat_id]>].mul[<context.force.div[3]>]>
+            # ^^ Multiply by force because force is the damage multiplier
+        - definemap data:
+            range: <context.entity.proc[tickcore_proc.script.entities.get_stat].context[arrow_range]>
+            speed: <context.entity.proc[tickcore_proc.script.entities.get_stat].context[arrow_speed].div[100].add[1].mul[<context.force.div[2.1]>]>
+            # ^^ Divide by 100 because the stat is a percentage
+        - run tickcore_archery_shoot_task def.data:<[data]> def.entity:<context.entity> def.element_map:<[element_map]>
+
+        # Consume arrow
+        - take item:arrow
+
+tickcore_archery_point_is_colliding_proc:
+    type: procedure
+    debug: false
+    definitions: point|entity|distance
     script:
-    - playeffect effect:explosion_large at:<[location]> offset:0,0,0
-    - narrate <queue.definitions.separated_by[<n>]>
+    - define ray <[point].ray_trace[range=<[distance]>;entities=*;ignore=<[entity]>].if_null[null]>
+    # No blocks
+    - if <[ray]> == null:
+        - determine <map[type=none]>
+    # Block
+    - define entities <[ray].find.living_entities.within[0.2].exclude[<[entity]>]>
+    - if <[entities].size> > 0:
+        - determine <map[type=entity].with[entities].as[<[entities]>]>
+    - determine <map[type=block].with[location].as[<[point]>]>
 
-tickcore_archery_custom_shoot_definition_matcher_task:
+tickcore_archery_shoot_task:
     type: task
     debug: false
-    definitions: 1|2|3|4|locations|shot_entities|last_entity|hit_entities
+    definitions: data[Map with range, speed]|element_map|entity|origin|target
     script:
+    - if !<queue.definitions.contains[origin]>:
+        - define origin <[entity].eye_location>
+    - if !<queue.definitions.contains[target]>:
+        - define target <[origin].forward[<[data.speed]>]>
+    - define point <[origin].face[<[target]>]>
+    - playsound sound:entity_arrow_shoot <[origin]>
+    - define distance_for_each_tick <[data.speed]>
+    - define gravitational_acceleration 0.04
+    - define gravity <[gravitational_acceleration]>
 
-    - if <[1]> == null:
-        - stop
-
-    - define location <[location]>
-    - define shot_entities <[shot_entities]>
-
-    - if <util.scripts.parse[name]> !contains <[1]>:
-        - debug error "<[1]> is not a valid hit_script!"
-        - stop
-
-    - run <[1]> def.arrow:<[shot_entities].get[1]> def.location:<[location]> def.element_map:<[2]> def.force:<[3]> def.lead:<[4].if_null[null]> def.hit_entities:<[hit_entities]>
-
-tickcore_archery_custom_shoot_task:
-    type: task
-    debug: false
-    definitions: element_map|force|lead|tick_script|hit_script|end_script|deal_damage|shooter
-    script:
-    - playsound <[shooter].location> sound:entity_arrow_shoot
-    - if <[lead].exists>:
-        - shoot arrow[damage=0] speed:<[force].if_null[1]> save:arrow lead:<[lead]> def:<[hit_script].if_null[null]>|<[element_map]>|<[force]>|<[lead]> script:tickcore_archery_custom_shoot_definition_matcher_task shooter:<[shooter]>
-    - else:
-        - shoot arrow[damage=0] speed:<[force].if_null[1]> save:arrow def:<[hit_script].if_null[null]>|<[element_map]>|<[force]> script:tickcore_archery_custom_shoot_definition_matcher_task shooter:<[shooter]>
-    - define arrow <entry[arrow].shot_entity>
-    - flag <[arrow]> tickcore_archery:<queue.definition_map>
-    - while !<[arrow].attached_block.exists> && <[arrow].exists> && <[arrow].is_spawned>:
-        - if <[tick_script].exists>:
-            - if <util.scripts.parse[name]> contains <[tick_script]>:
-                - run <[tick_script]> def.arrow:<[arrow]> def.location:<[arrow].location> def.element_map:<[element_map]> def.force:<[force]> def.lead:<[lead].if_null[null]>
-            - else:
-                - debug error "<[tick_script]> is not a valid tick_script!"
+    - define target <[point].forward[<[distance_for_each_tick]>].below[<[gravity]>]>
+    - define collide_result <[point].proc[tickcore_archery_point_is_colliding_proc].context[<[entity]>|<[distance_for_each_tick]>]>
+    - define cumulative_distance 0
+    - while <[collide_result].get[type]> == none:
+        - if <[cumulative_distance]> > <[data.range]>:
+            - stop
+        - define target <[point].forward[<[distance_for_each_tick]>].below[<[gravity]>]>
+        - define cumulative_distance:+:<[point].distance[<[target]>]>
+        - define points <[target].points_between[<[point]>].distance[0.2]>
+        - foreach <[element_map]> key:element as:value:
+            - if <[value]> <= 0:
+                - foreach next
+            - run tickcore_specialized_effects_task def.element:<[element]> def.locations:<[points]> def.entity:<[entity]> def.sound:false def.offset:0,0,0
+        - define point <[target]>
+        - define collide_result <[point].proc[tickcore_archery_point_is_colliding_proc].context[<[entity]>|<[distance_for_each_tick]>]>
+        # Gravitational acceleration
+        - define gravity:+:<[gravitational_acceleration]>
         - wait 1t
-    - wait 10s
-    - define arrow:!
 
-tickcore_archery_custom_shoot_world:
-    type: world
-    debug: false
+    - definemap context:
+        point: <[point].ray_trace[range=<[distance_for_each_tick]>;default=air]>
+        collide_result: <[collide_result]>
+        element_map: <[element_map]>
+        entity: <[entity]>
+    - customevent id:custom_arrow_hit context:<[context]>
 
-    events:
-        on arrow hits entity:
-        - if <context.projectile.has_flag[tickcore_archery]>:
-            - determine cancelled
-            - definemap run_map:
-                    targets: <context.hit_entity>
-                    element_map: <context.projectile.flag[tickcore_archery.element_map]>
-                    source: <context.shooter>
-                    cause: magic
-            - run tickcore_impl_do_damage_task defmap:<[run_map]>
+    - define points <[point].ray_trace[range=<[distance_for_each_tick]>;default=air].points_between[<[point]>].distance[0.2]>
+    - foreach <[element_map]> key:element as:value:
+        - if <[value]> <= 0:
+            - foreach next
+        - run tickcore_specialized_effects_task def.element:<[element]> def.locations:<[points]> def.entity:<[entity]> def.sound:false def.offset:0,0,0
+
+    - playsound sound:entity_arrow_hit <[point]> pitch:1.5 volume:3
+
+    - if <[collide_result.type]> == entity:
+        - run tickcore_impl_do_damage_task def.source:<[entity]> def.targets:<[collide_result.entities]> def.element_map:<[element_map]>

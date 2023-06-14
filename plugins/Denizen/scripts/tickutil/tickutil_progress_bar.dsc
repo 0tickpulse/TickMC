@@ -109,7 +109,7 @@ tickutil_progress_bar_proc:
     definitions: from|to|value|length|characters|cursor
     script:
     - define bar <empty>
-    - define progress <[value].sub[<[from]>].div[<[from].add[<[to]>]>].min[1]>
+    - define progress <[value].sub[<[from]>].div[<[from].add[<[to]>]>].min[1].if_null[1]>
     - define progress_fixed <[progress].mul[<[length]>].round>
     # Progress > 0 - add full characters
     - if <[progress_fixed]> > 0:

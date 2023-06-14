@@ -59,8 +59,9 @@ tickcore_spawn_mob_task:
     - spawn <[id].proc[tickcore_proc.script.entities.generate]> save:entity
     - define entity <entry[entity].spawned_entity>
     - define stats <script[<[id]>].parsed_key[data.tickcore.stats].parse_value_tag[<map[base=<[parse_value]>]>]>
+    - adjust def:entity custom_name_visible:false
     # Add level modifiers
-    - foreach <script[<[id]>].parsed_key[data.tickcore.level_modifiers]> key:modifier_stat as:modifier_stat_value:
+    - foreach <script[<[id]>].parsed_key[data.tickcore.level_modifiers].if_null[<map>]> key:modifier_stat as:modifier_stat_value:
         - define stats.<[modifier_stat]>.LEVEL <[modifier_stat_value].mul[<[level]>]>
     - flag <[entity]> tickcore.id:<[id]>
     - flag <[entity]> tickcore.level:<[level]>
@@ -75,7 +76,7 @@ tickcore_proc:
             - if <[1]> >= 0:
                 - determine +<[1]>
             - else:
-                - determine -<[1]>
+                - determine <[1]>
         core:
             get_all_stat_ids:
             - determine <script[tickcore_data].list_keys[stats]>
@@ -118,6 +119,9 @@ tickcore_proc:
                 - stop
 
             - define item <[id].as[item].with_map[<[default_item_properties]>]>
+
+            # Clear all attributes
+            - define item <[item].with_single[attribute_modifiers=<map>]>
 
             # Stat manager
             - define stat_map <[item_data.tickcore.stats].parse_value_tag[<map.with[base].as[<[parse_value]>]>].if_null[null]>
@@ -220,8 +224,9 @@ tickcore_proc:
                 - define slot <[slot_map.name]>
                 - if <[item].material.name> == AIR || !<[item].proc[tickcore_proc.script.items.is_tickitem]>:
                     - foreach next
+                - define implementations <[item].proc[tickcore_proc.script.items.get_stat].context[implementations]>
                 - foreach <proc[tickcore_proc.script.core.get_all_stat_ids]> as:stat:
-                    - if <[item].proc[tickcore_proc.script.items.get_stat].context[<[stat]>]> != null:
+                    - if <[item].proc[tickcore_proc.script.items.get_stat].context[<[stat]>]> != null && <[implementations].parse_tag[<script[tickcore_data].data_key[implementation slots.<[parse_value]>]>].combine.if_null[<list>]> contains <[slot]>:
                         - define map.<[stat]>.ITEM_<[slot]> <[item].proc[tickcore_proc.script.items.get_stat].context[<[stat]>]>
             - foreach <proc[tickcore_proc.script.core.get_all_stat_ids]> as:stat:
                 - if <script[tickcore_data].data_key[stats.<[stat]>].keys> contains "entity default":
@@ -294,6 +299,8 @@ tickcore_main_command:
             - tickcore.command.main.updateitem
             spawnmob:
             - tickcore.command.main.spawnmob
+            damage:
+            - tickcore.command.main.damage
         subcommands:
             getitem:
                 item:
@@ -346,6 +353,28 @@ tickcore_main_command:
                     template: integer
                     required: false
                     default: 0
+            damage:
+                source:
+                    type: linear
+                    accepted: <[value].as[entity].exists.or[<server.online_players.parse[name].contains_single[<[value]>]>]>
+                    tab completes: <server.online_players.parse[name].include[<player.target.uuid.if_null[]>].filter[equals[].not]>
+                    required: true
+                    result: <[value].as[entity].if_null[<server.match_player[<[value]>]>]>
+                target:
+                    type: linear
+                    accepted: <[value].as[entity].exists.or[<server.online_players.parse[name].contains_single[<[value]>]>]>
+                    tab completes: <server.online_players.parse[name].include[<player.target.uuid.if_null[]>].filter[equals[].not]>
+                    required: true
+                    result: <[value].as[entity].if_null[<server.match_player[<[value]>]>]>
+                amount:
+                    template: integer
+                    required: true
+                element:
+                    type: linear
+                    accepted: <[value].is_in[<script[tickcore_data].data_key[elements]>]>
+                    tab completes: <script[tickcore_data].data_key[elements]>
+                    required: false
+                    default: physical
     tab complete:
     - inject command_manager.tab_complete_engine
     script:
@@ -372,6 +401,8 @@ tickcore_main_command:
             - run tickcore_update_items_task def:<[arg.player].inventory>
         - case spawnmob:
             - run tickcore_spawn_mob_task def.id:<[arg.mob]> def.level:<[arg.level]>
+        - case damage:
+            - run tickcore_impl_do_damage_task def.targets:<[arg.target]> def.source:<[arg.source]> def.element_map:<map.with[<[arg.element]>].as[<[arg.amount]>]>
 # tickcore_main_command:
 #     type: command
 #     debug: false

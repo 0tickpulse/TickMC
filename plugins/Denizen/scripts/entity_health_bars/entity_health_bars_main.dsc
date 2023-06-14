@@ -11,9 +11,9 @@ entity_health_bars_data:
 
     disable_vanilla_name_tag: false
 
-    total_y_offset: 0.7
-    y_offset_between_lines: 0.3
+    y_offset: 1
     lines:
+    - <[entity].custom_name.if_null[<[entity].translated_name>]>
     - <[entity].health.round.color[<color[red].with_hue[<[entity].health_percentage.mul[0.73].round>]>]>/<[entity].health_max.round.color[green]> <red>❤
     - <[entity].flag[tickutil_progress_bar.health].color[<color[red].with_hue[<[entity].health_percentage.mul[0.73].round>]>]>
 
@@ -35,8 +35,8 @@ entity_health_bars_update_bar_on_entity_task:
     debug: false
     definitions: entity
     script:
-    - if <[entity].has_flag[entity_health_bars.bar_entities]>:
-        - remove <[entity].flag[entity_health_bars.bar_entities].filter[is_spawned]>
+    - if <[entity].has_flag[entity_health_bars.bar_entity]>:
+        - remove <[entity].flag[entity_health_bars.bar_entity]> if:<[entity].flag[entity_health_bars.bar_entity].is_spawned>
     - if !<[entity].is_living> || !<[entity].is_spawned>:
         - stop
     - if ( <script[entity_health_bars_data].data_key[only_render_when_players_within_proximity]> && <[entity].location.find_entities[player].within[<script[entity_health_bars_data].data_key[render_proximity]>].is_empty> ) || <[entity].has_flag[entity_health_bars.parent]>:
@@ -52,27 +52,34 @@ entity_health_bars_update_bar_on_entity_task:
     - if <script[entity_health_bars_data].data_key[disable_vanilla_name_tag]>:
         - adjust <[entity]> custom_name_visible:false
 
-    - define bar_entities <list>
-    - foreach <[lines].reverse> as:line:
-        - define line_offset <script[entity_health_bars_data].data_key[y_offset_between_lines].if_null[0.2]>
-        - spawn armor_stand[is_small=true;marker=true;visible=false;custom_name=<[line]>;custom_name_visible=true] <[entity].eye_location.above[<script[entity_health_bars_data].data_key[total_y_offset]>].above[<[loop_index].sub[1].mul[<[line_offset]>]>]> save:entity
-        - attach <entry[entity].spawned_entity> to:<[entity]> offset:0,<[entity].eye_height.add[<script[entity_health_bars_data].data_key[total_y_offset]>].add[<[loop_index].sub[1].mul[<[line_offset]>]>]>,0
+    - define bar_entity <entity[text_display]>
+    - adjust def:bar_entity text:<[lines].separated_by[<n>]>
+    - adjust def:bar_entity pivot:center
+    - adjust def:bar_entity see_through:false
+    - adjust def:bar_entity opacity:255
+    - adjust def:bar_entity background_color:0,0,0,0
+    #- adjust def:bar_entity translation:0,<[entity].eye_height.add[<script[entity_health_bars_data].data_key[y_offset]>]>,0
+    - spawn <[bar_entity]> <[entity].location.above[<script[entity_health_bars_data].data_key[y_offset]>]> save:entity
+    #- mount <list_single[<entry[entity].spawned_entity>].include_single[<[entity]>]>
+    - attach <entry[entity].spawned_entity> to:<[entity]> offset:0,<[entity].eye_height.add[<script[entity_health_bars_data].data_key[y_offset]>]>,0
 
-        - flag <entry[entity].spawned_entity> entity_health_bars.parent:<[entity]>
-        - define bar_entities:->:<entry[entity].spawned_entity>
+    - flag <entry[entity].spawned_entity> entity_health_bars.parent:<[entity]>
+    - define bar_entity <entry[entity].spawned_entity>
 
-    - flag <[entity]> entity_health_bars.bar_entities:<[bar_entities]>
+    - flag <[entity]> entity_health_bars.bar_entity:<[bar_entity]>
     - if <script[entity_health_bars_data].data_key[has_timeout]>:
         - wait <script[entity_health_bars_data].data_key[timeout]>
-        - remove <[bar_entities].filter[is_spawned]>
+        - remove <[bar_entity]> if:<[bar_entity].is_spawned>
 
 entity_health_bars_remove_bars:
     type: task
     debug: false
     definitions: entity
     script:
-    - define entities <[entity].flag[entity_health_bars.bar_entities].if_null[<list>]>
-    - remove <[entities].filter[is_spawned]>
+    - define e <[entity].flag[entity_health_bars.bar_entity].if_null[null]>
+    - if <[e]> == null:
+        - stop
+    - remove <[e]> if:<[e].is_spawned>
 
 entity_health_bars_remove_bars_on_despawn:
     type: world

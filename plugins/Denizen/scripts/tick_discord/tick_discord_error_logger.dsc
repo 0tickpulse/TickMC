@@ -1,6 +1,8 @@
 tick_discord_error_logger_world:
     type: world
     debug: false
+    # Was causing too many issues with ratelimits and spamming the discord channel
+    enabled: false
     events:
         after script generates error:
         - definemap embed_map:
