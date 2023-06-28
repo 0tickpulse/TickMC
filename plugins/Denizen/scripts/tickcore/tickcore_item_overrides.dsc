@@ -44,7 +44,7 @@ tickcore_item_overrides_world:
           - if <[item]> != null:
             - determine <context.item.proc[tickcore_item_overrides_proc]>
         on player clicks in inventory:
-        - if <script[tickcore_item_overrides_data].data_key[convert on inventory click]>:
+        - if <script[tickcore_item_overrides_data].data_key[convert on inventory click]> && !<context.inventory.script.exists>:
           - define item <context.item.proc[tickcore_item_overrides_proc].if_null[null]>
           - if <[item]> != null:
             - determine <context.item.proc[tickcore_item_overrides_proc]>

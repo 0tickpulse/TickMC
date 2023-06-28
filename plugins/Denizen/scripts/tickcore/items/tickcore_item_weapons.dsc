@@ -58,15 +58,25 @@ all_the_stats:
                 description: <&[lore]>Some description here.
                 reach_distance: 1
                 damage_earth: 1
+                additional_damage_earth: 1
                 damage_ender: 1
+                additional_damage_ender: 1
                 damage_fire: 1
+                additional_damage_fire: 1
                 damage_ice: 1
+                additional_damage_ice: 1
                 damage_light: 1
+                additional_damage_light: 1
                 damage_physical: 1
+                additional_damage_physical: 1
                 damage_shadow: 1
+                additional_damage_shadow: 1
                 damage_thunder: 1
+                additional_damage_thunder: 1
                 damage_water: 1
+                additional_damage_water: 1
                 damage_wind: 1
+                additional_damage_wind: 1
                 max_health: 1
                 attack_speed: 1
                 crit_chance: 1

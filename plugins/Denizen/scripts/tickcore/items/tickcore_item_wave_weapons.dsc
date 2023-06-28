@@ -53,6 +53,8 @@ bow_of_waves:
     display name: <&[item]>Bow of Waves
     mechanisms:
         custom_model_data: 1
+    flags:
+        tickcore_archery_block: sea_lantern
     data:
         tickcore:
             stats:
@@ -91,5 +93,5 @@ tickcore_ability_bow_of_waves_bubble:
     - repeat <[radius]> as:radius:
         - define random_locations <[origin].repeat_as_list[<[radius].mul[50]>].parse[with_yaw[<util.random.int[-180].to[180]>].with_pitch[<util.random.int[-180].to[180]>].forward[<[radius]>]]>
         # - run particle_generator def.locations:<[location]> def.element:water def.offset:0
-        - run tickcore_specialized_effects_task def.element:water def.locations:<[random_locations]> def.offset:0 def.entity:<[entity]>
+        - run tickcore_specialized_effects_task def.element:water def.locations:<[random_locations]> def.offset:0 def.entity:<[entity]> def.sound_locations:<[origin]>
         - wait 1t

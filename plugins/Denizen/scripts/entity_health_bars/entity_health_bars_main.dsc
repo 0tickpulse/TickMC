@@ -59,7 +59,7 @@ entity_health_bars_update_bar_on_entity_task:
     - adjust def:bar_entity opacity:255
     - adjust def:bar_entity background_color:0,0,0,0
     #- adjust def:bar_entity translation:0,<[entity].eye_height.add[<script[entity_health_bars_data].data_key[y_offset]>]>,0
-    - spawn <[bar_entity]> <[entity].location.above[<script[entity_health_bars_data].data_key[y_offset]>]> save:entity
+    - spawn <[bar_entity]> <[entity].location.above[<[entity].eye_height.add[<script[entity_health_bars_data].data_key[y_offset]>]>]> save:entity
     #- mount <list_single[<entry[entity].spawned_entity>].include_single[<[entity]>]>
     - attach <entry[entity].spawned_entity> to:<[entity]> offset:0,<[entity].eye_height.add[<script[entity_health_bars_data].data_key[y_offset]>]>,0
 

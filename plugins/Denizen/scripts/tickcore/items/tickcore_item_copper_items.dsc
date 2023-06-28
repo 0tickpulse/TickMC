@@ -8,7 +8,9 @@ copper_helmet:
     data:
         tickcore:
             stats:
-                description: <&[lore]>A helmet made from copper. Beware of conducting electricity!
+                implementations:
+                - armor_helmet
+                description: <&[lore]>Beware of conducting electricity!
                 crit_damage: 0.05
                 defense_thunder: -45
                 defense: 15
@@ -23,7 +25,9 @@ copper_chestplate:
     data:
         tickcore:
             stats:
-                description: <&[lore]>A chestplate made from copper. Beware of conducting electricity!
+                implementations:
+                - armor_chestplate
+                description: <&[lore]>Beware of conducting electricity!
                 crit_damage: 0.05
                 defense_thunder: -65
                 defense: 35
@@ -37,7 +41,9 @@ copper_leggings:
     data:
         tickcore:
             stats:
-                description: <&[lore]>A pair of leggings made from copper. Beware of conducting electricity!
+                implementations:
+                - armor_leggings
+                description: <&[lore]>Beware of conducting electricity!
                 crit_damage: 0.05
                 defense_thunder: -55
                 defense: 30
@@ -51,7 +57,9 @@ copper_boots:
     data:
         tickcore:
             stats:
-                description: <&[lore]>A pair of boots made from copper. Beware of conducting electricity!
+                implementations:
+                - armor_boots
+                description: <&[lore]>Beware of conducting electricity!
                 crit_damage: 0.05
                 defense_thunder: -40
                 defense: 15

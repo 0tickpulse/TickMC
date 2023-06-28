@@ -1,6 +1,7 @@
 vanilla_override_wooden_sword:
     type: item
     material: wooden_sword
+
     data:
         tickcore:
             stats:
@@ -12,18 +13,23 @@ vanilla_override_wooden_sword:
 vanilla_override_wooden_axe:
     type: item
     material: wooden_axe
+
 vanilla_override_wooden_pickaxe:
     type: item
     material: wooden_pickaxe
+
 vanilla_override_wooden_shovel:
     type: item
     material: wooden_shovel
+
 vanilla_override_wooden_hoe:
     type: item
     material: wooden_hoe
+
 vanilla_override_golden_sword:
     type: item
     material: golden_sword
+
     data:
         tickcore:
             stats:
@@ -35,18 +41,23 @@ vanilla_override_golden_sword:
 vanilla_override_golden_axe:
     type: item
     material: golden_axe
+
 vanilla_override_golden_pickaxe:
     type: item
     material: golden_pickaxe
+
 vanilla_override_golden_shovel:
     type: item
     material: golden_shovel
+
 vanilla_override_golden_hoe:
     type: item
     material: golden_hoe
+
 vanilla_override_stone_sword:
     type: item
     material: stone_sword
+
     data:
         tickcore:
             stats:
@@ -57,18 +68,23 @@ vanilla_override_stone_sword:
 vanilla_override_stone_axe:
     type: item
     material: stone_axe
+
 vanilla_override_stone_pickaxe:
     type: item
     material: stone_pickaxe
+
 vanilla_override_stone_shovel:
     type: item
     material: stone_shovel
+
 vanilla_override_stone_hoe:
     type: item
     material: stone_hoe
+
 vanilla_override_iron_sword:
     type: item
     material: iron_sword
+
     data:
         tickcore:
             stats:
@@ -79,18 +95,23 @@ vanilla_override_iron_sword:
 vanilla_override_iron_axe:
     type: item
     material: iron_axe
+
 vanilla_override_iron_pickaxe:
     type: item
     material: iron_pickaxe
+
 vanilla_override_iron_shovel:
     type: item
     material: iron_shovel
+
 vanilla_override_iron_hoe:
     type: item
     material: iron_hoe
+
 vanilla_override_diamond_sword:
     type: item
     material: diamond_sword
+
     data:
         tickcore:
             stats:
@@ -101,18 +122,23 @@ vanilla_override_diamond_sword:
 vanilla_override_diamond_axe:
     type: item
     material: diamond_axe
+
 vanilla_override_diamond_pickaxe:
     type: item
     material: diamond_pickaxe
+
 vanilla_override_diamond_shovel:
     type: item
     material: diamond_shovel
+
 vanilla_override_diamond_hoe:
     type: item
     material: diamond_hoe
+
 vanilla_override_netherite_sword:
     type: item
     material: netherite_sword
+
     data:
         tickcore:
             stats:
@@ -123,15 +149,19 @@ vanilla_override_netherite_sword:
 vanilla_override_netherite_axe:
     type: item
     material: netherite_axe
+
 vanilla_override_netherite_pickaxe:
     type: item
     material: netherite_pickaxe
+
 vanilla_override_netherite_shovel:
     type: item
     material: netherite_shovel
+
 vanilla_override_netherite_hoe:
     type: item
     material: netherite_hoe
+
 vanilla_override_leather_helmet:
     type: item
     material: leather_helmet
@@ -343,7 +373,7 @@ vanilla_override_netherite_helmet:
                 - armor_helmet
                 defense: 20
                 defense_fire: 5
-                description: A helmet forged from an extremely tough material found in the Nether. Possesses the ability to withstand extreme temperatures.
+                description: Crafted from resilient Nether materials, this helmet can resist extreme temperatures.
 vanilla_override_netherite_leggings:
     type: item
     material: netherite_leggings
@@ -355,7 +385,7 @@ vanilla_override_netherite_leggings:
                 - armor_leggings
                 defense: 35
                 defense_fire: 10
-                description: Leggings forged from an extremely tough material found in the Nether. Possesses the ability to withstand extreme temperatures.
+                description: Crafted from resilient Nether materials, these leggings can resist extreme temperatures.
 vanilla_override_netherite_boots:
     type: item
     material: netherite_boots
@@ -367,7 +397,7 @@ vanilla_override_netherite_boots:
                 - armor_boots
                 defense: 20
                 defense_fire: 5
-                description: Boots forged from an extremely tough material found in the Nether. Possesses the ability to withstand extreme temperatures.
+                description: Crafted from resilient Nether materials, these boots can resist extreme temperatures.
 vanilla_override_netherite_chestplate:
     type: item
     material: netherite_chestplate
@@ -379,7 +409,7 @@ vanilla_override_netherite_chestplate:
                 - armor_chestplate
                 defense: 45
                 defense_fire: 15
-                description: A chestplate forged from an extremely tough material found in the Nether. Possesses the ability to withstand extreme temperatures.
+                description: Crafted from resilient Nether materials, this chestplate can resist extreme temperatures.
 
 #
 vanilla_override_bow:

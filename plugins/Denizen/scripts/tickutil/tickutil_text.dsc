@@ -20,21 +20,25 @@ tickutil_text:
         - else:
             - determine a
         lore_section:
+        # Args: text, color
         - define list <list>
         - foreach <[1].split[<n>]> as:line:
             - if <[loop_index]> == 1:
-                - define "list:->:<script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]><[line]>"
+                - define "list:->:<script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <[2].if_null[<&[lore]>]><[line]>"
                 - foreach next
-            - define "list:->:   <dark_gray>» <&[base]><[line]>"
+            - define "list:->:   <dark_gray>» <[2].if_null[<&[lore]>]><[line]>"
         - determine <[list].separated_by[<n>]>
         lore_section_no_icon:
-        - determine <[1].split[<n>].parse_tag[   <dark_gray>» <&[base]><[parse_value]>].separated_by[<n>]>
+        # Args: text, color
+        - determine <[1].split[<n>].parse_tag[   <dark_gray>» <[2].if_null[<&[lore]>]><[parse_value]>].separated_by[<n>]>
         split_description:
+        # Args: text, color
         - define lines <[1].split_lines_by_width[<&sp.repeat[50].text_width.sub[<element[   »].text_width>]>]>
-        - determine <[lines].lines_to_colored_list.separated_by[<n>].proc[tickutil_text.script.lore_section]>
+        - determine <[lines].lines_to_colored_list.separated_by[<n>].proc[tickutil_text.script.lore_section].context[<[2].if_null[<&[lore]>]>]>
         split_description_no_icon:
+        # Args: text, color
         - define lines <[1].split_lines_by_width[<&sp.repeat[50].text_width.sub[<element[   »].text_width>]>]>
-        - determine <[lines].lines_to_colored_list.separated_by[<n>].proc[tickutil_text.script.lore_section_no_icon]>
+        - determine <[lines].lines_to_colored_list.separated_by[<n>].proc[tickutil_text.script.lore_section_no_icon].context[<[2].if_null[<&[lore]>]>]>
         dark_background:
         - define width <[1].text_width>
         - define times <[width].div[3.5].round_up>

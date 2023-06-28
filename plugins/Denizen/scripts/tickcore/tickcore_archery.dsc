@@ -27,10 +27,11 @@ tickcore_archery_world:
             range: <context.entity.proc[tickcore_proc.script.entities.get_stat].context[arrow_range]>
             speed: <context.entity.proc[tickcore_proc.script.entities.get_stat].context[arrow_speed].div[100].add[1].mul[<context.force.div[2.1]>]>
             # ^^ Divide by 100 because the stat is a percentage
-        - run tickcore_archery_shoot_task def.data:<[data]> def.entity:<context.entity> def.element_map:<[element_map]>
+        - define block <context.bow.flag[tickcore_archery_block].if_null[copper_block]>
+        - run tickcore_archery_shoot_task def.data:<[data]> def.entity:<context.entity> def.element_map:<[element_map]> def.display_item:<[block]>
 
         # Consume arrow
-        - take item:arrow
+        #- take item:arrow
 
 tickcore_archery_point_is_colliding_proc:
     type: procedure
@@ -50,7 +51,7 @@ tickcore_archery_point_is_colliding_proc:
 tickcore_archery_shoot_task:
     type: task
     debug: false
-    definitions: data[Map with range, speed]|element_map|entity|origin|target
+    definitions: data[Map with range, speed]|element_map|entity|origin[Optional, defaults to entity's eye location]|target[Optional, defaults to the origin location forward by data.speed]|display_item[Optional, defaults to copper block.]
     script:
     - if !<queue.definitions.contains[origin]>:
         - define origin <[entity].eye_location>
@@ -62,11 +63,15 @@ tickcore_archery_shoot_task:
     - define gravitational_acceleration 0.04
     - define gravity <[gravitational_acceleration]>
 
+    - spawn item_display[item=<[display_item].if_null[copper_block]>;scale=0.2,0.2,0.2;interpolation_duration=1t] <[point]> save:e
+    - define display_entity <entry[e].spawned_entity>
+
     - define target <[point].forward[<[distance_for_each_tick]>].below[<[gravity]>]>
     - define collide_result <[point].proc[tickcore_archery_point_is_colliding_proc].context[<[entity]>|<[distance_for_each_tick]>]>
     - define cumulative_distance 0
     - while <[collide_result].get[type]> == none:
         - if <[cumulative_distance]> > <[data.range]>:
+            - remove <[display_entity]>
             - stop
         - define target <[point].forward[<[distance_for_each_tick]>].below[<[gravity]>]>
         - define cumulative_distance:+:<[point].distance[<[target]>]>
@@ -75,6 +80,7 @@ tickcore_archery_shoot_task:
             - if <[value]> <= 0:
                 - foreach next
             - run tickcore_specialized_effects_task def.element:<[element]> def.locations:<[points]> def.entity:<[entity]> def.sound:false def.offset:0,0,0
+        - adjust <[display_entity]> translation:<[target].sub[<[display_entity].location>]>
         - define point <[target]>
         - define collide_result <[point].proc[tickcore_archery_point_is_colliding_proc].context[<[entity]>|<[distance_for_each_tick]>]>
         # Gravitational acceleration
@@ -95,6 +101,8 @@ tickcore_archery_shoot_task:
         - run tickcore_specialized_effects_task def.element:<[element]> def.locations:<[points]> def.entity:<[entity]> def.sound:false def.offset:0,0,0
 
     - playsound sound:entity_arrow_hit <[point]> pitch:1.5 volume:3
+
+    - remove <[display_entity]>
 
     - if <[collide_result.type]> == entity:
         - run tickcore_impl_do_damage_task def.source:<[entity]> def.targets:<[collide_result.entities]> def.element_map:<[element_map]>

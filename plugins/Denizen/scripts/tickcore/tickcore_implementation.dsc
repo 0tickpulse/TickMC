@@ -174,14 +174,20 @@ tickcore_custom_attack:
     type: world
     debug: false
     events:
-        after player animates arm_swing:
-        - flag <player> tickimpl.cursor_is_on_block:<player.cursor_on[4].exists> expire:2t
+        #after player animates arm_swing:
+        #- flag <player> tickimpl.cursor_is_on_block:<player.cursor_on[4].exists> expire:2t
         after player left clicks block:
         - if !<[entity].exists>:
             - define entity <player>
-        - if <[entity].flag[tickimpl.cursor_is_on_block].if_null[false]> && <[entity].cursor_on[4].exists>:
-            - stop
-        - flag <[entity]> tickimpl.cursor_is_on_block:<[entity].cursor_on[4].exists> expire:2t
+        #- if <[entity].flag[tickimpl.cursor_is_on_block].if_null[false]> && <[entity].cursor_on[4].exists>:
+        #    - stop
+        #- flag <[entity]> tickimpl.cursor_is_on_block:<[entity].cursor_on[4].exists> expire:2t
+
+        # Trigger a left click event for other scripts
+        - definemap context:
+                item: <[entity].item_in_hand>
+        - customevent context:<[context]> id:custom_event_left_click
+
         - if <[entity].item_in_hand> matches air || !<[entity].item_in_hand.proc[tickcore_proc.script.items.is_tickitem]>:
             - stop
         - if <player.item_in_hand.proc[tickcore_proc.script.items.get_stat].context[implementations]> !contains weapon_melee:
@@ -190,6 +196,7 @@ tickcore_custom_attack:
             - ratelimit <[entity]> <element[1].div[<[entity].proc[tickcore_proc.script.entities.get_stat].context[attack_speed]>].as[duration]>
         - else:
             - stop
+
         - define element_map <map>
         - if !<player.item_in_hand.proc[tickcore_proc.script.items.is_tickitem]>:
             - stop
@@ -207,7 +214,7 @@ tickcore_custom_attack:
         on player damages entity ignorecancelled:true:
         - if <context.cause> != entity_attack:
             - stop
-        - if !<player.location.precise_target_list[4]> contains <context.entity>:
+        - if <player.eye_location.precise_target_list[4]> !contains <context.entity>:
             - stop
         - if <context.entity.entity_type> in <script[tickcore_impl_data].data_key[damage indicator blacklist]>:
             - stop
@@ -225,7 +232,18 @@ tickcore_custom_attack:
         #    - define element_map.<[stat_id].after[damage_]> <[entity].proc[tickcore_proc.script.entities.get_stat].context[<[stat_id]>]>
         #- run tickcore_impl_do_damage_task def.targets:<context.entity> def.element_map:<[element_map]> def.source:<[entity]> def.crit_chance:<[entity].proc[tickcore_proc.script.entities.get_stat].context[crit_chance]>
 
-
+tickcore_impl_calculate_damage_proc:
+    type: procedure
+    debug: false
+    definitions: entity|element|element_damage|crit_chance
+    script:
+    - if !<[crit_chance].exists>:
+        - define crit_chance <[source].proc[tickcore_proc.script.entities.get_stat].context[crit_chance]>
+    - define has_crit <util.random_chance[<[crit_chance].mul[100]>].if_null[false]>
+    - if <[has_crit]>:
+        - define element_damage:*:<[source].proc[tickcore_proc.script.entities.get_stat].context[crit_damage].add[1]>
+    - define element_damage:*:<[source].proc[tickcore_proc.script.entities.get_stat].context[additional_damage_<[element]>].add[1]>
+    - determine <[element_damage]>
 tickcore_impl_do_damage_task:
     type: task
     debug: false
@@ -242,14 +260,14 @@ tickcore_impl_do_damage_task:
                 - define to_add <[element_damage].mul[<element[1].sub[<[target_defense].div[<[target_defense].abs.add[100]>]>]>]>
             - else:
                 - define to_add <[element_damage]>
-            - define new_element_map.<[element]>:<[to_add]>
             - if !<[crit_chance].exists>:
                 - define crit_chance <[source].proc[tickcore_proc.script.entities.get_stat].context[crit_chance]>
             - define has_crit <util.random_chance[<[crit_chance].mul[100]>].if_null[false]>
             - if <[has_crit]>:
-                - define amount:+:<[to_add].mul[<[source].proc[tickcore_proc.script.entities.get_stat].context[crit_damage].add[1]>]>
-            - else:
-                - define amount:+:<[to_add]>
+                - define to_add:*:<[source].proc[tickcore_proc.script.entities.get_stat].context[crit_damage].add[1]>
+            - define to_add:*:<[source].proc[tickcore_proc.script.entities.get_stat].context[additional_damage_<[element]>].add[1]>
+            - define new_element_map.<[element]>:<[to_add]>
+            - define amount:+:<[to_add]>
 
         - define defense <[target].proc[tickcore_proc.script.entities.get_stat].context[defense].if_null[0]>
         - define amount <[amount].mul[<element[1].sub[<[defense].div[<[defense].abs.add[100]>]>]>]>
@@ -326,15 +344,15 @@ tickcore_impl_damage_indicators:
         #- define hologram <entity[armor_stand[visible=false;is_small=true;custom_name=<[element_displays].separated_by[  ]>;custom_name_visible=true]]>
         #- fakespawn <[hologram]> <[location]> players:<[players]> duration:2s
         # use display entites
-        - fakespawn text_display[text=<[element_displays].separated_by[ ]>;interpolation_duration=0.2s;scale=0,0,0;pivot=center;see_through=true;background_color=0,0,0,0;opacity=255] <[location]> players:<[players]> duration:10s save:display
+        - fakespawn text_display[text=<[element_displays].separated_by[ ]>;interpolation_duration=0.2s;scale=0,0,0;pivot=center;see_through=true;background_color=0,0,0,0;opacity=255] <[location]> players:<[players]> duration:5s save:display
         # interpolate the scale
         - define display <entry[display].faked_entity>
         - if <[damage_data.crit].if_null[false]>:
             - adjust <[display]> scale:3.5,3.5,3.5
         - else:
             - adjust <[display]> scale:2,2,2
-        - wait 0.7s
-        - adjust <[display]> interpolation_duration:1s
+        - wait 0.2s
+        - adjust <[display]> interpolation_duration:4s
         - adjust <[display]> scale:0,0,0
 
 tickcore_trigger_abilities:
@@ -448,21 +466,16 @@ tickcore_ability_triggers:
         - define trigger custom_damage
         - define context <context.data.if_null[<map>]>
         - inject <script> path:run_script
-        on player clicks block:
-        - if <player.is_sneaking>:
-            - if <context.click_type.advanced_matches[LEFT_CLICK_*]>:
-                - define trigger sneak_left_click
-            - if <context.click_type.advanced_matches[RIGHT_CLICK_*]>:
-                - if <player.proc[tickcore_is_looking_at_interactable]>:
-                    - stop
-                - define trigger sneak_right_click
-        - else:
-            - if <context.click_type.advanced_matches[LEFT_CLICK_*]>:
-                - define trigger left_click
-            - if <context.click_type.advanced_matches[RIGHT_CLICK_*]>:
-                - if <player.proc[tickcore_is_looking_at_interactable]>:
-                    - stop
-                - define trigger right_click
+        on custom event id:custom_event_left_click:
+        - define trigger <player.is_sneaking.if_true[sneak_left_click].if_false[left_click]>
+        - definemap contxt:
+                item: <context.item.if_null[null]>
+        - define entity <player>
+        - inject <script> path:run_script
+        on player right clicks block:
+        - if <player.proc[tickcore_is_looking_at_interactable]>:
+            - stop
+        - define trigger <player.is_sneaking.if_true[sneak_right_click].if_false[right_click]>
         - definemap context:
                 item: <context.item.if_null[null]>
                 location: <context.location.if_null[null]>

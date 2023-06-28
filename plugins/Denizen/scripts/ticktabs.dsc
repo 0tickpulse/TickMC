@@ -13,7 +13,7 @@ ticktab_config:
         enabled: true
         update frequency: 1
         bossbar:
-            text: <player.proc[tick_chat_format_player_name]>         <reset><util.time_now.format[hh:mm:ss]> UTC
+            text: <player.proc[tick_chat_format_player_name]>    <reset><player.location.proc[dPrevention_get_areas].flag[dprevention.name].if_null[Wilderness]>     <reset><util.time_now.format[hh:mm:ss]> UTC
             color: white
             style: SOLID
             progress: 1
@@ -87,10 +87,12 @@ ticktab_bossbar_task:
     - repeat <[per_second]>:
         - if <script[ticktab_config].data_key[bossbar.enabled]>:
             - foreach <server.online_players> as:__player:
-                - bossbar auto ticktab_bossbar players:<player> progress:<script[ticktab_config].parsed_key[bossbar.bossbar.progress].if_null[1]> style:<script[ticktab_config].parsed_key[bossbar.bossbar.style].if_null[solid]> color:<script[ticktab_config].parsed_key[bossbar.bossbar.color].if_null[red]> title:<script[ticktab_config].parsed_key[bossbar.bossbar.text]>
+                - bossbar auto ticktab_bossbar_<player.uuid> players:<player> progress:<script[ticktab_config].parsed_key[bossbar.bossbar.progress].if_null[1]> style:<script[ticktab_config].parsed_key[bossbar.bossbar.style].if_null[solid]> color:<script[ticktab_config].parsed_key[bossbar.bossbar.color].if_null[red]> title:<script[ticktab_config].data_key[bossbar.bossbar.text].parsed>
             - stop
         - if <server.current_bossbars> contains ticktab_bossbar:
-            - bossbar remove ticktab_bossbar
+            - foreach <server.online_players> as:__player:
+                - bossbar remove ticktab_bossbar_<player.uuid>
+            - stop
         - wait <[interval]>s
 ticktab_header_footer_logic_task:
     type: task

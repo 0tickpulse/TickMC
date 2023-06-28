@@ -54,7 +54,7 @@ tick_chat_format_player_name:
     debug: false
     definitions: player
     script:
-    - determine <player.chat_prefix.replace_text[&_].with[&].parsed><player.display_name><player.chat_suffix.replace_text[&_].with[&].parsed>
+    - determine <player.chat_prefix.replace_text[&_].with[&].parsed><player.display_name.if_null[]><player.chat_suffix.replace_text[&_].with[&].parsed>
 
 tick_chat_msg_command:
     type: command

@@ -33,7 +33,7 @@ tick_discord_connect_world:
 tick_discord_world:
     type: world
     debug: false
-    enabled: false
+    # enabled: false
     events:
         on shutdown:
         - ~discordmessage id:tick_discord channel:<script[tick_discord_data].data_key[minecraft channel]> <script[tick_discord_data].parsed_key[lang.server stop message]>

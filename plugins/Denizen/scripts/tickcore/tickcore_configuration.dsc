@@ -178,11 +178,12 @@ tickcore_specialized_sounds_task:
 tickcore_specialized_effects_task:
     type: task
     debug: false
-    definitions: entity|locations|element|sound|offset
+    definitions: entity|locations|element|sound|offset|sound_locations[optional - Defaults to entity.location]
     script:
     - if !<queue.definitions.contains[sound]>:
         - define sound true
-    - define sound_locations <[entity].location>
+    - if !<queue.definitions.contains[sound_locations]>:
+        - define sound_locations <[entity].location>
     - choose <[element]>:
         - case earth:
             - if <[sound]>:
@@ -275,15 +276,25 @@ tickcore_data:
     - <&sp.repeat[50].color[dark_gray].strikethrough>
     - implementations
     - damage_earth
+    - additional_damage_earth
     - damage_ender
+    - additional_damage_ender
     - damage_fire
+    - additional_damage_fire
     - damage_ice
+    - additional_damage_ice
     - damage_light
+    - additional_damage_light
     - damage_physical
+    - additional_damage_physical
     - damage_shadow
+    - additional_damage_shadow
     - damage_thunder
+    - additional_damage_thunder
     - damage_water
+    - additional_damage_water
     - damage_wind
+    - additional_damage_wind
     - reach_distance
     - attack_speed
     - crit_chance
@@ -331,7 +342,7 @@ tickcore_data:
             item default: <list>
             entity default: <list>
             lore format:
-            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Item type(s)<&co> <[value].parse_tag[<script[tickcore_data].parsed_key[stats.implementations.data.aliases.<[parse_value]>].if_null[<[parse_value]>]>].comma_separated>
+            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]><[value].parse_tag[<script[tickcore_data].parsed_key[stats.implementations.data.aliases.<[parse_value]>].if_null[<[parse_value]>]>].comma_separated>
             - <empty>
             data:
                 aliases:
@@ -378,11 +389,25 @@ tickcore_data:
             - <script[icons].parsed_key[elements.earth]> <dark_gray>» <&[earth]>Earth damage <dark_gray>- <&[earth]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
+        additional_damage_earth:
+            item default: 0
+            entity default: 0
+            lore format:
+            - <script[icons].parsed_key[elements.earth]> <dark_gray>» <&[earth]>Earth damage <dark_gray>- <&[earth]><[value].mul[100].proc[tickcore_proc.script.util.sign_prefix]>%
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
         damage_ender:
             item default: 0
             entity default: 0
             lore format:
             - <script[icons].parsed_key[elements.ender]> <dark_gray>» <&[ender]>Ender damage <dark_gray>- <&[ender]><[value].proc[tickcore_proc.script.util.sign_prefix]>
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
+        additional_damage_ender:
+            item default: 0
+            entity default: 0
+            lore format:
+            - <script[icons].parsed_key[elements.ender]> <dark_gray>» <&[ender]>Ender damage <dark_gray>- <&[ender]><[value].mul[100].proc[tickcore_proc.script.util.sign_prefix]>%
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
         damage_fire:
@@ -392,11 +417,25 @@ tickcore_data:
             - <script[icons].parsed_key[elements.fire]> <dark_gray>» <&[fire]>Fire damage <dark_gray>- <&[fire]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
+        additional_damage_fire:
+            item default: 0
+            entity default: 0
+            lore format:
+            - <script[icons].parsed_key[elements.fire]> <dark_gray>» <&[fire]>Fire damage <dark_gray>- <&[fire]><[value].mul[100].proc[tickcore_proc.script.util.sign_prefix]>%
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
         damage_ice:
             item default: 0
             entity default: 0
             lore format:
             - <script[icons].parsed_key[elements.ice]> <dark_gray>» <&[ice]>Ice damage <dark_gray>- <&[ice]><[value].proc[tickcore_proc.script.util.sign_prefix]>
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
+        additional_damage_ice:
+            item default: 0
+            entity default: 0
+            lore format:
+            - <script[icons].parsed_key[elements.ice]> <dark_gray>» <&[ice]>Ice damage <dark_gray>- <&[ice]><[value].mul[100].proc[tickcore_proc.script.util.sign_prefix]>%
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
         damage_light:
@@ -406,11 +445,25 @@ tickcore_data:
             - <script[icons].parsed_key[elements.light]> <dark_gray>» <&[light]>Light damage <dark_gray>- <&[light]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
+        additional_damage_light:
+            item default: 0
+            entity default: 0
+            lore format:
+            - <script[icons].parsed_key[elements.light]> <dark_gray>» <&[light]>Light damage <dark_gray>- <&[light]><[value].mul[100].proc[tickcore_proc.script.util.sign_prefix]>%
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
         damage_physical:
             item default: 0
             entity default: 0
             lore format:
             - <script[icons].parsed_key[elements.physical]> <dark_gray>» <&[physical]>Physical damage <dark_gray>- <&[physical]><[value].proc[tickcore_proc.script.util.sign_prefix]>
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
+        additional_damage_physical:
+            item default: 0
+            entity default: 0
+            lore format:
+            - <script[icons].parsed_key[elements.physical]> <dark_gray>» <&[physical]>Physical damage <dark_gray>- <&[physical]><[value].mul[100].proc[tickcore_proc.script.util.sign_prefix]>%
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
         damage_shadow:
@@ -420,11 +473,25 @@ tickcore_data:
             - <script[icons].parsed_key[elements.shadow]> <dark_gray>» <&[shadow]>Shadow damage <dark_gray>- <&[shadow]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
+        additional_damage_shadow:
+            item default: 0
+            entity default: 0
+            lore format:
+            - <script[icons].parsed_key[elements.shadow]> <dark_gray>» <&[shadow]>Shadow damage <dark_gray>- <&[shadow]><[value].mul[100].proc[tickcore_proc.script.util.sign_prefix]>%
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
         damage_thunder:
             item default: 0
             entity default: 0
             lore format:
             - <script[icons].parsed_key[elements.thunder]> <dark_gray>» <&[thunder]>Thunder damage <dark_gray>- <&[thunder]><[value].proc[tickcore_proc.script.util.sign_prefix]>
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
+        additional_damage_thunder:
+            item default: 0
+            entity default: 0
+            lore format:
+            - <script[icons].parsed_key[elements.thunder]> <dark_gray>» <&[thunder]>Thunder damage <dark_gray>- <&[thunder]><[value].mul[100].proc[tickcore_proc.script.util.sign_prefix]>%
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
         damage_water:
@@ -434,11 +501,25 @@ tickcore_data:
             - <script[icons].parsed_key[elements.water]> <dark_gray>» <&[water]>Water damage <dark_gray>- <&[water]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
+        additional_damage_water:
+            item default: 0
+            entity default: 0
+            lore format:
+            - <script[icons].parsed_key[elements.water]> <dark_gray>» <&[water]>Water damage <dark_gray>- <&[water]><[value].mul[100].proc[tickcore_proc.script.util.sign_prefix]>%
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
         damage_wind:
             item default: 0
             entity default: 0
             lore format:
             - <script[icons].parsed_key[elements.wind]> <dark_gray>» <&[wind]>Wind damage <dark_gray>- <&[wind]><[value].proc[tickcore_proc.script.util.sign_prefix]>
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
+        additional_damage_wind:
+            item default: 0
+            entity default: 0
+            lore format:
+            - <script[icons].parsed_key[elements.wind]> <dark_gray>» <&[wind]>Wind damage <dark_gray>- <&[wind]><[value].mul[100].proc[tickcore_proc.script.util.sign_prefix]>%
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
 
@@ -555,7 +636,7 @@ tickcore_data:
         abilities:
             lore format:
             - <empty>
-            - <[value].parse_tag[<script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[emphasis]><script[tickcore_ability_data].parsed_key[trigger_names.<[parse_value.trigger]>].if_null[<[parse_value.trigger].replace[_].with[ ].to_titlecase>]> <dark_gray>» <&[emphasis]><[parse_value.name]><[parse_value].keys.contains[cooldown].if_true[ <dark_gray>(<[parse_value.cooldown]>)].if_false[]><n><&[base]><[parse_value.description].parsed.proc[tickutil_text.script.split_description_no_icon]>].separated_by[<n.repeat[2]>]>
+            - <[value].parse_tag[<script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[emphasis]><script[tickcore_ability_data].parsed_key[trigger_names.<[parse_value.trigger]>].if_null[<[parse_value.trigger].replace[_].with[ ].to_titlecase>]> <dark_gray>» <&[emphasis]><[parse_value.name]><[parse_value].keys.contains[cooldown].if_true[ <dark_gray>(<[parse_value.cooldown]>)].if_false[]><n><&[base]><[parse_value.description].parsed.proc[tickutil_text.script.split_description_no_icon].context[<&[base]>]>].separated_by[<n.repeat[2]>]>
             item stat calculation: <[map].values.combine.parse[values].combine>
             player stat calculation: <[map].values.combine>
 

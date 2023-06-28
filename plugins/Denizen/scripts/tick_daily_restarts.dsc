@@ -43,7 +43,7 @@ tick_daily_restarts_restart_task:
             - if <server.online_players.is_empty>:
                 - repeat stop
             - wait 1s
-            - bossbar auto tick_daily_restart_bar title:<script.parsed_key[data.bossbar.text]> progress:<element[1].sub[<util.time_now.duration_since[<[now]>].in_seconds.div[<[duration].in_seconds>]>]>
+            - bossbar auto tick_daily_restart_bar color:<script.parsed_key[data.bossbar.color]> title:<script.parsed_key[data.bossbar.text]> progress:<element[1].sub[<util.time_now.duration_since[<[now]>].in_seconds.div[<[duration].in_seconds>]>]>
     - bossbar remove tick_daily_restart_bar
     - flag server tick_daily_restarts.restart_in_progress expire:5s
     - kick <server.online_players> reason:<script.parsed_key[data.kick_message]>

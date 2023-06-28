@@ -166,7 +166,7 @@ tick_sidebar_process_sidebar_task:
     - define sidebar_preset <player.flag[tick_sidebar.preset].if_null[<player.proc[tick_sidebar_get_available_presets_proc].first.if_null[__null]>]>
     - if <[sidebar_preset]> == __null:
         - stop
-    - define sidebar_data <player.proc[tick_sidebar_process_lines_proc].context[<[sidebar_preset]>]>
+    - define sidebar_data <proc[tick_sidebar_process_lines_proc].context[<[sidebar_preset]>]>
     - sidebar title:<[sidebar_data.title]> values:<[sidebar_data.lines]> players:<player>
 tick_sidebar_main_runner_world:
     type: world
@@ -196,9 +196,8 @@ tick_sidebar_process_animations_proc:
 tick_sidebar_process_lines_proc:
     type: procedure
     debug: false
-    definitions: player|preset
+    definitions: preset
     script:
-    - define __player <[player]>
     - if <script[tick_sidebar_data].list_keys[presets]> !contains <[preset]>:
         - debug error "The preset '<[preset]>' is missing!"
         - stop
