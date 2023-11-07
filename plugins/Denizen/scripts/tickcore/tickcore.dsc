@@ -111,14 +111,18 @@ tickcore_proc:
             - determine <[1].has_flag[tickcore.stats]>
             generate:
             - define id <[1]>
-            - define default_item_properties <script[tickcore_data].parsed_key[default item properties].if_null[<map>]>
+            - define default_nonstackable_item_properties <script[tickcore_data].parsed_key[default nonstackable properties].if_null[<map>]>
+            - define default_item_properties <script[tickcore_data].parsed_key[default properties].if_null[<map>]>
             - define item_data <script[<[id]>].data_key[data].if_null[null]>
             - define stat_global_map <script[tickcore_data].data_key[stats].if_null[null]>
 
             - if <[item_data]> == null || <[stat_global_map]> == null:
                 - stop
 
-            - define item <[id].as[item].with_map[<[default_item_properties]>]>
+            - define item <[id].as[item]>
+            - if <[item].material.max_stack_size> == 1:
+                - define item <[item].with_map[<[default_nonstackable_item_properties]>]>
+            - define item <[item].with_map[<[default_item_properties]>]>
 
             # Stat manager
             - define stat_map <[item_data.tickcore.stats].parse_value_tag[<map.with[base].as[<[parse_value]>]>].if_null[null]>

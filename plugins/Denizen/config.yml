@@ -315,7 +315,7 @@ Colors:
     # Error messages. 'narrate' commands displaying an error message should use this.
     error: <red>
     # Warning messages. 'narrate' commands displaying a warning message should use this.
-    warning: <yellow>
+    warning: <&color[#FFF689]>
     # Your preferred color for item names. Item script "display name" keys should usually use this.
     item: <&color[#ff5555]><bold>
     # Your preferred item lore base color. Item script "lore" lines should start with this.
@@ -328,6 +328,8 @@ Colors:
     suggest: <blue>
     # Success!
     success: <&color[#77B255]>
+
+    # Elements
     earth: <&color[#609A0F]>
     ender: <&color[#A14773]>
     fire: <&color[#FA6A0A]>

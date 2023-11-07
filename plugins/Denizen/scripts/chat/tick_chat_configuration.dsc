@@ -2,6 +2,8 @@ tick_chat_configuration:
     type: data
     debug: false
 
+    parse colors when sending: true
+
     commands:
         # Permission: tick_chat.command.msg
         msg:
@@ -19,7 +21,7 @@ tick_chat_configuration:
         - (/command)
         - (!/command)
 
-    chat format: <player.proc[tick_chat_format_player_name]> <gray>» <white><[message]>
+    chat format: <player.proc[tick_chat_format_player_name]> <gray>» <white><[message].parse_color>
     player info: <[parse_value].name.on_hover[Player: <&[emphasis]><bold><[parse_value].proc[tick_chat_format_player_name]>]>
     chat replacements:
         on receive message:

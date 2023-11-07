@@ -81,6 +81,7 @@ tick_sidebar_data:
                     - <empty>
                     - <&sp.repeat[4].strikethrough.color_gradient[from=black;to=red]><reset> <&[emphasis]><bold>Vitals
                     - <red>❤ <player.flag[tickutil_progress_bar.health]>
+                    - <aqua>⚡ <player.flag[tickutil_progress_bar.energy]>
                     - <yellow>☕ <player.flag[tickutil_progress_bar.hunger]>
                 money:
                     text:

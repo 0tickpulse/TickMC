@@ -32,6 +32,7 @@ dPrevention_config:
         - world
         - world_nether
         - world_the_end
+        - flat
     user:
         #Max blocks obtainable per time
         max-blocks-per-time: 2000

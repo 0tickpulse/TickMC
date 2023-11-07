@@ -215,7 +215,7 @@ tickcore_specialized_effects_task:
         - case physical:
             - if <[sound]>:
                 - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:physical
-            - run particle_generator def.element:physical def.locations:<[locations]> def.offset:0.1,0.1,0.1 def.offset:<[offset].if_null[0.5,0.5,0.5]>
+            - run particle_generator def.element:physical def.locations:<[locations]>  def.offset:<[offset].if_null[0.5,0.5,0.5]>
         - case shadow:
             - if <[sound]>:
                 - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:shadow
@@ -227,7 +227,7 @@ tickcore_specialized_effects_task:
         - case water:
             - if <[sound]>:
                 - run tickcore_specialized_sounds_task def.locations:<[sound_locations]> def.element:water
-            - run particle_generator def.element:water def.locations:<[locations]> def.offset:0.1,0.1,0.1 def.offset:<[offset].if_null[0.5,0.5,0.5]>
+            - run particle_generator def.element:water def.locations:<[locations]>  def.offset:<[offset].if_null[0.5,0.5,0.5]>
             - define fire_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[fire]].deduplicate>
             - define lava_blocks <[locations].parse[points_between[<[entity].location>].distance[0.5]].combine.filter[block.material.name.equals[lava]].deduplicate>
             - playsound sound:block_fire_extinguish <[fire_blocks]>
@@ -264,14 +264,15 @@ tickcore_data:
     - [name=ACCESSORY_BAG_ARTIFACT_1;item=<inventory[tickcore_accessory_bag_<player.uuid>].slot[11].if_null[<item[air]>]>]
     - [name=ACCESSORY_BAG_ARTIFACT_2;item=<inventory[tickcore_accessory_bag_<player.uuid>].slot[20].if_null[<item[air]>]>]
     - [name=ACCESSORY_BAG_ARTIFACT_3;item=<inventory[tickcore_accessory_bag_<player.uuid>].slot[29].if_null[<item[air]>]>]
-    default item properties:
-        hides: ALL
+    default nonstackable properties:
         attribute_modifiers:
             generic_attack_speed:
                 1:
                     operation: ADD_NUMBER
                     amount: 21
                     slot: any
+    default properties:
+        hides: ALL
     lore order:
     - <&sp.repeat[50].color[dark_gray].strikethrough>
     - implementations
@@ -302,6 +303,7 @@ tickcore_data:
     - arrow_speed
     - arrow_range
     - max_health
+    - max_energy
     - defense
     - defense_earth
     - defense_ender
@@ -314,6 +316,11 @@ tickcore_data:
     - defense_water
     - defense_wind
     - knockback_resistance
+    - restores_health
+    - restores_energy
+    - restores_food
+    - restores_saturation
+    - effect_modifiers
     - abilities
     - gemstones
     - gemstone_slots
@@ -337,6 +344,8 @@ tickcore_data:
         - legs
         armor_boots:
         - feet
+        consumable:
+        - hand
     stats:
         implementations:
             item default: <list>
@@ -354,6 +363,7 @@ tickcore_data:
                     armor_chestplate: Chestplate
                     armor_leggings: Leggings
                     armor_boots: Boots
+                    consumable: Consumable
             item stat calculation: <[map].values.combine>
             player stat calculation: null
         gemstones:
@@ -618,11 +628,66 @@ tickcore_data:
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
 
+    # - restores_health
+    # - restores_energy
+    # - restores_food
+    # - restores_saturation
+    # - effect_modifiers
+        restores_health:
+            item default: 0
+            entity default: 0
+            lore format:
+            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Restores <&[emphasis]><[value]> ❤
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
+
+        restores_energy:
+            item default: 0
+            entity default: 0
+            lore format:
+            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Restores <&[emphasis]><[value]> ⚡
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
+
+        restores_food:
+            item default: 0
+            entity default: 0
+            lore format:
+            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Restores <&[emphasis]><[value]> food
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
+
+        restores_saturation:
+            item default: 0
+            entity default: 0
+            lore format:
+            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Restores <&[emphasis]><[value]> saturation
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
+
+        effect_modifiers:
+            item default: <list>
+            entity default: <list>
+            lore format:
+            - <empty>
+            - <script[icons].parsed_key[red_icons.potion]> <dark_gray>» <&[emphasis]><bold>Effects
+            - <[value].parse_tag[   <dark_gray>» <&translate[effect.minecraft.<[parse_value].split[ ].get[1]>].custom_color[emphasis]> <[parse_value].split[ ].get[3].if_null[1].to_roman_numerals.custom_color[emphasis]> for <[parse_value].split[ ].get[2].as[duration].formatted.custom_color[emphasis]>].separated_by[<n>]>
+            item stat calculation: <[map].values.combine>
+            player stat calculation: <[map].values.combine>
+
         max_health:
             item default: 0
             entity default: 20
             lore format:
             - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Max health <dark_gray>- <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
+            item stat calculation: <[map].values.sum>
+            player stat calculation: <[map].values.sum>
+
+        max_energy:
+            item default: 0
+            entity default: 20
+            lore format:
+            - <script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[base]>Max energy <dark_gray>- <&[emphasis]><[value].proc[tickcore_proc.script.util.sign_prefix]>
             item stat calculation: <[map].values.sum>
             player stat calculation: <[map].values.sum>
 
@@ -636,7 +701,7 @@ tickcore_data:
         abilities:
             lore format:
             - <empty>
-            - <[value].parse_tag[<script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[emphasis]><script[tickcore_ability_data].parsed_key[trigger_names.<[parse_value.trigger]>].if_null[<[parse_value.trigger].replace[_].with[ ].to_titlecase>]> <dark_gray>» <&[emphasis]><[parse_value.name]><[parse_value].keys.contains[cooldown].if_true[ <dark_gray>(<[parse_value.cooldown]>)].if_false[]><n><&[base]><[parse_value.description].parsed.proc[tickutil_text.script.split_description_no_icon].context[<&[base]>]>].separated_by[<n.repeat[2]>]>
+            - <[value].parse_tag[<script[icons].parsed_key[red_icons.redstone]> <dark_gray>» <&[emphasis]><script[tickcore_ability_data].parsed_key[trigger_names.<[parse_value.trigger]>].if_null[<[parse_value.trigger].replace[_].with[ ].to_titlecase>]> <dark_gray>» <&[emphasis]><[parse_value.name]><[parse_value].keys.contains_any[cooldown|energy].if_true[ <dark_gray>(<[parse_value.cooldown].exists.if_true[<[parse_value.cooldown]>].if_false[]><[parse_value.energy].exists.if_true[ <[parse_value.energy]><script[icons].parsed_key[energy]>].if_false[]>)].if_false[]><n><&[base]><[parse_value.description].parsed.proc[tickutil_text.script.split_description_no_icon].context[<&[base]>]>].separated_by[<n.repeat[2]>]>
             item stat calculation: <[map].values.combine.parse[values].combine>
             player stat calculation: <[map].values.combine>
 

@@ -53,6 +53,7 @@ icons:
     ranks:
         admin: <element[a].font[tickmc:ranks].color[white]>
     logo: <element[t].font[tickmc:icons].color[white]>
+    energy: <element[e].font[tickmc:icons].color[white]>
     spaces:
         1: <element[0].font[tickmc:spaces].color[white]>
         2: <element[1].font[tickmc:spaces].color[white]>
@@ -96,3 +97,4 @@ icons:
         skull: <element[5].font[tickmc:icons].color[white]>
         star: <element[6].font[tickmc:icons].color[white]>
         sword: <element[7].font[tickmc:icons].color[white]>
+        potion: <element[8].font[tickmc:icons].color[white]>

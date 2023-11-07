@@ -111,6 +111,14 @@ tick_essentials_data:
         # @ World commands
         # These commands make it easier to manage worlds.
         world:
+            # @ The /warp command
+            # Permission: tick_essentials.command.world.warp,
+            #             tick_essentials.command.world.warp.create,
+            #             tick_essentials.command.world.warp.delete,
+            #             tick_essentials.command.world.warp.other,
+            # This command allows you to teleport to a warp or set a warp.
+            warp:
+                enabled: true
             # @ The /fly command
             # Permission: tick_essentials.command.world.fly
             # This command allows you to toggle flight regardless of gamemode.

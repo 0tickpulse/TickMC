@@ -1,7 +1,7 @@
 vanilla_override_wooden_sword:
     type: item
     material: wooden_sword
-
+    display name: <&[item]>Wooden Sword
     data:
         tickcore:
             stats:
@@ -29,7 +29,7 @@ vanilla_override_wooden_hoe:
 vanilla_override_golden_sword:
     type: item
     material: golden_sword
-
+    display name: <&[item]>Golden Sword
     data:
         tickcore:
             stats:
@@ -57,7 +57,7 @@ vanilla_override_golden_hoe:
 vanilla_override_stone_sword:
     type: item
     material: stone_sword
-
+    display name: <&[item]>Stone Sword
     data:
         tickcore:
             stats:
@@ -84,7 +84,7 @@ vanilla_override_stone_hoe:
 vanilla_override_iron_sword:
     type: item
     material: iron_sword
-
+    display name: <&[item]>Iron Sword
     data:
         tickcore:
             stats:
@@ -111,7 +111,7 @@ vanilla_override_iron_hoe:
 vanilla_override_diamond_sword:
     type: item
     material: diamond_sword
-
+    display name: <&[item]>Diamond Sword
     data:
         tickcore:
             stats:
@@ -138,7 +138,7 @@ vanilla_override_diamond_hoe:
 vanilla_override_netherite_sword:
     type: item
     material: netherite_sword
-
+    display name: <&[item]>Netherite Sword
     data:
         tickcore:
             stats:

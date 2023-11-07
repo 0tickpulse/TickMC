@@ -166,9 +166,14 @@ tickcore_run_slash:
 
     # Particles and sounds
     - foreach <[element_map]> key:element as:value:
-        - if <[value]> <= 0:
-            - foreach next
-        - run tickcore_specialized_effects_task def.element:<[element]> def.locations:<[locations]> def.entity:<[entity]>
+        - if <[value]> > 0:
+            - run tickcore_specialized_sounds_task def.element:<[element]> def.locations:<[entity].location>
+    - foreach <[locations].sub_lists[<[locations].size.div[4].round_down>]> as:sub_locations:
+        - foreach <[element_map]> key:element as:value:
+            - if <[value]> <= 0:
+                - foreach next
+            - run tickcore_specialized_effects_task def.element:<[element]> def.locations:<[sub_locations]> def.entity:<[entity]> def.sound:false
+        - wait 1t
 
 tickcore_custom_attack:
     type: world
@@ -290,8 +295,8 @@ tickcore_impl_damage_indicators:
     type: world
     debug: false
     events:
-        on entity damaged:
-        - determine clear_modifiers
+        #on entity damaged:
+        #- determine clear_modifiers
         on entity damaged bukkit_priority:monitor:
         # Blacklist
         - if <context.entity.entity_type> in <script[tickcore_impl_data].data_key[damage indicator blacklist]>:
@@ -352,8 +357,10 @@ tickcore_impl_damage_indicators:
         - else:
             - adjust <[display]> scale:2,2,2
         - wait 0.2s
-        - adjust <[display]> interpolation_duration:4s
-        - adjust <[display]> scale:0,0,0
+        # - adjust <[display]> interpolation_duration:4s
+        # - adjust <[display]> scale:0,0,0
+        # - wait 4s
+        # - remove <[display]>
 
 tickcore_trigger_abilities:
     type: task
@@ -367,6 +374,12 @@ tickcore_trigger_abilities:
     - foreach <[abilities]> as:ability:
         - if <[ability.trigger].if_null[null]> == <[trigger]>:
             - define cooldown <[ability.cooldown].if_null[0s].as[duration]>
+            - if <[entity].is_player>:
+                - define energy <[ability.energy].if_null[0]>
+                - if <[entity].flag[tickcore_energy_system.energy]> < <[energy]>:
+                    - actionbar "<&[error]>Not enough energy!" targets:<[entity]>
+                    - foreach next
+                # consume energy
             - if <[entity].has_flag[tickcore.cooldown.<[ability.script]>]>:
                 - if <[entity].is_player> && <[ability.cooldown message].if_null[true]>:
                     - definemap progress_bar:
@@ -379,6 +392,8 @@ tickcore_trigger_abilities:
                     - actionbar "<[ability.name].color[white]> <proc[tickutil_progress_bar_proc].context[<[progress_bar].values>].custom_color[emphasis]> <gray><[entity].flag_expiration[tickcore.cooldown.<[ability.script]>].from_now.equals[<duration[0s]>].if_true[0s].if_false[<[entity].flag_expiration[tickcore.cooldown.<[ability.script]>].from_now.formatted>]>" targets:<[entity]>
                 - foreach next
             - flag <[entity]> tickcore.cooldown.<[ability.script]> expire:<[cooldown]>
+            - if <[energy].exists>:
+                - run tickcore_energy_system_add_energy_task def.player:<[entity]> def.amount:<[energy].mul[-1]>
             - run <[ability.script]> def.entity:<[entity]> def.data:<[ability.data].if_null[<map>]> def.context:<[context]> save:script
             - foreach <entry[script].created_queue.determination.if_null[<list>]> as:determination:
                 - determine passively <[determination]>
@@ -562,3 +577,33 @@ tickcore_ability_triggers:
                 entity: <context.entity>
         - define entity <context.entity>
         - inject <script> path:run_script
+
+        on custom event id:player_consumes_tickcore_item:
+        - define trigger player_consumes_tickcore_item
+        - definemap context:
+                item: <context.item.if_null[null]>
+        - define entity <player>
+        - inject <script> path:run_script
+
+tickcore_consumable_override_world:
+    type: world
+    debug: false
+    events:
+        on player consumes item:
+        - define item <context.item>
+        - if !<[item].proc[tickcore_proc.script.items.is_tickitem]>:
+            - stop
+        - if <[item].proc[tickcore_proc.script.items.get_stat].context[implementations]> !contains consumable:
+            - stop
+        - determine passively cancelled
+        - if <player.gamemode.is_in[survival|adventure]>:
+            - take iteminhand quantity:1
+        - customevent id:player_consumes_tickcore_item context:<map.with[item].as[<[item]>]>
+        - adjust <player> health:<player.health.add[<[item].proc[tickcore_proc.script.items.get_stat].context[restores_health]>]>
+        - adjust <player> food_level:<player.food_level.add[<[item].proc[tickcore_proc.script.items.get_stat].context[restores_food]>].min[20]>
+        - adjust <player> saturation:<player.saturation.add[<[item].proc[tickcore_proc.script.items.get_stat].context[restores_saturation]>]>
+        - foreach <[item].proc[tickcore_proc.script.items.get_stat].context[effect_modifiers]> as:modifier:
+            - define effect <[modifier].split[ ].get[1]>
+            - define duration <[modifier].split[ ].get[2].as[duration]>
+            - define amplifier <[modifier].split[ ].get[3].if_null[1]>
+            - cast <[effect]> amplifier:<[amplifier].sub[1]> duration:<[duration]> <player>

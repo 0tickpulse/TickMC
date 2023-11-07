@@ -42,6 +42,7 @@ resource_pack_send_task:
 
     - define hash <server.flag[resource_pack.hash]>
 
+    - debug log "Sending resource pack with URL <[pack_link]> and hash <[hash]> to <player>..."
     - resourcepack url:<[pack_link]>#<[hash]> hash:<[hash]> prompt:<[prompt]>
 resource_pack_update_command:
     type: command

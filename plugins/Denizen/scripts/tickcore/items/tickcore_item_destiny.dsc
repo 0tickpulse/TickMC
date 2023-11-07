@@ -17,6 +17,7 @@ destiny:
                         trigger: sneak_left_click
                         description: Shoots multiple arrows that deal shadow damage, and launches forward.
                         cooldown: 0.5s
+                        energy: 2
                         script: destiny_rapid_fire
                         data:
                             multiplier: 1.5

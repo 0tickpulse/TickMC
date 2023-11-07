@@ -22,6 +22,7 @@ tickcore_item_overrides_data:
 tickcore_item_overrides_world:
     type: world
     debug: false
+    # enabled: false
     events:
         on item recipe formed:
         # Generates tickitems
@@ -30,24 +31,29 @@ tickcore_item_overrides_world:
                 - determine <context.item.script.name.proc[tickcore_proc.script.items.generate]>
 
         - if <script[tickcore_item_overrides_data].data_key[convert on craft]>:
-          - define item <context.item.proc[tickcore_item_overrides_proc].if_null[null]>
-          - if <[item]> != null:
-            - determine <context.item.proc[tickcore_item_overrides_proc]>
+            - define item <context.item.proc[tickcore_item_overrides_proc].if_null[null]>
+            - if <[item]> != null:
+                - determine <context.item.proc[tickcore_item_overrides_proc]>
         on player picks up item:
         - if <script[tickcore_item_overrides_data].data_key[convert on pickup]>:
-          - define item <context.item.proc[tickcore_item_overrides_proc].if_null[null]>
-          - if <[item]> != null:
-            - determine ITEM:<context.item.proc[tickcore_item_overrides_proc]>
+            - define item <context.item.proc[tickcore_item_overrides_proc].if_null[null]>
+            - if <[item]> != null:
+                - determine ITEM:<context.item.proc[tickcore_item_overrides_proc]>
         on player prepares smithing item:
         - if <script[tickcore_item_overrides_data].data_key[convert on craft]>:
-          - define item <context.item.proc[tickcore_item_overrides_proc].if_null[null]>
-          - if <[item]> != null:
-            - determine <context.item.proc[tickcore_item_overrides_proc]>
+            - define item <context.item.proc[tickcore_item_overrides_proc].if_null[null]>
+            - if <[item]> != null:
+                - determine <context.item.proc[tickcore_item_overrides_proc]>
         on player clicks in inventory:
         - if <script[tickcore_item_overrides_data].data_key[convert on inventory click]> && !<context.inventory.script.exists>:
-          - define item <context.item.proc[tickcore_item_overrides_proc].if_null[null]>
-          - if <[item]> != null:
-            - determine <context.item.proc[tickcore_item_overrides_proc]>
+            - define item <context.item.proc[tickcore_item_overrides_proc].if_null[null]>
+            - if <[item]> != null:
+                - determine <context.item.proc[tickcore_item_overrides_proc]>
+        on block smelts item:
+        - if <script[tickcore_item_overrides_data].data_key[convert on craft]>:
+            - define item <context.result_item.proc[tickcore_item_overrides_proc].if_null[null]>
+            - if <[item]> != null:
+                - determine <context.result_item.proc[tickcore_item_overrides_proc]>
 
 tickcore_item_overrides_proc:
     type: procedure
@@ -55,7 +61,10 @@ tickcore_item_overrides_proc:
     definitions: item
     script:
     - if <[item].script.exists>:
-        - stop
+        - if <proc[tickcore_proc.script.items.get_all_ids]> contains <[item].script.name.if_null[]> && !<[item].proc[tickcore_proc.script.items.is_tickitem]>:
+            - define new_item <proc[tickcore_proc.script.items.generate].context[<[item].script.name>]>
+        - else:
+            - stop
     - if <[item]> matches air:
         - stop
     - if <[item].raw_nbt.keys.contains_any[<script[tickcore_item_overrides_data].data_key[nbt exceptions]>]>:
@@ -69,7 +78,7 @@ tickcore_item_overrides_proc:
     - else if vanilla_override_<[item].material.name> in <proc[tickcore_proc.script.items.get_all_ids]>:
         - define new_item <proc[tickcore_proc.script.items.generate].context[vanilla_override_<[item].material.name>]>
     # 4. If all else fails, stops the conversion.
-    - else:
+    - else if !<[new_item].exists>:
         - stop
     # Logic to keep the old item's property based on the configuration.
     - if <script[tickcore_item_overrides_data].data_key[keep enchants].if_null[false]>:

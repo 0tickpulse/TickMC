@@ -51,6 +51,11 @@ tickutil_progress_bar_data:
                 to: 20
                 value: <player.food_level>
                 length: 10
+            energy:
+                from: 0
+                to: <player.proc[tickcore_proc.script.entities.get_stat].context[max_energy]>
+                value: <player.proc[energy]>
+                length: 10
 
 tickutil_progress_bar_update_world:
     type: world

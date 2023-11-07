@@ -561,6 +561,74 @@ tick_essentials_staff_unban_command:
         - stop
     - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Unbanned <[arg.player].name><[arg.ip].if_true['s address].if_false[]>!"
 # @ WORLD COMMANDS
+tick_essentials_world_warp_command:
+    type: command
+    name: warp
+    enabled: <script[tick_essentials_data].parsed_key[commands.world.warp.enabled].if_null[true]>
+    debug: false
+    description: Create, delete, or teleport to a warp.
+    usage: <script[tick_essentials_world_warp_command].proc[command_manager_generate_usage]>
+    data:
+        enable_subcommands: true
+        subcommand_permissions:
+            create:
+            - tick_essentials.command.world.warp.create
+            delete:
+            - tick_essentials.command.world.warp.delete
+            player:
+            - tick_essentials.command.world.warp.other
+        subcommands:
+            goto:
+                warp:
+                    type: linear
+                    accepted: <server.flag[tick_essentials.warps].keys.parse[unescaped].if_null[<list>]>
+                    tab completes: <server.flag[tick_essentials.warps].keys.parse[unescaped].if_null[<list>]>
+                    required: true
+            create:
+                warp:
+                    type: linear
+                    required: true
+                override: template=boolean_default_false
+            delete:
+                warp:
+                    type: linear
+                    accepted: <server.flag[tick_essentials.warps].keys.parse[unescaped].if_null[<list>]>
+                    tab completes: <server.flag[tick_essentials.warps].keys.parse[unescaped].if_null[<list>]>
+                    required: true
+            player:
+                player: template=player
+                warp:
+                    type: linear
+                    accepted: <server.flag[tick_essentials.warps].keys.parse[unescaped].if_null[<list>]>
+                    tab completes: <server.flag[tick_essentials.warps].keys.parse[unescaped].if_null[<list>]>
+                    required: true
+    tab complete:
+    - inject command_manager.tab_complete_engine
+    script:
+    - inject command_manager.args_manager
+    - choose <[subcommand]>:
+        - case goto:
+            - if !<player.exists>:
+                - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You must be a player to use this command!"
+                - stop
+            - teleport <player> <server.flag[tick_essentials.warps.<[arg.warp].escaped>]>
+            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Teleported to warp '<[arg.warp]>'!"
+        - case create:
+            - if <server.flag[tick_essentials.warps.<[arg.warp].escaped>].exists> && !<[arg.override]>:
+                - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>A warp with that name already exists! To override, use the -override flag."
+                - stop
+            - if !<player.exists>:
+                - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[error]>You must be a player to use this command!"
+                - stop
+            - flag server tick_essentials.warps.<[arg.warp].escaped>:<player.location>
+            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Created warp '<[arg.warp]>'!"
+        - case delete:
+            - flag server tick_essentials.warps.<[arg.warp].escaped>:!
+            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Deleted warp '<[arg.warp]>'!"
+        - case player:
+            - teleport <[arg.player]> <server.flag[tick_essentials.warps.<[arg.warp].escaped>]>
+            - narrate "<script[tick_essentials_data].parsed_key[lang.prefix]> <&[success]>Teleported <[arg.player].name> to warp '<[arg.warp]>'!"
+
 tick_essentials_world_speed_command:
     type: command
     name: speed

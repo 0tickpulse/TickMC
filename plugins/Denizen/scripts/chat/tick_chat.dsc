@@ -34,7 +34,7 @@ tick_chat_world:
         - define ping <script[tick_chat_configuration].data_key[ping]>
         - define message <context.message>
         - inject tick_chat_format_chat_injection
-        - customevent id:tick_chat_player_sends_message context:[message=<[message]>;formatted_message=<[formatted_message]>] save:event
+        - customevent id:tick_chat_player_sends_message context:<map.with[message].as[<[message]>].with[formatted_message].as[<[formatted_message]>]> save:event
         - if <entry[event].was_cancelled>:
             - stop
         - announce <[formatted_message]>
